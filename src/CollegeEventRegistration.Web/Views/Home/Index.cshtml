@@ -1,0 +1,121 @@
+﻿@{
+    ViewData["Title"] = "College Event & Workshop Registration System";
+}
+
+<div class="hero-container mb-5">
+    <div class="hero-glow"></div>
+    <div class="row align-items-center position-relative">
+        <div class="col-lg-8">
+            <span class="badge badge-role badge-role-coordinator mb-3">Enterprise Campus Platform</span>
+            <h1 class="hero-title mb-3">
+                College Event &amp; Workshop <span class="hero-gradient-text">Registration System</span>
+            </h1>
+            <p class="lead text-muted mb-4" style="max-width: 650px;">
+                A centralized, high-performance web platform built on modern <strong>.NET 10 LTS</strong> and <strong>SQL Server 2025 Express</strong>. Designed for seamless event registration, real-time QR attendance check-in, dynamic certificate issuance, and comprehensive administrative governance.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                <a href="#roles" class="btn btn-3d-primary">
+                    <span>Explore Roles &amp; Workflows</span>
+                </a>
+                <a href="#tech-stack" class="btn btn-3d-outline">
+                    <span>Architecture Foundation</span>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-4 text-center mt-4 mt-lg-0">
+            <div class="card-3d p-4 text-start bg-white">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="fw-bold text-dark">System Status</span>
+                    <span class="badge badge-role badge-role-student">Online &amp; Active</span>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted d-block">Runtime Framework</small>
+                    <strong class="text-primary">.NET 10.0 LTS (x64)</strong>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted d-block">Relational Database</small>
+                    <strong class="text-dark">SQL Server 2025 Express</strong>
+                </div>
+                <div>
+                    <small class="text-muted d-block">Architecture Pattern</small>
+                    <strong class="text-success">Clean Architecture</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="roles" class="mb-5">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">Role-Based Access Control (RBAC)</h2>
+        <p class="text-muted">Four dedicated roles governing the entire event lifecycle</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card-3d h-100 p-4">
+                <span class="badge badge-role badge-role-superadmin mb-3">Role 1</span>
+                <h5 class="fw-bold text-dark">Super Admin</h5>
+                <p class="text-muted small mb-3">
+                    Global governance, department management, system security, role delegation, and immutable audit logs.
+                </p>
+                <div class="mt-auto">
+                    <span class="small fw-semibold text-danger">&bull; Full System Control</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card-3d h-100 p-4">
+                <span class="badge badge-role badge-role-admin mb-3">Role 2</span>
+                <h5 class="fw-bold text-dark">Admin</h5>
+                <p class="text-muted small mb-3">
+                    Event review &amp; approval, category governance, coordinator assignment, and institutional reporting.
+                </p>
+                <div class="mt-auto">
+                    <span class="small fw-semibold text-warning">&bull; Faculty &amp; Dept Leads</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card-3d h-100 p-4">
+                <span class="badge badge-role badge-role-coordinator mb-3">Role 3</span>
+                <h5 class="fw-bold text-dark">Coordinator</h5>
+                <p class="text-muted small mb-3">
+                    Assigned event management, live in-browser QR attendance scanner, roster exports, and attendee announcements.
+                </p>
+                <div class="mt-auto">
+                    <span class="small fw-semibold text-primary">&bull; Live QR Check-in</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card-3d h-100 p-4">
+                <span class="badge badge-role badge-role-student mb-3">Role 4</span>
+                <h5 class="fw-bold text-dark">Student</h5>
+                <p class="text-muted small mb-3">
+                    Event discovery, 1-click registration, admission pass with secure QR badge, and verifiable certificate download.
+                </p>
+                <div class="mt-auto">
+                    <span class="small fw-semibold text-success">&bull; Attendee Self-Service</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="tech-stack" class="card-3d p-4 mb-4">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h4 class="fw-bold mb-2">Phase 1 Foundation Setup Complete</h4>
+            <p class="text-muted mb-0 small">
+                Solution structure initialized with decoupled projects: <code>Core</code> (Domain), <code>Infrastructure</code> (EF Core 10 &amp; SQL Server), and <code>Web</code> (ASP.NET Core 10 MVC). Configured with dependency injection and ready for Phase 2 data seeding and authentication.
+            </p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <span class="badge bg-light text-dark border p-2 px-3 fw-bold">Clean Architecture</span>
+        </div>
+    </div>
+</div>

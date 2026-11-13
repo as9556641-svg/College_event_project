@@ -1,0 +1,55 @@
+## .NET Core & Visual Studio Ignore Rules
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.ide/
+*.swp
+*.ipch
+
+# Visual Studio Code / Antigravity IDE
+.vscode/
+.antigravity/
+.vs/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# ASP.NET Core
+appsettings.Production.json
+appsettings.*.local.json
+*.pfx
+*.publishsettings
+
+# Static uploads
+src/CollegeEventRegistration.Web/wwwroot/uploads/*
+!src/CollegeEventRegistration.Web/wwwroot/uploads/.gitkeep
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini

@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CollegeEventRegistration.Core/CollegeEventRegistration.Core.csproj" />
+    <Project Path="src/CollegeEventRegistration.Infrastructure/CollegeEventRegistration.Infrastructure.csproj" />
+    <Project Path="src/CollegeEventRegistration.Web/CollegeEventRegistration.Web.csproj" />
+  </Folder>
+</Solution>
