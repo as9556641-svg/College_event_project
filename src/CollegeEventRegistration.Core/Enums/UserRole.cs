@@ -10,3 +10,4 @@ public enum UserRole
     Coordinator = 3,
     Student = 4
 }
+

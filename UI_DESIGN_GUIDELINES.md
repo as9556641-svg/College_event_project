@@ -67,3 +67,4 @@ All user interfaces across public views, student portals, coordinator workspaces
 3. **No Gratuitous Features:** **Do not invent 3D models or introduce irrelevant AR features** that increase page weight or impede the registration process.
 4. **Productivity Views:** For dashboards, administrative data tables, registration forms, and financial reports, use the clean 3D-inspired visual identity (shadows, cards, rounded corners, clean hierarchy) **without unnecessary 3D WebGL interactions**.
 5. **Performance & Speed:** Interfaces must load instantly and maintain 60 FPS performance on standard hardware and mobile devices.
+

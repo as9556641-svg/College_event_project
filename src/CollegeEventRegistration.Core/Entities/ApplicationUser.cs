@@ -17,5 +17,19 @@ public class ApplicationUser : IdentityUser
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public bool IsActive { get; set; } = true;
 
+    /// <summary>
+    /// Prevents normal admin workflows from accidentally deleting, demoting, or locking out the root Super Admin.
+    /// </summary>
+    public bool IsSuperAdminProtected { get; set; } = false;
+
     public string FullName => $"{FirstName} {LastName}".Trim();
+
+    // Navigation collections
+    public ICollection<Event> CreatedEvents { get; set; } = new List<Event>();
+    public ICollection<EventCoordinator> CoordinatedEvents { get; set; } = new List<EventCoordinator>();
+    public ICollection<EventRegistration> Registrations { get; set; } = new List<EventRegistration>();
+    public ICollection<Attendance> VerifiedAttendances { get; set; } = new List<Attendance>();
+    public ICollection<EventFeedback> SubmittedFeedbacks { get; set; } = new List<EventFeedback>();
+    public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+    public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 }

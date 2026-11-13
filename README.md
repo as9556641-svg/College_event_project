@@ -91,3 +91,4 @@ The application will launch on `https://localhost:5001` or `http://localhost:500
 
 ## 5. UI Design System
 Please refer to [UI_DESIGN_GUIDELINES.md](file:///E:/CollegeEventRegistration/UI_DESIGN_GUIDELINES.md) for complete visual tokens, 3D interaction constraints, elevation hierarchies, and WCAG AA accessibility standards.
+
