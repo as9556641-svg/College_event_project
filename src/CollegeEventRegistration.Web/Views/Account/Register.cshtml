@@ -1,0 +1,158 @@
+@model CollegeEventRegistration.Web.Models.Account.RegisterViewModel
+@{
+    ViewData["Title"] = "Student Account Registration";
+    var departments = ViewData["Departments"] as IEnumerable<CollegeEventRegistration.Core.Entities.Department> ?? Enumerable.Empty<CollegeEventRegistration.Core.Entities.Department>();
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+}
+
+<div class="auth-page-container">
+    <div class="auth-card-shell" style="max-width: 900px;">
+        <div class="p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div class="auth-logo-badge justify-content-center">
+                    <div class="auth-logo-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                            <polyline points="2 17 12 22 22 17"></polyline>
+                            <polyline points="2 12 12 17 22 12"></polyline>
+                        </svg>
+                    </div>
+                    <span>CAMPUS EVENT HUB</span>
+                </div>
+                <h2 class="auth-form-title">Create Student Profile</h2>
+                <p class="auth-form-subtitle">Register to discover workshops, enroll in hackathons, and receive verified certificates</p>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+            {
+                <div class="auth-alert-summary" role="alert">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 mt-0.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <div>
+                        <div asp-validation-summary="ModelOnly"></div>
+                    </div>
+                </div>
+            }
+
+            <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="auth-form" novalidate>
+                @Html.AntiForgeryToken()
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="auth-field-wrapper">
+                            <input asp-for="FirstName" class="auth-floating-input" id="regFirstName" placeholder=" " required />
+                            <span class="auth-field-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            </span>
+                            <label asp-for="FirstName" class="auth-floating-label" for="regFirstName">First Name</label>
+                            <span asp-validation-for="FirstName" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="auth-field-wrapper">
+                            <input asp-for="LastName" class="auth-floating-input" id="regLastName" placeholder=" " required />
+                            <span class="auth-field-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            </span>
+                            <label asp-for="LastName" class="auth-floating-label" for="regLastName">Last Name</label>
+                            <span asp-validation-for="LastName" class="field-validation-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="auth-field-wrapper">
+                            <input asp-for="Email" class="auth-floating-input" id="regEmail" placeholder=" " autocomplete="email" required />
+                            <span class="auth-field-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            </span>
+                            <label asp-for="Email" class="auth-floating-label" for="regEmail">College / Personal Email Address</label>
+                            <span asp-validation-for="Email" class="field-validation-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="auth-field-wrapper">
+                            <input asp-for="Password" type="password" class="auth-floating-input" id="regPassword" placeholder=" " required />
+                            <span class="auth-field-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            </span>
+                            <label asp-for="Password" class="auth-floating-label" for="regPassword">Password (Min. 8 characters)</label>
+                            <button type="button" class="auth-password-toggle" data-target="regPassword" aria-label="Show password">
+                                <svg class="icon-eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                <svg class="icon-eye-closed" style="display: none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                            </button>
+                            <span asp-validation-for="Password" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="auth-field-wrapper">
+                            <input asp-for="ConfirmPassword" type="password" class="auth-floating-input" id="regConfirmPassword" placeholder=" " required />
+                            <span class="auth-field-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            </span>
+                            <label asp-for="ConfirmPassword" class="auth-floating-label" for="regConfirmPassword">Confirm Password</label>
+                            <button type="button" class="auth-password-toggle" data-target="regConfirmPassword" aria-label="Show password">
+                                <svg class="icon-eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                <svg class="icon-eye-closed" style="display: none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                            </button>
+                            <span asp-validation-for="ConfirmPassword" class="field-validation-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="auth-field-wrapper">
+                            <select asp-for="Department" class="auth-floating-input" id="regDepartment" required>
+                                <option value="" disabled selected>-- Select Academic Department --</option>
+                                @foreach (var dept in departments)
+                                {
+                                    <option value="@dept.Name">@dept.Name (@dept.Code)</option>
+                                }
+                            </select>
+                            <span class="auth-field-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                            </span>
+                            <span asp-validation-for="Department" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="auth-field-wrapper">
+                            <input asp-for="RollNumber" class="auth-floating-input" id="regRollNumber" placeholder=" " />
+                            <span class="auth-field-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M7 15h0M2 9h20"></path></svg>
+                            </span>
+                            <label asp-for="RollNumber" class="auth-floating-label" for="regRollNumber">Student Roll / ID Number</label>
+                            <span asp-validation-for="RollNumber" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn-auth-primary" id="submitRegisterBtn">
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                        <span class="btn-text">Complete Student Registration</span>
+                    </button>
+                </div>
+
+                <div class="text-center mt-3">
+                    <p class="text-muted small mb-0">
+                        Already have an account? 
+                        <a asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" class="auth-link">
+                            Sign in here
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+}

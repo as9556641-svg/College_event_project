@@ -1,0 +1,69 @@
+@using Microsoft.AspNetCore.Identity
+@using CollegeEventRegistration.Core.Entities
+@using CollegeEventRegistration.Core.Enums
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav align-items-center gap-2">
+@if (SignInManager.IsSignedIn(User))
+{
+    var currentUser = await UserManager.GetUserAsync(User);
+    var roles = currentUser != null ? await UserManager.GetRolesAsync(currentUser) : new List<string>();
+    var primaryRole = roles.FirstOrDefault() ?? "Student";
+
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 py-1 px-2 rounded" 
+           href="#" id="userMenuDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle fw-bold" 
+                  style="width: 28px; height: 28px; font-size: 0.78rem;">
+                @(currentUser?.FirstName?.FirstOrDefault() ?? 'U')
+            </span>
+            <span class="fw-semibold text-dark small d-none d-sm-inline">
+                @(currentUser?.FullName ?? User.Identity?.Name)
+            </span>
+            <span class="badge badge-role @(primaryRole == "SuperAdmin" || primaryRole == "Admin" ? "badge-role-admin" : primaryRole == "Coordinator" ? "badge-role-coordinator" : "badge-role-student")" 
+                  style="font-size: 0.68rem;">
+                @primaryRole
+            </span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-1" aria-labelledby="userMenuDropdown">
+            @if (User.IsInRole(nameof(UserRole.SuperAdmin)))
+            {
+                <li><a class="dropdown-item py-2" asp-area="SuperAdmin" asp-controller="Dashboard" asp-action="Index">System Governance</a></li>
+            }
+            else if (User.IsInRole(nameof(UserRole.Admin)))
+            {
+                <li><a class="dropdown-item py-2" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin Portal</a></li>
+            }
+            else if (User.IsInRole(nameof(UserRole.Coordinator)))
+            {
+                <li><a class="dropdown-item py-2" asp-area="Coordinator" asp-controller="Dashboard" asp-action="Index">Coordinator Workspace</a></li>
+            }
+            else
+            {
+                <li><a class="dropdown-item py-2" asp-area="Student" asp-controller="Dashboard" asp-action="Index">Student Portal</a></li>
+            }
+            <li><hr class="dropdown-divider my-1"></li>
+            <li>
+                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="dropdown-item py-2 text-danger">Sign Out</button>
+                </form>
+            </li>
+        </ul>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="btn btn-outline-secondary btn-sm px-3" asp-area="" asp-controller="Account" asp-action="Register">
+            Register
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="btn btn-3d-primary btn-sm px-3" asp-area="" asp-controller="Account" asp-action="Login">
+            Sign In
+        </a>
+    </li>
+}
+</ul>

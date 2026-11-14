@@ -9,3 +9,4 @@ public interface ISuperAdminProtectionService
     Task ValidateUserDeletionAsync(string userId);
     Task ValidateRoleRemovalAsync(string userId, string roleName);
 }
+

@@ -8,3 +8,4 @@ public class SuperAdminProtectionException : InvalidOperationException
     public SuperAdminProtectionException(string message) : base(message) { }
     public SuperAdminProtectionException(string message, Exception innerException) : base(message, innerException) { }
 }
+

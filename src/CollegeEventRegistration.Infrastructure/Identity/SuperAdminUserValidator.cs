@@ -42,3 +42,4 @@ public class SuperAdminUserValidator : IUserValidator<ApplicationUser>
         return Task.FromResult(IdentityResult.Success);
     }
 }
+

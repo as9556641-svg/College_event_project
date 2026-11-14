@@ -1,0 +1,31 @@
+@model CollegeEventRegistration.Core.Entities.ApplicationUser
+@{
+    ViewData["Title"] = "Coordinator Workspace";
+}
+
+<div class="row align-items-center mb-4">
+    <div class="col-md-8">
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-role badge-role-coordinator">Coordinator Workspace</span>
+            <span class="text-muted small">Live Attendance & Rosters</span>
+        </div>
+        <h2 class="fw-bold mb-0">Welcome, @(Model?.FullName ?? "Coordinator")</h2>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-6">
+        <div class="card card-3d p-4 h-100">
+            <span class="text-muted small text-uppercase fw-semibold">Assigned Events</span>
+            <h3 class="fw-bold my-2 text-primary">@ViewBag.CoordinatedCount</h3>
+            <span class="text-muted small">Events under your coordination</span>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card card-3d p-4 h-100">
+            <span class="text-muted small text-uppercase fw-semibold">Live Check-in Scanner</span>
+            <p class="text-muted small my-2">QR Code scanner module for validating attendees during check-in.</p>
+            <span class="badge bg-secondary-subtle text-secondary w-auto align-self-start">Scanner ready</span>
+        </div>
+    </div>
+</div>

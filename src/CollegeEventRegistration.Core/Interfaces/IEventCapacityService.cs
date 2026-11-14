@@ -27,3 +27,4 @@ public interface IEventCapacityService
         string cancellationReason,
         CancellationToken cancellationToken = default);
 }
+

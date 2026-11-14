@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Access Restricted";
+}
+
+<div class="d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 220px);">
+    <div class="card card-3d p-4 p-md-5 text-center" style="max-width: 540px; border-radius: 1.5rem;">
+        <div class="d-inline-flex align-items-center justify-content-center mb-3 mx-auto" 
+             style="width: 72px; height: 72px; border-radius: 50%; background: #FEF2F2; color: #DC2626;">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+        </div>
+
+        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1 rounded-pill mb-2 align-self-center">
+            Authorization Boundary Enforced
+        </span>
+
+        <h3 class="fw-bold mb-2">Access Denied</h3>
+        <p class="text-muted small mb-4">
+            You do not possess the required institutional role credentials to access this protected workspace. 
+            If you believe this is an error, please contact your department coordinator or administrator.
+        </p>
+
+        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                Return to Campus Catalog
+            </a>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-3d-primary">
+                Switch Account
+            </a>
+        </div>
+    </div>
+</div>

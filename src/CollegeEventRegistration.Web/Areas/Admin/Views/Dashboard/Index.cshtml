@@ -1,0 +1,38 @@
+@model CollegeEventRegistration.Core.Entities.ApplicationUser
+@{
+    ViewData["Title"] = "Institutional Admin Dashboard";
+}
+
+<div class="row align-items-center mb-4">
+    <div class="col-md-8">
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-role badge-role-admin">Admin Portal</span>
+            <span class="text-muted small">Campus Event Management</span>
+        </div>
+        <h2 class="fw-bold mb-0">Welcome, @(Model?.FullName ?? "Administrator")</h2>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card card-3d p-4 h-100">
+            <span class="text-muted small text-uppercase fw-semibold">Campus Events</span>
+            <h3 class="fw-bold my-2 text-primary">@ViewBag.TotalEvents</h3>
+            <span class="text-muted small">Workshops, symposia & hackathons</span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-3d p-4 h-100">
+            <span class="text-muted small text-uppercase fw-semibold">Pending Approval</span>
+            <h3 class="fw-bold my-2 text-warning">@ViewBag.PendingApproval</h3>
+            <span class="text-muted small">Awaiting institutional review</span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-3d p-4 h-100">
+            <span class="text-muted small text-uppercase fw-semibold">Registrations</span>
+            <h3 class="fw-bold my-2 text-success">@ViewBag.TotalRegistrations</h3>
+            <span class="text-muted small">Total attendee registrations</span>
+        </div>
+    </div>
+</div>
