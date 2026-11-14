@@ -1,26 +1,35 @@
-@model CollegeEventRegistration.Core.Entities.ApplicationUser
+@model CollegeEventRegistration.Web.Areas.Coordinator.Models.CoordinatorDashboardViewModel
 @{
     ViewData["Title"] = "Coordinator Workspace";
 }
 
+<!-- Welcome & Operations Header -->
 <div class="row align-items-center mb-4">
-    <div class="col-md-8">
+    <div class="col-lg-8">
         <div class="d-flex align-items-center gap-2 mb-1">
             <span class="badge badge-role badge-role-coordinator">Coordinator Workspace</span>
-            <span class="text-muted small">Live Attendance &amp; Rosters</span>
+            <span class="text-muted small">Event Operations, Rosters &amp; Live Check-In</span>
         </div>
-        <h2 class="fw-bold mb-0" style="color: #0F172A; letter-spacing: -0.02em;">Welcome, @(Model?.FullName ?? "Coordinator")</h2>
+        <h2 class="fw-bold mb-1" style="color: #0F172A; letter-spacing: -0.02em;">
+            Welcome, @(Model?.CurrentUser?.FullName ?? "Coordinator")
+        </h2>
+        <p class="text-muted small mb-0">
+            Assigned workshop management, participant check-in validation, and session telemetry.
+        </p>
     </div>
-    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+    <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
         <div class="d-inline-flex align-items-center gap-2 px-3 py-2 bg-white rounded-pill border shadow-sm">
             <span class="dash-pulse-dot"></span>
             <span class="fw-semibold text-primary small">Scanner Ready</span>
+            <span class="text-muted small">&bull; QR Check-In</span>
         </div>
     </div>
 </div>
 
-<div class="row g-4 mb-4">
-    <div class="col-md-6">
+<!-- Primary Metric Cards Grid (6 Cards) -->
+<div class="row g-3 g-xl-4 mb-4">
+    <!-- Assigned Events -->
+    <div class="col-sm-6 col-xl-4">
         <div class="dash-metric-card">
             <div>
                 <div class="dash-metric-header">
@@ -34,29 +43,340 @@
                         </svg>
                     </div>
                 </div>
-                <div class="dash-metric-value text-primary">@ViewBag.CoordinatedCount</div>
+                <div class="dash-metric-value text-primary">@Model?.AssignedEventsCount</div>
             </div>
             <p class="dash-metric-subtext">Events under your direct coordination</p>
         </div>
     </div>
 
-    <div class="col-md-6">
+    <!-- Upcoming Events -->
+    <div class="col-sm-6 col-xl-4">
         <div class="dash-metric-card">
             <div>
                 <div class="dash-metric-header">
-                    <span class="dash-metric-label">Live Check-in Scanner</span>
+                    <span class="dash-metric-label">Upcoming Events</span>
+                    <div class="dash-metric-icon-wrap icon-wrap-amber">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                </div>
+                <div class="dash-metric-value text-warning">@Model?.UpcomingEventsCount</div>
+            </div>
+            <p class="dash-metric-subtext">Scheduled workshops &amp; seminars</p>
+        </div>
+    </div>
+
+    <!-- Ongoing Events -->
+    <div class="col-sm-6 col-xl-4">
+        <div class="dash-metric-card">
+            <div>
+                <div class="dash-metric-header">
+                    <span class="dash-metric-label">Ongoing Events</span>
+                    <div class="dash-metric-icon-wrap icon-wrap-purple">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg>
+                    </div>
+                </div>
+                <div class="dash-metric-value" style="color: #7C3AED;">@Model?.OngoingEventsCount</div>
+            </div>
+            <p class="dash-metric-subtext">Active sessions currently in progress</p>
+        </div>
+    </div>
+
+    <!-- Completed Events -->
+    <div class="col-sm-6 col-xl-4">
+        <div class="dash-metric-card">
+            <div>
+                <div class="dash-metric-header">
+                    <span class="dash-metric-label">Completed Events</span>
                     <div class="dash-metric-icon-wrap icon-wrap-green">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
+                </div>
+                <div class="dash-metric-value" style="color: #059669;">@Model?.CompletedEventsCount</div>
+            </div>
+            <p class="dash-metric-subtext">Past events with archived rosters</p>
+        </div>
+    </div>
+
+    <!-- Total Participants -->
+    <div class="col-sm-6 col-xl-4">
+        <div class="dash-metric-card">
+            <div>
+                <div class="dash-metric-header">
+                    <span class="dash-metric-label">Total Participants</span>
+                    <div class="dash-metric-icon-wrap icon-wrap-blue">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="dash-metric-value text-primary">@Model?.TotalParticipantsCount</div>
+            </div>
+            <p class="dash-metric-subtext">Registered in your assigned events</p>
+        </div>
+    </div>
+
+    <!-- Attendance Verified -->
+    <div class="col-sm-6 col-xl-4">
+        <div class="dash-metric-card">
+            <div>
+                <div class="dash-metric-header">
+                    <span class="dash-metric-label">Attendance Verified</span>
+                    <div class="dash-metric-icon-wrap icon-wrap-green">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11l3 3L22 4"></path>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="dash-metric-value" style="color: #047857;">@Model?.CheckedInCount</div>
+            </div>
+            <p class="dash-metric-subtext">Verified admissions via QR scan</p>
+        </div>
+    </div>
+</div>
+
+<!-- Secondary Activity & Management Section -->
+<div class="row g-3 g-xl-4 mb-4">
+    <!-- Left Column: Assigned Events & Registration Activity -->
+    <div class="col-lg-8">
+        <div class="d-flex flex-column gap-4">
+            <!-- My Assigned Events Panel -->
+            <div class="dash-panel">
+                <div class="dash-panel-header">
+                    <h5 class="dash-panel-title d-flex align-items-center gap-2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>My Assigned Events</span>
+                    </h5>
+                    <span class="badge badge-role badge-role-coordinator">Assigned Only</span>
+                </div>
+                <div class="dash-panel-body p-0">
+                    @if (Model?.AssignedEvents != null && Model.AssignedEvents.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th>Event Title</th>
+                                        <th>Category</th>
+                                        <th>Mode</th>
+                                        <th>Start Date</th>
+                                        <th>Capacity</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var ev in Model.AssignedEvents)
+                                    {
+                                        <tr>
+                                            <td class="fw-semibold text-dark">@ev.Title</td>
+                                            <td class="small text-muted">@ev.EventCategory?.Name</td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border">
+                                                    @ev.EventMode
+                                                </span>
+                                            </td>
+                                            <td class="small text-muted text-nowrap">@ev.EventStartDate.ToString("MMM dd, yyyy")</td>
+                                            <td class="small">@ev.RegisteredCount / @ev.TotalCapacity</td>
+                                            <td>
+                                                <span class="badge-status badge-status-approved">
+                                                    @ev.Status
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="dash-empty-state">
+                            <div class="dash-empty-state-icon">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                            </div>
+                            <h6 class="dash-empty-state-title">No Events Assigned Yet</h6>
+                            <p class="dash-empty-state-desc">
+                                You have not been assigned as a coordinator to any campus events yet. When an institutional administrator assigns you to an event, it will appear here.
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Recent Registration Feed Panel -->
+            <div class="dash-panel">
+                <div class="dash-panel-header">
+                    <h5 class="dash-panel-title d-flex align-items-center gap-2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                        </svg>
+                        <span>Recent Registration Activity</span>
+                    </h5>
+                    <span class="badge bg-light text-muted border">Live Feed</span>
+                </div>
+                <div class="dash-panel-body p-0">
+                    @if (Model?.RecentRegistrations != null && Model.RecentRegistrations.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th>Registration #</th>
+                                        <th>Attendee</th>
+                                        <th>Event</th>
+                                        <th>Registered At</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var reg in Model.RecentRegistrations)
+                                    {
+                                        <tr>
+                                            <td class="font-monospace small text-primary">@reg.RegistrationNumber</td>
+                                            <td class="fw-semibold text-dark">@(reg.User?.FullName ?? "Student")</td>
+                                            <td class="small text-muted">@reg.Event?.Title</td>
+                                            <td class="small text-muted text-nowrap">@reg.RegisteredAt.ToString("MMM dd, HH:mm")</td>
+                                            <td>
+                                                <span class="badge-status badge-status-confirmed">
+                                                    @reg.Status
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="dash-empty-state" style="min-height: 160px; padding: 1.5rem 1rem;">
+                            <div class="dash-empty-state-icon" style="width: 38px; height: 38px; margin-bottom: 0.5rem;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                </svg>
+                            </div>
+                            <h6 class="dash-empty-state-title" style="font-size: 0.88rem;">No Registrations Recorded</h6>
+                            <p class="dash-empty-state-desc" style="font-size: 0.78rem;">
+                                Student enrollments for your assigned events will stream here automatically.
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Upcoming Sessions & QR Scanner Readiness -->
+    <div class="col-lg-4">
+        <div class="d-flex flex-column gap-3 h-100">
+            <!-- Upcoming Sessions Panel -->
+            <div class="dash-panel">
+                <div class="dash-panel-header">
+                    <h5 class="dash-panel-title d-flex align-items-center gap-2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span>Upcoming Sessions</span>
+                    </h5>
+                    <span class="badge bg-light text-muted border">Agenda</span>
+                </div>
+                <div class="dash-panel-body p-3">
+                    @if (Model?.UpcomingSessions != null && Model.UpcomingSessions.Any())
+                    {
+                        <div class="d-flex flex-column gap-2">
+                            @foreach (var session in Model.UpcomingSessions)
+                            {
+                                <div class="dash-list-item">
+                                    <div class="overflow-hidden me-2">
+                                        <div class="fw-semibold small text-truncate text-dark">@session.SessionTitle</div>
+                                        <div class="text-muted" style="font-size: 0.72rem;">@session.Event?.Title &bull; @session.VenueOrRoom</div>
+                                    </div>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 text-nowrap" style="font-size: 0.72rem;">
+                                        @session.SessionDate.ToString("MMM dd")
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="dash-empty-state" style="min-height: 160px; padding: 1.5rem 1rem;">
+                            <div class="dash-empty-state-icon" style="width: 38px; height: 38px; margin-bottom: 0.5rem;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                            </div>
+                            <h6 class="dash-empty-state-title" style="font-size: 0.88rem;">No Upcoming Sessions</h6>
+                            <p class="dash-empty-state-desc" style="font-size: 0.78rem;">
+                                Session timelines and speaker schedules will appear here once events are published.
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Operations & Live Check-In Scanner Panel -->
+            <div class="dash-panel flex-grow-1">
+                <div class="dash-panel-header">
+                    <h5 class="dash-panel-title d-flex align-items-center gap-2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success">
                             <rect x="3" y="3" width="7" height="7"></rect>
                             <rect x="14" y="3" width="7" height="7"></rect>
                             <rect x="14" y="14" width="7" height="7"></rect>
                             <rect x="3" y="14" width="7" height="7"></rect>
                         </svg>
+                        <span>Admission Scanner</span>
+                    </h5>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">Ready</span>
+                </div>
+                <div class="dash-panel-body p-3">
+                    <div class="p-3 rounded bg-light border text-center mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle p-2 shadow-sm mb-2 text-success">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="14" width="7" height="7"></rect>
+                                <rect x="3" y="14" width="7" height="7"></rect>
+                            </svg>
+                        </div>
+                        <div class="fw-semibold small text-dark">QR Code Validation Engine</div>
+                        <div class="text-muted" style="font-size: 0.76rem;">Camera scanner ready for attendee check-in</div>
+                    </div>
+                    <div class="small text-muted mb-2">
+                        <strong>Scanner Guidelines:</strong>
+                        <ul class="ps-3 mb-0 mt-1" style="font-size: 0.78rem;">
+                            <li>Scan attendee digital pass QR codes at venue entry.</li>
+                            <li>Instant duplicate-admission prevention.</li>
+                            <li>Offline cache syncs upon reconnection.</li>
+                        </ul>
                     </div>
                 </div>
-                <div class="dash-metric-value" style="font-size: 1.5rem; color: #047857;">Ready</div>
             </div>
-            <p class="dash-metric-subtext">QR code scanner module for validating attendees during check-in</p>
         </div>
     </div>
 </div>

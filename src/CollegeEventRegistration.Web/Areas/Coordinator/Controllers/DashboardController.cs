@@ -1,6 +1,7 @@
 using CollegeEventRegistration.Core.Entities;
 using CollegeEventRegistration.Core.Enums;
 using CollegeEventRegistration.Infrastructure.Data;
+using CollegeEventRegistration.Web.Areas.Coordinator.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -24,16 +25,57 @@ public class DashboardController : Controller
     public async Task<IActionResult> Index()
     {
         var currentUser = await _userManager.GetUserAsync(User);
-        if (currentUser == null) return Challenge();
+        if (currentUser == null)
+        {
+            return Challenge();
+        }
 
-        var coordinatedEvents = await _context.EventCoordinators
+        // Query assigned events for the current coordinator ONLY
+        var assignedEventIds = await _context.EventCoordinators
             .Where(ec => ec.UserId == currentUser.Id)
-            .Include(ec => ec.Event)
-            .Select(ec => ec.Event)
+            .Select(ec => ec.EventId)
             .ToListAsync();
 
-        ViewBag.CoordinatedCount = coordinatedEvents.Count;
-        return View(currentUser);
+        var viewModel = new CoordinatorDashboardViewModel
+        {
+            CurrentUser = currentUser,
+            AssignedEventsCount = assignedEventIds.Count,
+            UpcomingEventsCount = await _context.Events
+                .CountAsync(e => assignedEventIds.Contains(e.Id) && !e.IsDeleted && e.EventStartDate > DateTime.UtcNow),
+            OngoingEventsCount = await _context.Events
+                .CountAsync(e => assignedEventIds.Contains(e.Id) && !e.IsDeleted && (e.Status == EventStatus.Ongoing || (e.EventStartDate <= DateTime.UtcNow && e.EventEndDate >= DateTime.UtcNow))),
+            CompletedEventsCount = await _context.Events
+                .CountAsync(e => assignedEventIds.Contains(e.Id) && !e.IsDeleted && (e.Status == EventStatus.Completed || e.EventEndDate < DateTime.UtcNow)),
+            TotalParticipantsCount = await _context.EventRegistrations
+                .CountAsync(r => assignedEventIds.Contains(r.EventId)),
+            CheckedInCount = await _context.Attendances
+                .CountAsync(a => assignedEventIds.Contains(a.Registration.EventId) && a.Status == AttendanceStatus.CheckedIn),
+            AssignedEvents = await _context.Events
+                .Include(e => e.Department)
+                .Include(e => e.EventCategory)
+                .Where(e => assignedEventIds.Contains(e.Id) && !e.IsDeleted)
+                .OrderByDescending(e => e.EventStartDate)
+                .Take(5)
+                .ToListAsync(),
+            UpcomingSessions = await _context.EventSessions
+                .Include(s => s.Event)
+                .Where(s => assignedEventIds.Contains(s.EventId) && s.SessionDate >= DateTime.UtcNow.Date)
+                .OrderBy(s => s.SessionDate)
+                .ThenBy(s => s.StartTime)
+                .Take(5)
+                .ToListAsync(),
+            RecentRegistrations = await _context.EventRegistrations
+                .Include(r => r.User)
+                .Include(r => r.Event)
+                .Where(r => assignedEventIds.Contains(r.EventId))
+                .OrderByDescending(r => r.RegisteredAt)
+                .Take(5)
+                .ToListAsync()
+        };
+
+        // Populate ViewBag for backwards compatibility
+        ViewBag.CoordinatedCount = viewModel.AssignedEventsCount;
+
+        return View(viewModel);
     }
 }
-

@@ -1,6 +1,7 @@
 using CollegeEventRegistration.Core.Entities;
 using CollegeEventRegistration.Core.Enums;
 using CollegeEventRegistration.Infrastructure.Data;
+using CollegeEventRegistration.Web.Areas.Student.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -24,18 +25,53 @@ public class DashboardController : Controller
     public async Task<IActionResult> Index()
     {
         var currentUser = await _userManager.GetUserAsync(User);
-        if (currentUser == null) return Challenge();
+        if (currentUser == null)
+        {
+            return Challenge();
+        }
 
-        var registrations = await _context.EventRegistrations
-            .Where(r => r.UserId == currentUser.Id)
-            .Include(r => r.Event)
-            .Include(r => r.Ticket)
-            .ToListAsync();
+        var viewModel = new StudentDashboardViewModel
+        {
+            CurrentUser = currentUser,
+            UpcomingRegisteredEventsCount = await _context.EventRegistrations
+                .CountAsync(r => r.UserId == currentUser.Id && !r.Event.IsDeleted && r.Status == RegistrationStatus.Confirmed && r.Event.EventStartDate > DateTime.UtcNow),
+            TotalRegistrationsCount = await _context.EventRegistrations
+                .CountAsync(r => r.UserId == currentUser.Id && !r.Event.IsDeleted),
+            CompletedEventsCount = await _context.EventRegistrations
+                .CountAsync(r => r.UserId == currentUser.Id && !r.Event.IsDeleted && (r.Event.Status == EventStatus.Completed || r.Event.EventEndDate < DateTime.UtcNow)),
+            AvailableCertificatesCount = await _context.Attendances
+                .CountAsync(a => a.Registration.UserId == currentUser.Id && a.Status == AttendanceStatus.CheckedIn && a.Registration.Event.CertificateTemplate != null),
+            MyRegistrations = await _context.EventRegistrations
+                .Include(r => r.Event)
+                    .ThenInclude(e => e.Department)
+                .Include(r => r.Event)
+                    .ThenInclude(e => e.EventCategory)
+                .Include(r => r.Ticket)
+                .Where(r => r.UserId == currentUser.Id && !r.Event.IsDeleted)
+                .OrderByDescending(r => r.RegisteredAt)
+                .Take(5)
+                .ToListAsync(),
+            DiscoverEvents = await _context.Events
+                .Include(e => e.Department)
+                .Include(e => e.EventCategory)
+                .Where(e => !e.IsDeleted && (e.Status == EventStatus.Published || e.Status == EventStatus.Approved) && e.EventStartDate >= DateTime.UtcNow)
+                .OrderBy(e => e.EventStartDate)
+                .Take(4)
+                .ToListAsync(),
+            AttendanceHistory = await _context.Attendances
+                .Include(a => a.Registration)
+                    .ThenInclude(r => r.Event)
+                .Where(a => a.Registration.UserId == currentUser.Id)
+                .OrderByDescending(a => a.CheckedInAt)
+                .Take(5)
+                .ToListAsync()
+        };
 
-        ViewBag.RegistrationsCount = registrations.Count;
-        ViewBag.ConfirmedCount = registrations.Count(r => r.Status == RegistrationStatus.Confirmed);
+        // Populate ViewBag for backwards compatibility
+        ViewBag.RegistrationsCount = viewModel.TotalRegistrationsCount;
+        ViewBag.ConfirmedCount = await _context.EventRegistrations
+            .CountAsync(r => r.UserId == currentUser.Id && r.Status == RegistrationStatus.Confirmed);
 
-        return View(currentUser);
+        return View(viewModel);
     }
 }
-

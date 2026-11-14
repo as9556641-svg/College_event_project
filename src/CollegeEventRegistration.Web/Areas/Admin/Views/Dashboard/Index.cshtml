@@ -1,30 +1,39 @@
-@model CollegeEventRegistration.Core.Entities.ApplicationUser
+@model CollegeEventRegistration.Web.Areas.Admin.Models.AdminDashboardViewModel
 @{
-    ViewData["Title"] = "Institutional Admin Dashboard";
+    ViewData["Title"] = "Campus Admin Dashboard";
 }
 
+<!-- Welcome & Administration Header -->
 <div class="row align-items-center mb-4">
-    <div class="col-md-8">
+    <div class="col-lg-8">
         <div class="d-flex align-items-center gap-2 mb-1">
             <span class="badge badge-role badge-role-admin">Admin Portal</span>
-            <span class="text-muted small">Campus Event Management</span>
+            <span class="text-muted small">Campus Governance &amp; Event Approvals</span>
         </div>
-        <h2 class="fw-bold mb-0" style="color: #0F172A; letter-spacing: -0.02em;">Welcome, @(Model?.FullName ?? "Administrator")</h2>
+        <h2 class="fw-bold mb-1" style="color: #0F172A; letter-spacing: -0.02em;">
+            Welcome, @(Model?.CurrentUser?.FullName ?? "Administrator")
+        </h2>
+        <p class="text-muted small mb-0">
+            Institutional oversight, event review workflows, and campus registration telemetry.
+        </p>
     </div>
-    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+    <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
         <div class="d-inline-flex align-items-center gap-2 px-3 py-2 bg-white rounded-pill border shadow-sm">
             <span class="dash-pulse-dot"></span>
             <span class="fw-semibold text-success small">Campus Active</span>
+            <span class="text-muted small">&bull; @(Model?.CurrentUser?.Department ?? "Academic Affairs")</span>
         </div>
     </div>
 </div>
 
-<div class="row g-4 mb-4">
-    <div class="col-md-4">
+<!-- Primary Metric Cards Grid (6 Cards) -->
+<div class="row g-3 g-xl-4 mb-4">
+    <!-- Total Events -->
+    <div class="col-sm-6 col-xl-4">
         <div class="dash-metric-card">
             <div>
                 <div class="dash-metric-header">
-                    <span class="dash-metric-label">Campus Events</span>
+                    <span class="dash-metric-label">Total Events</span>
                     <div class="dash-metric-icon-wrap icon-wrap-blue">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
@@ -34,13 +43,14 @@
                         </svg>
                     </div>
                 </div>
-                <div class="dash-metric-value text-primary">@ViewBag.TotalEvents</div>
+                <div class="dash-metric-value text-primary">@Model?.TotalEvents</div>
             </div>
-            <p class="dash-metric-subtext">Workshops, symposia &amp; hackathons</p>
+            <p class="dash-metric-subtext">Across all academic departments</p>
         </div>
     </div>
 
-    <div class="col-md-4">
+    <!-- Pending Approvals -->
+    <div class="col-sm-6 col-xl-4">
         <div class="dash-metric-card">
             <div>
                 <div class="dash-metric-header">
@@ -52,27 +62,303 @@
                         </svg>
                     </div>
                 </div>
-                <div class="dash-metric-value text-warning">@ViewBag.PendingApproval</div>
+                <div class="dash-metric-value text-warning">@Model?.PendingApprovals</div>
             </div>
-            <p class="dash-metric-subtext">Awaiting institutional review</p>
+            <p class="dash-metric-subtext">Events requiring administrative sign-off</p>
         </div>
     </div>
 
-    <div class="col-md-4">
+    <!-- Approved Events -->
+    <div class="col-sm-6 col-xl-4">
+        <div class="dash-metric-card">
+            <div>
+                <div class="dash-metric-header">
+                    <span class="dash-metric-label">Approved Events</span>
+                    <div class="dash-metric-icon-wrap icon-wrap-green">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
+                </div>
+                <div class="dash-metric-value" style="color: #059669;">@Model?.ApprovedEvents</div>
+            </div>
+            <p class="dash-metric-subtext">Cleared for student registration</p>
+        </div>
+    </div>
+
+    <!-- Rejected Events -->
+    <div class="col-sm-6 col-xl-4">
+        <div class="dash-metric-card">
+            <div>
+                <div class="dash-metric-header">
+                    <span class="dash-metric-label">Rejected Events</span>
+                    <div class="dash-metric-icon-wrap" style="background-color: #FEF2F2; color: #DC2626;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                        </svg>
+                    </div>
+                </div>
+                <div class="dash-metric-value" style="color: #DC2626;">@Model?.RejectedEvents</div>
+            </div>
+            <p class="dash-metric-subtext">Returned for revision or declined</p>
+        </div>
+    </div>
+
+    <!-- Total Registrations -->
+    <div class="col-sm-6 col-xl-4">
         <div class="dash-metric-card">
             <div>
                 <div class="dash-metric-header">
                     <span class="dash-metric-label">Registrations</span>
-                    <div class="dash-metric-icon-wrap icon-wrap-green">
+                    <div class="dash-metric-icon-wrap icon-wrap-blue">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                             <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                         </svg>
                     </div>
                 </div>
-                <div class="dash-metric-value" style="color: #059669;">@ViewBag.TotalRegistrations</div>
+                <div class="dash-metric-value text-primary">@Model?.TotalRegistrations</div>
             </div>
-            <p class="dash-metric-subtext">Total attendee registrations</p>
+            <p class="dash-metric-subtext">Total attendees across all events</p>
+        </div>
+    </div>
+
+    <!-- Active Coordinators -->
+    <div class="col-sm-6 col-xl-4">
+        <div class="dash-metric-card">
+            <div>
+                <div class="dash-metric-header">
+                    <span class="dash-metric-label">Active Coordinators</span>
+                    <div class="dash-metric-icon-wrap icon-wrap-purple">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="dash-metric-value" style="color: #7C3AED;">@Model?.ActiveCoordinators</div>
+            </div>
+            <p class="dash-metric-subtext">Faculty &amp; staff assigned to event ops</p>
+        </div>
+    </div>
+</div>
+
+<!-- Secondary Activity & Management Section -->
+<div class="row g-3 g-xl-4 mb-4">
+    <!-- Events Awaiting Approval / Recent Events -->
+    <div class="col-lg-8">
+        <div class="dash-panel h-100">
+            <div class="dash-panel-header">
+                <h5 class="dash-panel-title d-flex align-items-center gap-2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    <span>Events Awaiting Approval</span>
+                </h5>
+                <span class="badge badge-role badge-role-admin">Review Queue</span>
+            </div>
+            <div class="dash-panel-body p-0">
+                @if (Model?.EventsAwaitingApproval != null && Model.EventsAwaitingApproval.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th>Event Title</th>
+                                    <th>Department</th>
+                                    <th>Category</th>
+                                    <th>Start Date</th>
+                                    <th>Capacity</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ev in Model.EventsAwaitingApproval)
+                                {
+                                    <tr>
+                                        <td class="fw-semibold text-dark">@ev.Title</td>
+                                        <td class="small text-muted">@ev.Department?.Name</td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border">
+                                                @ev.EventCategory?.Name
+                                            </span>
+                                        </td>
+                                        <td class="small text-muted text-nowrap">@ev.EventStartDate.ToString("MMM dd, yyyy")</td>
+                                        <td class="small">@ev.RegisteredCount / @ev.TotalCapacity</td>
+                                        <td>
+                                            <span class="badge-status badge-status-pending">
+                                                Pending Review
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else if (Model?.RecentEvents != null && Model.RecentEvents.Any())
+                {
+                    <div class="p-3 border-bottom bg-light">
+                        <span class="small text-muted fw-semibold">No pending approvals. Showing recent campus events:</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th>Event Title</th>
+                                    <th>Department</th>
+                                    <th>Category</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ev in Model.RecentEvents)
+                                {
+                                    <tr>
+                                        <td class="fw-semibold text-dark">@ev.Title</td>
+                                        <td class="small text-muted">@ev.Department?.Code</td>
+                                        <td class="small text-muted">@ev.EventCategory?.Name</td>
+                                        <td class="small text-muted text-nowrap">@ev.EventStartDate.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            <span class="badge-status badge-status-approved">
+                                                @ev.Status
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="dash-empty-state">
+                        <div class="dash-empty-state-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <h6 class="dash-empty-state-title">No Events Awaiting Approval</h6>
+                        <p class="dash-empty-state-desc">
+                            All submitted events have been reviewed. When coordinators submit new workshops, hackathons, or seminars for institutional review, they will appear here.
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Sidebar: Department Breakdown & Admin Activity -->
+    <div class="col-lg-4">
+        <div class="d-flex flex-column gap-3 h-100">
+            <!-- Department Overview Panel -->
+            <div class="dash-panel">
+                <div class="dash-panel-header">
+                    <h5 class="dash-panel-title d-flex align-items-center gap-2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        <span>Department Distribution</span>
+                    </h5>
+                    <span class="badge bg-light text-muted border">Academic</span>
+                </div>
+                <div class="dash-panel-body p-3">
+                    @if (Model?.DepartmentBreakdown != null && Model.DepartmentBreakdown.Any())
+                    {
+                        <div class="d-flex flex-column gap-2">
+                            @foreach (var dept in Model.DepartmentBreakdown)
+                            {
+                                <div class="dash-list-item">
+                                    <div class="overflow-hidden me-2">
+                                        <div class="fw-semibold small text-truncate text-dark">@dept.DepartmentName</div>
+                                        <div class="text-muted" style="font-size: 0.72rem;">Code: @dept.DepartmentCode</div>
+                                    </div>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                        @dept.EventCount Events
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-3 text-muted small">
+                            No academic departments configured yet.
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Recent Admin Activity Panel -->
+            <div class="dash-panel flex-grow-1">
+                <div class="dash-panel-header">
+                    <h5 class="dash-panel-title d-flex align-items-center gap-2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                        <span>Administrative Activity</span>
+                    </h5>
+                    <span class="badge bg-light text-muted border">Live Logs</span>
+                </div>
+                <div class="dash-panel-body p-0">
+                    @if (Model?.RecentAdminActivity != null && Model.RecentAdminActivity.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Action</th>
+                                        <th>Operator</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var log in Model.RecentAdminActivity)
+                                    {
+                                        <tr>
+                                            <td class="small text-muted text-nowrap">@log.Timestamp.ToString("HH:mm:ss")</td>
+                                            <td>
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                                    @log.Action
+                                                </span>
+                                            </td>
+                                            <td class="small">@(log.User?.FullName ?? "Admin")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="dash-empty-state" style="min-height: 160px; padding: 1.5rem 1rem;">
+                            <div class="dash-empty-state-icon" style="width: 38px; height: 38px; margin-bottom: 0.5rem;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                </svg>
+                            </div>
+                            <h6 class="dash-empty-state-title" style="font-size: 0.88rem;">No Administrative Logs Recorded</h6>
+                            <p class="dash-empty-state-desc" style="font-size: 0.78rem;">
+                                Approval actions and event modifications will be logged here.
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     </div>
 </div>

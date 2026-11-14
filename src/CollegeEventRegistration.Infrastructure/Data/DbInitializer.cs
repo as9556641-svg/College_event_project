@@ -119,6 +119,53 @@ public static class DbInitializer
         }
 
         // ---------------------------------------------------------------------
+        // 2b. Provision Initial Institutional Admin & Coordinator (Idempotent)
+        // ---------------------------------------------------------------------
+        var adminEmail = "admin@college.edu";
+        if (await userManager.FindByEmailAsync(adminEmail) == null)
+        {
+            var adminUser = new ApplicationUser
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                FirstName = "Institutional",
+                LastName = "Administrator",
+                EmailConfirmed = true,
+                IsActive = true,
+                Department = "Administration",
+                CollegeName = "Central University"
+            };
+            var res = await userManager.CreateAsync(adminUser, "Admin@2026!");
+            if (res.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, nameof(UserRole.Admin));
+                logger.LogInformation("Provisioned initial Admin user: {Email}", adminEmail);
+            }
+        }
+
+        var coordEmail = "coordinator@college.edu";
+        if (await userManager.FindByEmailAsync(coordEmail) == null)
+        {
+            var coordUser = new ApplicationUser
+            {
+                UserName = coordEmail,
+                Email = coordEmail,
+                FirstName = "Event",
+                LastName = "Coordinator",
+                EmailConfirmed = true,
+                IsActive = true,
+                Department = "Computer Science & Engineering",
+                CollegeName = "Central University"
+            };
+            var res = await userManager.CreateAsync(coordUser, "Coordinator@2026!");
+            if (res.Succeeded)
+            {
+                await userManager.AddToRoleAsync(coordUser, nameof(UserRole.Coordinator));
+                logger.LogInformation("Provisioned initial Coordinator user: {Email}", coordEmail);
+            }
+        }
+
+        // ---------------------------------------------------------------------
         // 3. Seed Default Departments (If table is empty)
         // ---------------------------------------------------------------------
         if (!await context.Departments.AnyAsync())
