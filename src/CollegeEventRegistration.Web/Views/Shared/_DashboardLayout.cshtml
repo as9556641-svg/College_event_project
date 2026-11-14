@@ -27,17 +27,16 @@
         <!-- Sidebar Navigation Shell -->
         <aside class="dash-sidebar">
             <div class="dash-sidebar-header">
-                <div class="dash-brand-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                        <polyline points="2 17 12 22 22 17"></polyline>
-                        <polyline points="2 12 12 17 22 12"></polyline>
-                    </svg>
-                </div>
-                <div>
-                    <div class="dash-brand-title">Campus Event Hub</div>
-                    <div class="dash-brand-sub">Central University</div>
-                </div>
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="d-flex align-items-center gap-2 text-decoration-none">
+                    <img src="~/images/branding/varp-university-logo.png" 
+                         alt="VARP UNIVERSITY" 
+                         style="height: 36px; width: auto; object-fit: contain; max-width: 120px;" 
+                         asp-append-version="true" />
+                    <div>
+                        <div class="dash-brand-title">Campus Event Hub</div>
+                        <div class="dash-brand-sub">VARP UNIVERSITY</div>
+                    </div>
+                </a>
             </div>
 
             <div class="dash-sidebar-nav">
@@ -336,7 +335,7 @@
                         <span class="badge badge-role @(primaryRole == "SuperAdmin" || primaryRole == "Admin" ? "badge-role-admin" : primaryRole == "Coordinator" ? "badge-role-coordinator" : "badge-role-student")">
                             @primaryRole Workspace
                         </span>
-                        <span class="text-muted small d-none d-md-inline">&bull; Central University</span>
+                        <span class="text-muted small d-none d-md-inline">&bull; VARP UNIVERSITY</span>
                     </div>
                 </div>
 

@@ -1,0 +1,26 @@
+@model string?
+@{
+    var logoClass = Model ?? ViewData["LogoClass"]?.ToString() ?? "branding-logo-default";
+    var showText = (bool?)ViewData["ShowBrandingText"] ?? false;
+    var customWidth = ViewData["LogoWidth"]?.ToString();
+    var customHeight = ViewData["LogoHeight"]?.ToString();
+    var styleStr = "";
+    if (!string.IsNullOrEmpty(customWidth)) { styleStr += $"max-width: {customWidth}; "; }
+    if (!string.IsNullOrEmpty(customHeight)) { styleStr += $"max-height: {customHeight}; "; }
+}
+
+<div class="d-inline-flex align-items-center gap-2 branding-container @logoClass">
+    <img src="~/images/branding/varp-university-logo.png"
+         alt="VARP University Logo"
+         class="branding-logo-img"
+         style="@(string.IsNullOrEmpty(styleStr) ? "" : styleStr)object-fit: contain;"
+         asp-append-version="true" />
+    @if (showText)
+    {
+        <div class="branding-text-block text-start">
+            <div class="branding-app-title">Campus Event Hub</div>
+            <div class="branding-univ-title">VARP UNIVERSITY</div>
+        </div>
+    }
+</div>
+

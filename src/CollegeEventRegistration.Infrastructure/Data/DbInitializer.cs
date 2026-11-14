@@ -84,7 +84,7 @@ public static class DbInitializer
                     IsActive = true,
                     IsSuperAdminProtected = true,
                     Department = "Administration",
-                    CollegeName = "Central University"
+                    CollegeName = "VARP UNIVERSITY"
                 };
 
                 var createResult = await userManager.CreateAsync(superAdmin, superAdminPassword);
@@ -133,7 +133,7 @@ public static class DbInitializer
                 EmailConfirmed = true,
                 IsActive = true,
                 Department = "Administration",
-                CollegeName = "Central University"
+                CollegeName = "VARP UNIVERSITY"
             };
             var res = await userManager.CreateAsync(adminUser, "Admin@2026!");
             if (res.Succeeded)
@@ -155,7 +155,7 @@ public static class DbInitializer
                 EmailConfirmed = true,
                 IsActive = true,
                 Department = "Computer Science & Engineering",
-                CollegeName = "Central University"
+                CollegeName = "VARP UNIVERSITY"
             };
             var res = await userManager.CreateAsync(coordUser, "Coordinator@2026!");
             if (res.Succeeded)

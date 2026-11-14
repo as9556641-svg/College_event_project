@@ -4,6 +4,16 @@
    ========================================================================== */
 
 :root {
+  /* VARP UNIVERSITY Official Brand Tokens */
+  --varp-navy: #1F2C58;
+  --varp-navy-dark: #16203E;
+  --varp-navy-light: #2A3B75;
+  --varp-teal: #0BA9AC;
+  --varp-teal-dark: #08898E;
+  --varp-teal-light: #14C2C6;
+  --varp-teal-glow: rgba(11, 169, 172, 0.25);
+  --varp-navy-glow: rgba(31, 44, 88, 0.25);
+
   /* Surface & Background Colors */
   --bg-canvas: #E8E8E8;
   --bg-surface: #FFFFFF;
