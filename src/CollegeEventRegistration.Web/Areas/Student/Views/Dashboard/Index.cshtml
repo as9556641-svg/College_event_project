@@ -18,7 +18,7 @@
         </p>
     </div>
     <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-3d-primary btn-sm d-inline-flex align-items-center gap-2">
+        <a asp-area="Student" asp-controller="Events" asp-action="Index" class="btn btn-3d-primary btn-sm d-inline-flex align-items-center gap-2">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -176,7 +176,7 @@
                             <p class="dash-empty-state-desc mb-3">
                                 You haven't registered for any campus events yet. Explore upcoming technical workshops, hackathons, and guest lectures in the event catalog.
                             </p>
-                            <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-3d-primary btn-sm">
+                            <a asp-area="Student" asp-controller="Events" asp-action="Index" class="btn btn-3d-primary btn-sm">
                                 Explore Event Catalog
                             </a>
                         </div>
@@ -264,7 +264,7 @@
                         </svg>
                         <span>Discover Campus Events</span>
                     </h5>
-                    <a asp-area="" asp-controller="Home" asp-action="Index" class="small text-decoration-none fw-semibold">View All &rarr;</a>
+                    <a asp-area="Student" asp-controller="Events" asp-action="Index" class="small text-decoration-none fw-semibold">View All &rarr;</a>
                 </div>
                 <div class="dash-panel-body p-3">
                     @if (Model?.DiscoverEvents != null && Model.DiscoverEvents.Any())
@@ -272,7 +272,7 @@
                         <div class="d-flex flex-column gap-2">
                             @foreach (var ev in Model.DiscoverEvents)
                             {
-                                <div class="dash-list-item">
+                                <a asp-area="Student" asp-controller="Events" asp-action="Details" asp-route-id="@ev.Id" class="dash-list-item text-decoration-none">
                                     <div class="overflow-hidden me-2">
                                         <div class="fw-semibold small text-truncate text-dark">@ev.Title</div>
                                         <div class="text-muted" style="font-size: 0.72rem;">@ev.Department?.Name &bull; @ev.EventStartDate.ToString("MMM dd")</div>
@@ -280,7 +280,7 @@
                                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 text-nowrap" style="font-size: 0.72rem;">
                                         @ev.EventType
                                     </span>
-                                </div>
+                                </a>
                             }
                         </div>
                     }

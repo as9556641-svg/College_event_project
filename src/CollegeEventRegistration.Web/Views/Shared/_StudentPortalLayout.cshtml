@@ -1,0 +1,159 @@
+@using Microsoft.AspNetCore.Identity
+@using CollegeEventRegistration.Core.Entities
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+    var currentUser = SignInManager.IsSignedIn(User) ? await UserManager.GetUserAsync(User) : null;
+    var currentArea = ViewContext.RouteData.Values["area"]?.ToString() ?? "";
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Campus Event Hub | VAP UNIVERSITY</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/discovery.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="portal-body">
+    <!-- Student Discovery Portal Header (Section 3.A) -->
+    <header class="portal-navbar">
+        <div class="container-xl">
+            <div class="d-flex align-items-center justify-content-between">
+                <!-- Branding -->
+                <a asp-area="Student" asp-controller="Events" asp-action="Index" class="portal-brand">
+                    <img src="~/images/branding/vap-university-logo.png" 
+                         alt="VAP UNIVERSITY Logo" 
+                         class="portal-brand-logo" 
+                         asp-append-version="true" />
+                    <div>
+                        <div class="portal-brand-title">Campus Event Hub</div>
+                        <div class="portal-brand-sub">VAP UNIVERSITY</div>
+                    </div>
+                </a>
+
+                <!-- Navigation Links -->
+                <nav class="d-none d-md-flex align-items-center gap-2">
+                    <a asp-area="Student" asp-controller="Events" asp-action="Index" 
+                       class="portal-nav-link @(currentController == "Events" ? "active" : "")">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <span>Discover Events</span>
+                    </a>
+                    <a asp-area="Student" asp-controller="Dashboard" asp-action="Index" 
+                       class="portal-nav-link @(currentController == "Dashboard" ? "active" : "")">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                            <rect width="7" height="9" x="3" y="3" rx="1"></rect>
+                            <rect width="7" height="5" x="14" y="3" rx="1"></rect>
+                            <rect width="7" height="9" x="14" y="12" rx="1"></rect>
+                            <rect width="7" height="5" x="3" y="16" rx="1"></rect>
+                        </svg>
+                        <span>My Dashboard</span>
+                    </a>
+                </nav>
+
+                <!-- Student Profile & Secure Logout -->
+                <div class="d-flex align-items-center gap-3">
+                    @if (currentUser != null)
+                    {
+                        <div class="dropdown">
+                            <button class="btn p-0 border-0 d-flex align-items-center gap-2 text-decoration-none dropdown-toggle" 
+                                    type="button" id="studentMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="student-profile-pill">
+                                    <div class="student-avatar">
+                                        @(!string.IsNullOrEmpty(currentUser.FirstName) ? currentUser.FirstName.Substring(0, 1).ToUpper() : "S")
+                                    </div>
+                                    <div class="d-none d-sm-block text-start">
+                                        <div class="fw-semibold lh-1" style="font-size: 0.85rem;">@currentUser.FullName</div>
+                                        <div class="text-muted" style="font-size: 0.72rem;">@(currentUser.RollNumber ?? currentUser.Department ?? "Student")</div>
+                                    </div>
+                                </div>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-2" aria-labelledby="studentMenuDropdown" style="border-radius: 0.75rem; min-width: 220px;">
+                                <li class="px-3 py-2 border-bottom">
+                                    <div class="fw-bold text-dark" style="font-size: 0.9rem;">@currentUser.FullName</div>
+                                    <div class="text-muted small">@currentUser.Email</div>
+                                    <div class="badge bg-primary-subtle text-primary border mt-1" style="font-size: 0.7rem;">@currentUser.CollegeName</div>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2 d-flex align-items-center gap-2" asp-area="Student" asp-controller="Dashboard" asp-action="Index">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>
+                                        <span>Student Dashboard</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2 d-flex align-items-center gap-2" asp-area="Student" asp-controller="Events" asp-action="Index">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                        <span>Discover Events</span>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li>
+                                    <!-- Existing Secure POST Logout -->
+                                    <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="px-2">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item text-danger rounded py-2 d-flex align-items-center gap-2">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                            <span>Sign Out</span>
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-primary btn-sm px-3">Log In</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Shell -->
+    <main class="flex-grow-1">
+        @RenderBody()
+    </main>
+
+    <!-- Institutional Footer -->
+    <footer class="bg-white border-top py-4 mt-5">
+        <div class="container-xl">
+            <div class="row align-items-center gy-3">
+                <div class="col-md-6 text-center text-md-start">
+                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mb-1">
+                        <img src="~/images/branding/vap-university-logo.png" 
+                             alt="VAP UNIVERSITY" 
+                             style="height: 24px; width: auto; object-fit: contain;" 
+                             asp-append-version="true" />
+                        <span class="fw-bold text-dark small">VAP UNIVERSITY</span>
+                        <span class="text-muted small">&bull; Campus Event Hub</span>
+                    </div>
+                    <div class="text-muted small">
+                        Official event management, discovery, and verified credential platform for VAP UNIVERSITY.
+                    </div>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="d-flex align-items-center justify-content-center justify-content-md-end gap-3 text-muted small">
+                        <a asp-area="Student" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none text-muted">Dashboard</a>
+                        <a asp-area="Student" asp-controller="Events" asp-action="Index" class="text-decoration-none text-muted">Events</a>
+                        <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-decoration-none text-muted">Privacy Policy</a>
+                    </div>
+                    <div class="text-muted small mt-1">
+                        &copy; @DateTime.UtcNow.Year VAP UNIVERSITY. All rights reserved.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

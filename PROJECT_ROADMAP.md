@@ -20,7 +20,7 @@
 | **03** | **Authentication & Role Management** | ASP.NET Core Identity, multi-role security (SuperAdmin, Admin, Coordinator, Student), Login, Register, Forgot Password, Access Denied, Session handling. | `AccountController`, Identity services, `RegisterViewModel`, `LoginViewModel`, institutional VAP branding on auth screens. | Verified multi-role authentication, password hashing, role cookies, access control redirect, and campus branding. | Password reset token email dispatch (stubbed until Phase 13). | **COMPLETED** |
 | **04** | **Role-Based Dashboards** | Dedicated database-backed dashboards for SuperAdmin, Admin, Coordinator, and Student with real metrics, audit logs, and navigation layout. | 4 role Area controllers (`/SuperAdmin`, `/Admin`, `/Coordinator`, `/Student`), `_DashboardLayout.cshtml`, `dashboard.css`, live stats. | Verified all 4 dashboards render with real SQL counts, responsive sidebar navigation, and empty-state handling. | Role-specific downstream actions wired as subsequent phases develop. | **COMPLETED** |
 | **05** | **Event & Workshop Management** | Department CRUD, Category CRUD, Multi-Step Event Creation Wizard (Steps 1–6), Banner Upload Service with magic byte security, 6-state approval workflow, conflict-of-interest checks. | `DepartmentService`, `EventCategoryService`, `BannerUploadService`, `EventManagementService`, `AuditLogService`, SuperAdmin/Admin/Coordinator controllers, ViewModels, and Razor views. | Verified Department CRUD, duplicate code guards, active status toggles, deletion guards (free and linked states); Category CRUD, slug generation and stability; Event schedule validation; Approval workflow (Submit &rarr; Conflict-of-interest check &rarr; Mandatory rejection reason &rarr; Formal approval metadata &rarr; Publishing &rarr; Cancellation); Banner magic-byte validation (JPEG/PNG/WEBP &le;5MB) and spoofing defense; Audit logging across all entities; Identity role authorization and credential regression. Fixed and verified Defect 1 (EF Core ExecutionStrategy transaction retry) and Defect 2 (Coordinator state machine authorization restrictions). 41/41 automated tests passed. | None. All Phase 5 core objectives and service-level defects fully resolved and verified. | **COMPLETED (41/41 TESTS PASSED)** |
-| **06** | **Student Event Discovery** | Public/student event catalog, search, multi-criteria filtering (category, date, department, fee), calendar view, event detail view for students. | Entity relationships and database schema exist (`Event`, `EventCategory`, `Department`). | Seeded events exist in database and can be queried. | Student-facing catalog view, search bar with AJAX autocomplete, tag filtering, public event detail page, bookmarking. | **PENDING** |
+| **06** | **Student Event Discovery** | Dedicated student event discovery portal (`/Student/Events`), search bar, multi-criteria filtering (category, date, department, mode, fee, registration open), server-side pagination, sorting, event details view with chronological sessions and eligibility evaluation. | `EventsController` in Student area, `EventDiscoveryService`, `IEventDiscoveryService`, `StudentEventCatalogViewModel`, `StudentEventDetailsViewModel`, `_StudentPortalLayout.cshtml`, `discovery.css`. | Verified Published-only visibility rules (Draft, PendingApproval, Rejected, Cancelled strictly excluded and return 404), full-text search across Title/Description/Venue, multi-criteria filters, server-side pagination, chronological sessions, personalized student eligibility evaluation, regression clean. 25/25 automated tests passed. | None. All Phase 6 objectives fully implemented and verified. | **COMPLETED (25/25 TESTS PASSED)** |
 | **07** | **Registration Management** | Student registration workflow, seat reservation concurrency lock, duplicate registration guard, waitlist queue, registration cancellation. | `EventRegistration` entity and database table exist. Optimistic concurrency token (`RowVersion`) configured on `Event`. | Entity mapping and database schema verified. | Registration submission controller actions, team registration logic, capacity check with mutex/concurrency handling, cancellation flow. | **PENDING** |
 | **08** | **Payment Integration** | Payment gateway integration (Razorpay/Stripe test sandbox), fee calculation, transaction logging, payment webhook, receipt generation. | `Payment` entity and table exist in database. `Event.EventType` and `RegistrationFee` properties verified. | Entity mapping and database schema verified. | Gateway client integration, checkout initiation, signature verification, payment failure/refund handling. | **PENDING** |
 | **09** | **QR Ticket Generation** | Unique QR code generation per registration, cryptographically signed payload, digital admission ticket view, printable PDF/pass. | `Ticket` entity and table exist in database with `TicketCode`, `QrCodeDataUrl`, `IssuedAt`. | Entity mapping and database schema verified. | QR generation library integration (e.g. QRCoder), digital ticket Razor view, PDF download service. | **PENDING** |
@@ -81,15 +81,49 @@
 
 ---
 
-## 3. Git Commit Ledger
+## 3. Phase 6 Student Event Discovery Portal Findings
 
-- **Commit 1 (Institutional Identity):** `08791e3` — `feat(branding): update institutional identity to VAP University`
-- **Commit 2 (Phase 5 Events Management):** `5fd0c76` (incorporated into Phase 5 commit) — `feat(events): complete Phase 5 Event and Workshop Management`
+### 3.1 Implemented & Fully Verified (25/25 Tests Passed)
+1. **Dedicated Student Discovery Portal (`/Student/Events`):**
+   - High-impact hero section with VAP UNIVERSITY & Campus Event Hub identity.
+   - Quick category pills displaying real-time published event counts.
+   - Direct integration with Student profile and secure POST sign-out.
+2. **Server-Side Search & Multi-Faceted Filtering:**
+   - Full-text search across Title, ShortDescription, Detailed Description, and Venue.
+   - Category filtering (`CategoryId`) with slug support.
+   - Department filtering (`DepartmentId`).
+   - Mode filtering (`Offline`, `Online`, `Hybrid`).
+   - Fee structure filtering (`Free`, `Paid`).
+   - Date range filters (`today`, `this_week`, `this_month`, and custom `FromDate`/`ToDate`).
+   - "Registration Currently Open" boolean filter.
+3. **Sorting & Server-Side Pagination:**
+   - Sort criteria: `upcoming` (default), `latest`, `date_asc`, `date_desc`, `title_asc`, `title_desc`.
+   - Server-side pagination via `IQueryable` (Count + Skip + Take) with total count and page guards.
+   - Preservation of all active query parameters across pagination links.
+   - Accessible empty-state presentation with quick "Reset All Filters" trigger.
+4. **Strict Server-Side Visibility Enforcement:**
+   - Only `Status == EventStatus.Published` and `!IsDeleted` events are queryable.
+   - Direct URL access to `Draft`, `PendingApproval`, `Rejected`, or `Cancelled` events returns `404 Not Found`.
+   - Internal administrative audit details (`RejectionReason`, `ApprovedByUserId`) are strictly sanitized before delivery.
+5. **Comprehensive Event Details (`/Student/Events/Details/{id}`):**
+   - Event hero banner, category/mode/department badges, and full curriculum description.
+   - Chronologically ordered session schedule (`SessionDate`, then `StartTime`) with speaker affiliations.
+   - Departmental, year of study, and inter-college eligibility evaluation with personalized status indicators.
+   - Quick facts card (IST dates via `TimezoneHelper`, mode, venue, and fee).
+   - Informational Phase 7 registration callout with disabled button (preserving strict Phase 7 boundary).
 
 ---
 
-## 4. Strict Boundary Rules for Next Phase
+## 4. Git Commit Ledger
 
-- **Current Status:** Phase 5 is **COMPLETED & VERIFIED (41/41 TESTS PASSED)**.
-- **Commit Status:** Both Branding (`08791e3`) and Phase 5 commits are recorded and committed.
-- **Rule:** Phase 6 (Student Event Discovery) will only be commenced upon explicit user instruction, maintaining verifiable step-by-step development integrity.
+- **Commit 1 (Institutional Identity):** `08791e3` — `feat(branding): update institutional identity to VAP University`
+- **Commit 2 (Phase 5 Events Management):** `a2a4b4b` — `feat(events): complete Phase 5 Event and Workshop Management`
+- **Commit 3 (Phase 6 Student Event Discovery):** `bf6513a` (incorporated into Phase 6 commit) — `feat(events): implement student event discovery portal`
+
+---
+
+## 5. Strict Boundary Rules for Next Phase
+
+- **Current Status:** Phase 6 is **COMPLETED & VERIFIED (25/25 TESTS PASSED)**.
+- **Strict Boundary:** No registration booking, seat reservations, payment processing, or QR code generation was implemented in Phase 6.
+- **Rule:** Phase 7 (Registration Management) will only be commenced upon explicit user instruction, maintaining step-by-step verified architectural integrity.

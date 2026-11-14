@@ -229,7 +229,7 @@
                 else
                 {
                     <div class="dash-nav-section-title">Student Portal</div>
-                    <a asp-area="Student" asp-controller="Dashboard" asp-action="Index" class="dash-nav-link @(currentArea == "Student" ? "active" : "")">
+                    <a asp-area="Student" asp-controller="Dashboard" asp-action="Index" class="dash-nav-link @(currentArea == "Student" && currentController == "Dashboard" ? "active" : "")">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect width="7" height="9" x="3" y="3" rx="1"></rect>
                             <rect width="7" height="5" x="14" y="3" rx="1"></rect>
@@ -238,7 +238,7 @@
                         </svg>
                         <span>Dashboard</span>
                     </a>
-                    <a asp-area="" asp-controller="Home" asp-action="Index" class="dash-nav-link">
+                    <a asp-area="Student" asp-controller="Events" asp-action="Index" class="dash-nav-link @(currentArea == "Student" && currentController == "Events" ? "active" : "")">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
