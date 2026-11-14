@@ -17,3 +17,4 @@ public class SuperAdminDashboardViewModel
     public string DatabaseEngine { get; set; } = "SQL Server 2025 Express";
     public List<AuditLog> RecentAuditLogs { get; set; } = new();
 }
+

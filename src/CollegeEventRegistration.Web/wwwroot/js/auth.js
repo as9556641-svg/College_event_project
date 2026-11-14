@@ -46,7 +46,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 submitBtn.classList.add('is-loading');
                 const btnText = submitBtn.querySelector('.btn-text');
                 if (btnText) {
-                    btnText.innerText = 'Signing in...';
+                    const loadingText = submitBtn.getAttribute('data-loading-text') || 'Signing in...';
+                    btnText.innerText = loadingText;
                 }
             }
         });
