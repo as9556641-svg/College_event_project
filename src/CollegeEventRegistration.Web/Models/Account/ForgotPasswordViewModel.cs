@@ -9,3 +9,4 @@ public class ForgotPasswordViewModel
     [Display(Name = "Registered Email Address")]
     public string Email { get; set; } = string.Empty;
 }
+

@@ -36,8 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 2. Form submission loading state
     const authForms = document.querySelectorAll('.auth-form');
     authForms.forEach(form => {
-        form.addEventListener('submit', function (e) {
-            // Check HTML5 validity
+        form.addEventListener('submit', function () {
             if (!this.checkValidity()) {
                 return;
             }
@@ -47,20 +46,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 submitBtn.classList.add('is-loading');
                 const btnText = submitBtn.querySelector('.btn-text');
                 if (btnText) {
-                    btnText.setAttribute('data-original-text', btnText.innerText);
-                    btnText.innerText = 'Verifying...';
+                    btnText.innerText = 'Signing in...';
                 }
             }
         });
     });
-
-    // 3. Ensure floating labels reflect browser autofilled values
-    setTimeout(() => {
-        const inputs = document.querySelectorAll('.auth-floating-input');
-        inputs.forEach(input => {
-            if (input.value && input.value.trim().length > 0) {
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        });
-    }, 150);
 });

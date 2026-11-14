@@ -48,6 +48,9 @@ appsettings.*.local.json
 src/CollegeEventRegistration.Web/wwwroot/uploads/*
 !src/CollegeEventRegistration.Web/wwwroot/uploads/.gitkeep
 
+# Temporary test logs
+*.log
+
 # Operating System Files
 .DS_Store
 Thumbs.db

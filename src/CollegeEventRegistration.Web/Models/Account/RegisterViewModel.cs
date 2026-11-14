@@ -49,3 +49,4 @@ public class RegisterViewModel
 
     public string? ReturnUrl { get; set; }
 }
+
