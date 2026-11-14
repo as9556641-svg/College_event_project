@@ -116,6 +116,18 @@
   border-left: 3px solid #3B82F6;
 }
 
+.dash-nav-link-disabled {
+  opacity: 0.6;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.dash-nav-link-disabled:hover {
+  background-color: transparent !important;
+  color: #64748B !important;
+}
+
 .dash-nav-icon {
   width: 18px;
   height: 18px;
@@ -198,10 +210,11 @@
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
   border-radius: 1rem;
-  padding: 1.35rem 1.5rem;
+  padding: 1.25rem 1.4rem;
   box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.04), 0 10px 20px -4px rgba(15, 23, 42, 0.05);
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
   height: 100%;
+  min-height: 136px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -216,7 +229,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.65rem;
 }
 
 .dash-metric-label {
@@ -262,6 +275,15 @@
   color: #0F172A;
   line-height: 1.1;
   letter-spacing: -0.025em;
+  margin-bottom: 0.25rem;
+}
+
+.dash-metric-value-sm {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #047857;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   margin-bottom: 0.25rem;
 }
 
@@ -327,6 +349,73 @@
 
 .dash-table tr:hover td {
   background-color: #F8FAFC;
+}
+
+/* --------------------------------------------------------------------------
+   Empty State Component
+   -------------------------------------------------------------------------- */
+.dash-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2.25rem 1.5rem;
+  min-height: 200px;
+}
+
+.dash-empty-state-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748B;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.dash-empty-state-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1E293B;
+  margin-bottom: 0.35rem;
+}
+
+.dash-empty-state-desc {
+  font-size: 0.82rem;
+  color: #64748B;
+  max-width: 420px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   Architecture Roadmap Component
+   -------------------------------------------------------------------------- */
+.dash-arch-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.5rem;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  transition: background-color 0.15s ease;
+}
+
+.dash-arch-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
 }
 
 /* --------------------------------------------------------------------------

@@ -27,7 +27,7 @@
 </div>
 
 <!-- Primary Metric Cards Grid -->
-<div class="row g-4 mb-4">
+<div class="row g-3 g-xl-4 mb-4">
     <!-- Total Users -->
     <div class="col-sm-6 col-xl-4">
         <div class="dash-metric-card">
@@ -145,7 +145,7 @@
                         </svg>
                     </div>
                 </div>
-                <div class="dash-metric-value" style="font-size: 1.65rem; color: #047857;">SQL 2025</div>
+                <div class="dash-metric-value-sm">SQL 2025</div>
             </div>
             <p class="dash-metric-subtext">Express Edition &bull; localhost\SQLEXPRESS</p>
         </div>
@@ -153,7 +153,7 @@
 </div>
 
 <!-- Secondary Activity & Architecture Section -->
-<div class="row g-4 mb-4">
+<div class="row g-3 g-xl-4 mb-4">
     <!-- Real Database-Backed Recent Activity / Audit Log -->
     <div class="col-lg-8">
         <div class="dash-panel h-100">
@@ -201,14 +201,14 @@
                 }
                 else
                 {
-                    <div class="p-4 text-center">
-                        <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle p-3 mb-2 text-muted">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <div class="dash-empty-state">
+                        <div class="dash-empty-state-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                             </svg>
                         </div>
-                        <h6 class="fw-semibold text-dark mb-1">No Audit Entries Recorded Yet</h6>
-                        <p class="text-muted small mb-0" style="max-width: 440px; margin: 0 auto;">
+                        <h6 class="dash-empty-state-title">No Audit Entries Recorded Yet</h6>
+                        <p class="dash-empty-state-desc">
                             Database audit trail is active. Administrative events, role assignments, and security operations will be logged here.
                         </p>
                     </div>
@@ -231,46 +231,46 @@
                 </h5>
                 <span class="badge badge-role badge-role-admin">Status</span>
             </div>
-            <div class="dash-panel-body">
-                <div class="d-flex flex-column gap-3">
-                    <div class="d-flex align-items-start gap-3 p-2 rounded bg-light border">
-                        <span class="badge bg-success-subtle text-success p-2 rounded">
+            <div class="dash-panel-body p-3">
+                <div class="d-flex flex-column gap-2">
+                    <div class="dash-arch-item">
+                        <span class="dash-arch-badge bg-success-subtle text-success">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
                         </span>
                         <div>
-                            <div class="fw-semibold small">Phase 1: Foundation &amp; Setup</div>
+                            <div class="fw-semibold small text-dark">Phase 1: Foundation &amp; Setup</div>
                             <div class="text-muted" style="font-size: 0.76rem;">Clean Architecture, .NET 10 LTS, Git initialized</div>
                         </div>
                     </div>
 
-                    <div class="d-flex align-items-start gap-3 p-2 rounded bg-light border">
-                        <span class="badge bg-success-subtle text-success p-2 rounded">
+                    <div class="dash-arch-item">
+                        <span class="dash-arch-badge bg-success-subtle text-success">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
                         </span>
                         <div>
-                            <div class="fw-semibold small">Phase 2: Database &amp; Identity</div>
+                            <div class="fw-semibold small text-dark">Phase 2: Database &amp; Identity</div>
                             <div class="text-muted" style="font-size: 0.76rem;">22 Tables, EF Core Migrations, Protected SuperAdmin</div>
                         </div>
                     </div>
 
-                    <div class="d-flex align-items-start gap-3 p-2 rounded bg-light border">
-                        <span class="badge bg-success-subtle text-success p-2 rounded">
+                    <div class="dash-arch-item">
+                        <span class="dash-arch-badge bg-success-subtle text-success">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
                         </span>
                         <div>
-                            <div class="fw-semibold small">Phase 3 &amp; 3.1: Authentication UI</div>
+                            <div class="fw-semibold small text-dark">Phase 3 &amp; 3.1: Authentication UI</div>
                             <div class="text-muted" style="font-size: 0.76rem;">Centered card design, CSRF protection, secure auth</div>
                         </div>
                     </div>
 
-                    <div class="d-flex align-items-start gap-3 p-2 rounded bg-light border">
-                        <span class="badge bg-secondary-subtle text-secondary p-2 rounded">
+                    <div class="dash-arch-item">
+                        <span class="dash-arch-badge bg-secondary-subtle text-secondary">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -278,7 +278,7 @@
                             </svg>
                         </span>
                         <div>
-                            <div class="fw-semibold small">Phase 4: Event Management &amp; Workspaces</div>
+                            <div class="fw-semibold small text-dark">Phase 4: Event Management &amp; Workspaces</div>
                             <div class="text-muted" style="font-size: 0.76rem;">Department, category &amp; event CRUD operations (Upcoming)</div>
                         </div>
                     </div>
