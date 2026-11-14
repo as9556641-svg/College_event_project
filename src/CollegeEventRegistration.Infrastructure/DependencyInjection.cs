@@ -60,6 +60,13 @@ public static class DependencyInjection
         services.AddScoped<ISuperAdminProtectionService, SuperAdminProtectionService>();
         services.AddScoped<IEventCapacityService, EventCapacityService>();
 
+        // Register Phase 5 Event & Workshop Management Services
+        services.AddScoped<IAuditLogService, AuditLogService>();
+        services.AddScoped<IDepartmentService, DepartmentService>();
+        services.AddScoped<IEventCategoryService, EventCategoryService>();
+        services.AddScoped<IBannerUploadService, BannerUploadService>();
+        services.AddScoped<IEventManagementService, EventManagementService>();
+
         return services;
     }
 }

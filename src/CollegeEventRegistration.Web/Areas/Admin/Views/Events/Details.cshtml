@@ -1,0 +1,456 @@
+@model CollegeEventRegistration.Web.Areas.Admin.Models.EventDetailsViewModel
+@using CollegeEventRegistration.Core.Enums
+@{
+    ViewData["Title"] = Model.Event.Title + " - Event Details";
+    Layout = "_DashboardLayout";
+    var area = ViewContext.RouteData.Values["area"]?.ToString() ?? "Admin";
+    var ev = Model.Event;
+}
+
+<div class="container-fluid px-0" style="max-width: 1040px;">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-2 small">
+            <li class="breadcrumb-item"><a asp-area="@area" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item"><a asp-area="@area" asp-controller="Events" asp-action="Index" class="text-decoration-none">Events</a></li>
+            <li class="breadcrumb-item active" aria-current="page">#EV-@ev.Id.ToString("D4")</li>
+        </ol>
+    </nav>
+
+    <!-- Alert Notifications -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm border-0 d-flex align-items-center gap-2 mb-4" role="alert">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success flex-shrink-0">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <div>@TempData["SuccessMessage"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm border-0 d-flex align-items-center gap-2 mb-4" role="alert">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-danger flex-shrink-0">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+            <div>@TempData["ErrorMessage"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Rejection Callout If Applicable -->
+    @if (ev.Status == EventStatus.Rejected && !string.IsNullOrEmpty(ev.RejectionReason))
+    {
+        <div class="alert alert-danger border-0 rounded-4 shadow-sm p-4 mb-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="rounded-circle bg-danger text-white p-2 flex-shrink-0">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                </div>
+                <div>
+                    <h5 class="fw-bold text-danger mb-1">Event Proposal Rejected by Administration</h5>
+                    <p class="mb-2 text-dark"><strong>Reason / Feedback:</strong> @ev.RejectionReason</p>
+                    <div class="small text-muted">You may click "Edit Event" below to make the requested revisions and re-submit for approval.</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Hero Card with Banner & Key Badges -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="position-relative" style="height: 280px; background: linear-gradient(135deg, #1D4ED8 0%, #3B82F6 100%);">
+            @if (!string.IsNullOrEmpty(ev.BannerImageUrl))
+            {
+                <img src="@ev.BannerImageUrl" alt="@ev.Title" class="w-100 h-100" style="object-fit: cover;" />
+            }
+            else
+            {
+                <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-white text-center p-4">
+                    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-2 opacity-75">
+                        <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span class="h5 fw-bold mb-0 opacity-75">VAP UNIVERSITY EVENT</span>
+                </div>
+            }
+
+            <div class="position-absolute top-0 end-0 m-3">
+                @switch (ev.Status)
+                {
+                    case EventStatus.Draft:
+                        <span class="badge bg-secondary text-white px-3 py-2 shadow-sm fs-6">Draft</span>
+                        break;
+                    case EventStatus.PendingApproval:
+                        <span class="badge bg-warning text-dark px-3 py-2 shadow-sm fs-6 fw-bold">Pending Review</span>
+                        break;
+                    case EventStatus.Approved:
+                        <span class="badge bg-primary text-white px-3 py-2 shadow-sm fs-6">Approved</span>
+                        break;
+                    case EventStatus.Published:
+                        <span class="badge bg-success text-white px-3 py-2 shadow-sm fs-6">Published & Active</span>
+                        break;
+                    case EventStatus.Rejected:
+                        <span class="badge bg-danger text-white px-3 py-2 shadow-sm fs-6">Rejected</span>
+                        break;
+                    case EventStatus.Cancelled:
+                        <span class="badge bg-dark text-white px-3 py-2 shadow-sm fs-6">Cancelled</span>
+                        break;
+                }
+            </div>
+
+            <div class="position-absolute bottom-0 start-0 m-3 d-flex gap-2">
+                <span class="badge bg-dark bg-opacity-75 text-white px-2 py-1">@ev.EventMode</span>
+                <span class="badge bg-dark bg-opacity-75 text-white px-2 py-1">@ev.EventCategory?.Name</span>
+                @if (ev.EventType == EventType.Free)
+                {
+                    <span class="badge bg-success px-2 py-1">Free Event</span>
+                }
+                else
+                {
+                    <span class="badge bg-info text-dark px-2 py-1">₹@ev.RegistrationFee.ToString("F2")</span>
+                }
+            </div>
+        </div>
+
+        <div class="card-body p-4 p-md-5">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 fw-bold font-monospace">#EV-@ev.Id.ToString("D4")</span>
+                        <span class="text-muted small">Organized by <strong>@ev.Department?.Name (@ev.Department?.Code)</strong></span>
+                    </div>
+                    <h2 class="h3 fw-bold text-dark mb-2">@ev.Title</h2>
+                    <p class="lead text-muted fs-6 mb-0">@ev.ShortDescription</p>
+                </div>
+
+                <!-- Action Buttons Toolbar -->
+                <div class="d-flex flex-wrap gap-2 justify-content-md-end flex-shrink-0">
+                    @if (Model.CanEdit)
+                    {
+                        <a asp-action="Edit" asp-route-id="@ev.Id" class="btn btn-outline-secondary px-3 rounded-pill shadow-sm">
+                            Edit Event
+                        </a>
+                    }
+                    @if (Model.CanSubmitForApproval)
+                    {
+                        @if (area == "Coordinator")
+                        {
+                            <form asp-action="SubmitForApproval" asp-route-id="@ev.Id" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-primary px-3 rounded-pill shadow-sm">Submit for Approval</button>
+                            </form>
+                        }
+                    }
+                    @if (Model.CanApprove)
+                    {
+                        <form asp-action="Approve" asp-route-id="@ev.Id" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-success px-4 rounded-pill shadow-sm">
+                                Approve Event
+                            </button>
+                        </form>
+                    }
+                    @if (Model.CanReject)
+                    {
+                        <button type="button" class="btn btn-outline-danger px-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                            Reject...
+                        </button>
+                    }
+                    @if (Model.CanPublish)
+                    {
+                        <form asp-action="Publish" asp-route-id="@ev.Id" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-primary px-4 rounded-pill shadow-sm">
+                                Publish to Campus
+                            </button>
+                        </form>
+                    }
+                    @if (Model.CanCancel)
+                    {
+                        <button type="button" class="btn btn-outline-danger px-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            Cancel Event
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <!-- Key Metric Grid -->
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="text-muted small fw-semibold text-uppercase">Event Schedule</div>
+                        <div class="fw-bold text-dark mt-1">@ev.EventStartDate.ToString("MMM dd, yyyy")</div>
+                        <div class="small text-muted">@ev.EventStartDate.ToString("hh:mm tt") - @ev.EventEndDate.ToString("hh:mm tt")</div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="text-muted small fw-semibold text-uppercase">Registration Window</div>
+                        <div class="fw-bold text-dark mt-1">@ev.RegistrationStartDate.ToString("MMM dd") - @ev.RegistrationEndDate.ToString("MMM dd")</div>
+                        <div class="small text-muted">Closes @ev.RegistrationEndDate.ToString("hh:mm tt")</div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="text-muted small fw-semibold text-uppercase">Capacity & Seats</div>
+                        <div class="h5 fw-bold text-primary mb-0 mt-1">@ev.RegisteredCount / @ev.TotalCapacity</div>
+                        <div class="small text-muted">Confirmed participants</div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="text-muted small fw-semibold text-uppercase">Venue / Location</div>
+                        <div class="fw-bold text-dark mt-1 text-truncate" title="@(ev.Venue ?? ev.OnlineMeetingUrl)">
+                            @(string.IsNullOrEmpty(ev.Venue) ? (!string.IsNullOrEmpty(ev.OnlineMeetingUrl) ? "Virtual Online Link" : "Campus Location TBD") : ev.Venue)
+                        </div>
+                        <div class="small text-muted">@ev.EventMode Delivery</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full Description -->
+            <div class="mb-5">
+                <h5 class="fw-bold text-dark mb-3">About This Event</h5>
+                <div class="text-dark lh-base" style="white-space: pre-line;">@ev.Description</div>
+            </div>
+
+            <!-- Sessions & Agenda -->
+            <div class="card border rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-light py-3 px-4 border-bottom">
+                    <h5 class="fw-bold text-dark mb-0">Event Agenda & Sessions (@ev.Sessions.Count)</h5>
+                </div>
+                <div class="card-body p-4">
+                    @if (ev.Sessions.Count == 0)
+                    {
+                        <div class="text-center py-3 text-muted small">No specific breakout sessions configured.</div>
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-column gap-3">
+                            @foreach (var s in ev.Sessions.OrderBy(x => x.SessionDate).ThenBy(x => x.StartTime))
+                            {
+                                <div class="p-3 rounded-3 border bg-white shadow-sm d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 font-monospace small">
+                                                @s.StartTime.ToString(@"hh\:mm") - @s.EndTime.ToString(@"hh\:mm")
+                                            </span>
+                                            @if (!string.IsNullOrEmpty(s.VenueOrRoom))
+                                            {
+                                                <span class="badge bg-light text-secondary border small">@s.VenueOrRoom</span>
+                                            }
+                                        </div>
+                                        <h6 class="fw-bold text-dark mb-1">@s.SessionTitle</h6>
+                                        @if (!string.IsNullOrEmpty(s.Description))
+                                        {
+                                            <p class="text-muted small mb-0">@s.Description</p>
+                                        }
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(s.SpeakerName))
+                                    {
+                                        <div class="text-md-end text-muted small flex-shrink-0">
+                                            <div class="fw-semibold text-dark">@s.SpeakerName</div>
+                                            <div>@(s.SpeakerDesignation ?? s.SpeakerOrganization)</div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Eligibility Card -->
+            <div class="card border rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-light py-3 px-4 border-bottom">
+                    <h5 class="fw-bold text-dark mb-0">Eligibility & Requirements</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <span class="text-muted small">Eligible Academic Departments:</span>
+                            <div class="mt-1">
+                                @if (ev.Eligibilities.Count == 0 || ev.Eligibilities.All(el => !el.DepartmentId.HasValue))
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Open to All Departments</span>
+                                }
+                                else
+                                {
+                                    @foreach (var el in ev.Eligibilities.Where(x => x.Department != null))
+                                    {
+                                        <span class="badge bg-light text-dark border px-2 py-1 me-1 mb-1">@el.Department?.Name (@el.Department?.Code)</span>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <span class="text-muted small">Year of Study:</span>
+                            <div class="mt-1 fw-semibold text-dark">
+                                @(ev.Eligibilities.FirstOrDefault()?.YearOfStudy.HasValue == true ? $"{ev.Eligibilities.FirstOrDefault()?.YearOfStudy} Year Students" : "Open to All Years (1-5)")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assigned Coordinators -->
+            <div class="card border rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-light py-3 px-4 border-bottom">
+                    <h5 class="fw-bold text-dark mb-0">Event Coordinators (@ev.Coordinators.Count)</h5>
+                </div>
+                <div class="card-body p-4">
+                    @if (ev.Coordinators.Count == 0)
+                    {
+                        <div class="text-muted small">No coordinators currently assigned.</div>
+                    }
+                    else
+                    {
+                        <div class="row g-3">
+                            @foreach (var coord in ev.Coordinators)
+                            {
+                                <div class="col-sm-6 col-md-4">
+                                    <div class="p-3 rounded-3 border bg-light d-flex align-items-center gap-3">
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">
+                                            @(coord.User?.FirstName?.Substring(0, 1) ?? "C")
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark small">@coord.User?.FirstName @coord.User?.LastName</div>
+                                            <div class="text-muted" style="font-size: 0.75rem;">@coord.User?.Email</div>
+                                            @if (coord.IsPrimaryCoordinator)
+                                            {
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-1" style="font-size: 0.7rem;">Lead Coordinator</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Governance & Audit Trail -->
+            <div class="card border rounded-4 overflow-hidden">
+                <div class="card-header bg-light py-3 px-4 border-bottom">
+                    <h5 class="fw-bold text-dark mb-0">System Audit Trail & Approval History</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-2 mb-3 text-muted small pb-3 border-bottom">
+                        <div class="col-sm-6">
+                            Proposal Created: <strong class="text-dark">@ev.CreatedAt.ToString("MMM dd, yyyy HH:mm")</strong> by @(ev.CreatedByUser?.FirstName ?? "System") @(ev.CreatedByUser?.LastName ?? "")
+                        </div>
+                        @if (ev.ApprovedAt.HasValue)
+                        {
+                            <div class="col-sm-6">
+                                Approved: <strong class="text-dark">@ev.ApprovedAt.Value.ToString("MMM dd, yyyy HH:mm")</strong> by @(ev.ApprovedByUser?.FirstName ?? "Admin") @(ev.ApprovedByUser?.LastName ?? "")
+                            </div>
+                        }
+                    </div>
+
+                    @if (Model.AuditTrail.Count == 0)
+                    {
+                        <div class="text-muted small">No recorded audit log entries for this event yet.</div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover align-middle mb-0">
+                                <thead>
+                                    <tr class="text-muted small">
+                                        <th>Timestamp</th>
+                                        <th>Action</th>
+                                        <th>Actor</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="small">
+                                    @foreach (var log in Model.AuditTrail)
+                                    {
+                                        <tr>
+                                            <td class="text-muted">@log.Timestamp.ToString("MMM dd, HH:mm")</td>
+                                            <td><span class="badge bg-light text-dark border">@log.Action</span></td>
+                                            <td>@(log.User != null ? $"{log.User.FirstName} {log.User.LastName}" : "System")</td>
+                                            <td class="text-muted">@(log.NewValues ?? log.OldValues ?? "Action recorded")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Rejection Feedback -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <form asp-action="Reject" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="EventId" value="@ev.Id" />
+                <input type="hidden" name="EventTitle" value="@ev.Title" />
+                <input type="hidden" name="Action" value="Reject" />
+
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-dark" id="rejectModalLabel">Reject Event Proposal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted small">
+                        Please provide detailed feedback explaining why this proposal cannot be approved in its current state.
+                        The coordinator will be notified and can make edits.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-dark small">Rejection Reason / Required Changes <span class="text-danger">*</span></label>
+                        <textarea name="RejectionReason" class="form-control rounded-3" rows="4" placeholder="Explain schedule conflict, budget clarification, venue issues, or missing session details..." required minlength="5"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 shadow-sm">Confirm Rejection</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Cancel Event -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <form asp-action="Cancel" asp-route-id="@ev.Id" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-dark" id="cancelModalLabel">Cancel Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted small">
+                        Are you sure you want to cancel <strong>@ev.Title</strong>? This action halts all registrations.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-dark small">Cancellation Notice</label>
+                        <textarea name="reason" class="form-control rounded-3" rows="3" placeholder="Reason for cancellation (e.g. Inclement weather, speaker unavailable)..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Go Back</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 shadow-sm">Confirm Cancellation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

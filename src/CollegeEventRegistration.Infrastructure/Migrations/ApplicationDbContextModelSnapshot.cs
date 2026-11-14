@@ -379,6 +379,12 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ApprovedByUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("BannerImageUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -441,6 +447,10 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
                     b.Property<DateTime>("RegistrationStartDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
@@ -475,6 +485,8 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
                         .HasColumnType("nvarchar(250)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApprovedByUserId");
 
                     b.HasIndex("CreatedByUserId");
 
@@ -1132,6 +1144,11 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
 
             modelBuilder.Entity("CollegeEventRegistration.Core.Entities.Event", b =>
                 {
+                    b.HasOne("CollegeEventRegistration.Core.Entities.ApplicationUser", "ApprovedByUser")
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("CollegeEventRegistration.Core.Entities.ApplicationUser", "CreatedByUser")
                         .WithMany("CreatedEvents")
                         .HasForeignKey("CreatedByUserId")
@@ -1149,6 +1166,8 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
                         .HasForeignKey("EventCategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("ApprovedByUser");
 
                     b.Navigation("CreatedByUser");
 

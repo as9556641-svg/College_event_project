@@ -123,6 +123,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
                   .HasForeignKey(e => e.CreatedByUserId)
                   .OnDelete(DeleteBehavior.Restrict);
 
+            entity.Property(e => e.RejectionReason).HasMaxLength(500);
+
+            entity.HasOne(e => e.ApprovedByUser)
+                  .WithMany()
+                  .HasForeignKey(e => e.ApprovedByUserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
             // Global soft-delete query filter
             entity.HasQueryFilter(e => !e.IsDeleted);
         });

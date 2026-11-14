@@ -1,0 +1,319 @@
+@model CollegeEventRegistration.Web.Areas.Admin.Models.EventListViewModel
+@using CollegeEventRegistration.Core.Enums
+@{
+    ViewData["Title"] = "Campus Event Management";
+    Layout = "_DashboardLayout";
+    var area = ViewContext.RouteData.Values["area"]?.ToString() ?? "Admin";
+}
+
+<div class="container-fluid px-0">
+    <!-- Header Block -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a asp-area="@area" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Events</li>
+                </ol>
+            </nav>
+            <h1 class="h3 fw-bold text-dark mb-0">Event & Workshop Management</h1>
+            <p class="text-muted small mb-0">Oversee campus symposiums, hackathons, seminars, and academic workshops.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Create" class="btn btn-primary d-inline-flex align-items-center gap-2 px-3 py-2 shadow-sm rounded-pill">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Create New Event</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Alert Notifications -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm border-0 d-flex align-items-center gap-2 mb-4" role="alert">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success flex-shrink-0">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <div>@TempData["SuccessMessage"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm border-0 d-flex align-items-center gap-2 mb-4" role="alert">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-danger flex-shrink-0">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+            <div>@TempData["ErrorMessage"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-pills gap-2 mb-3 border-bottom pb-2">
+        <li class="nav-item">
+            <a asp-action="Index" asp-route-tab="all" asp-route-searchTerm="@Model.SearchTerm" class="nav-link rounded-pill px-3 py-1 small @(Model.ActiveTab == "all" ? "active bg-primary" : "text-secondary")">
+                All Events <span class="badge @(Model.ActiveTab == "all" ? "bg-white text-primary" : "bg-light text-dark") ms-1">@Model.CountAll</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a asp-action="Index" asp-route-tab="draft" asp-route-searchTerm="@Model.SearchTerm" class="nav-link rounded-pill px-3 py-1 small @(Model.ActiveTab == "draft" ? "active bg-primary" : "text-secondary")">
+                Drafts <span class="badge @(Model.ActiveTab == "draft" ? "bg-white text-primary" : "bg-light text-dark") ms-1">@Model.CountDraft</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a asp-action="Index" asp-route-tab="pending" asp-route-searchTerm="@Model.SearchTerm" class="nav-link rounded-pill px-3 py-1 small @(Model.ActiveTab == "pending" ? "active bg-warning text-dark fw-bold" : "text-secondary")">
+                Awaiting Approval <span class="badge @(Model.ActiveTab == "pending" ? "bg-dark text-white" : "bg-warning-subtle text-warning-emphasis") ms-1">@Model.CountPendingApproval</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a asp-action="Index" asp-route-tab="approved" asp-route-searchTerm="@Model.SearchTerm" class="nav-link rounded-pill px-3 py-1 small @(Model.ActiveTab == "approved" ? "active bg-primary" : "text-secondary")">
+                Approved <span class="badge @(Model.ActiveTab == "approved" ? "bg-white text-primary" : "bg-light text-dark") ms-1">@Model.CountApproved</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a asp-action="Index" asp-route-tab="published" asp-route-searchTerm="@Model.SearchTerm" class="nav-link rounded-pill px-3 py-1 small @(Model.ActiveTab == "published" ? "active bg-success" : "text-secondary")">
+                Published <span class="badge @(Model.ActiveTab == "published" ? "bg-white text-success" : "bg-light text-dark") ms-1">@Model.CountPublished</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a asp-action="Index" asp-route-tab="rejected" asp-route-searchTerm="@Model.SearchTerm" class="nav-link rounded-pill px-3 py-1 small @(Model.ActiveTab == "rejected" ? "active bg-danger" : "text-secondary")">
+                Rejected <span class="badge @(Model.ActiveTab == "rejected" ? "bg-white text-danger" : "bg-light text-dark") ms-1">@Model.CountRejected</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a asp-action="Index" asp-route-tab="cancelled" asp-route-searchTerm="@Model.SearchTerm" class="nav-link rounded-pill px-3 py-1 small @(Model.ActiveTab == "cancelled" ? "active bg-secondary" : "text-secondary")">
+                Cancelled <span class="badge @(Model.ActiveTab == "cancelled" ? "bg-white text-secondary" : "bg-light text-dark") ms-1">@Model.CountCancelled</span>
+            </a>
+        </li>
+    </ul>
+
+    <!-- Filter Bar Card -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-3">
+            <form method="get" asp-action="Index" class="row g-2 align-items-center">
+                <input type="hidden" name="tab" value="@Model.ActiveTab" />
+                
+                <div class="col-md-4 col-lg-5">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-transparent border-end-0 text-muted ps-3">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </span>
+                        <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control border-start-0 ps-0" placeholder="Search by title, description, or slug..." />
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <select name="categoryId" asp-items="Model.Categories" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+
+                <div class="col-sm-6 col-md-3 col-lg-3">
+                    <select name="departmentId" asp-items="Model.Departments" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">All Departments</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 col-lg-2 d-flex gap-1 justify-content-end">
+                    <button type="submit" class="btn btn-sm btn-outline-primary px-3 rounded-pill">Filter</button>
+                    @if (!string.IsNullOrEmpty(Model.SearchTerm) || Model.CategoryId.HasValue || Model.DepartmentId.HasValue)
+                    {
+                        <a asp-action="Index" asp-route-tab="@Model.ActiveTab" class="btn btn-sm btn-outline-secondary px-2 rounded-pill">Reset</a>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Events Grid -->
+    @if (Model.PagedEvents.Items.Count == 0)
+    {
+        <div class="card border-0 shadow-sm rounded-4 p-5 text-center my-4 bg-white">
+            <div class="mb-3 text-muted opacity-50">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+            </div>
+            <h5 class="fw-bold text-dark">No events found</h5>
+            <p class="text-muted small mb-3">There are no events currently in "@Model.ActiveTab" matching your filter criteria.</p>
+            <div>
+                <a asp-action="Create" class="btn btn-primary px-4 rounded-pill shadow-sm">Create First Event</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4 mb-4">
+            @foreach (var ev in Model.PagedEvents.Items)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden d-flex flex-column transition-lift">
+                        <!-- Banner Preview -->
+                        <div class="position-relative" style="height: 180px; background: linear-gradient(135deg, #1D4ED8 0%, #3B82F6 100%);">
+                            @if (!string.IsNullOrEmpty(ev.BannerImageUrl))
+                            {
+                                <img src="@ev.BannerImageUrl" alt="@ev.Title" class="w-100 h-100" style="object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-white text-center p-3">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-2 opacity-75">
+                                        <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                    <span class="small fw-semibold opacity-75">VAP UNIVERSITY EVENT</span>
+                                </div>
+                            }
+
+                            <!-- Status Badge Floating -->
+                            <div class="position-absolute top-0 end-0 m-3">
+                                @switch (ev.Status)
+                                {
+                                    case EventStatus.Draft:
+                                        <span class="badge bg-secondary text-white px-2 py-1 shadow-sm">Draft</span>
+                                        break;
+                                    case EventStatus.PendingApproval:
+                                        <span class="badge bg-warning text-dark px-2 py-1 shadow-sm fw-bold">Pending Review</span>
+                                        break;
+                                    case EventStatus.Approved:
+                                        <span class="badge bg-primary text-white px-2 py-1 shadow-sm">Approved</span>
+                                        break;
+                                    case EventStatus.Published:
+                                        <span class="badge bg-success text-white px-2 py-1 shadow-sm">Published</span>
+                                        break;
+                                    case EventStatus.Rejected:
+                                        <span class="badge bg-danger text-white px-2 py-1 shadow-sm">Rejected</span>
+                                        break;
+                                    case EventStatus.Cancelled:
+                                        <span class="badge bg-dark text-white px-2 py-1 shadow-sm">Cancelled</span>
+                                        break;
+                                }
+                            </div>
+
+                            <!-- Mode Tag -->
+                            <div class="position-absolute bottom-0 start-0 m-3">
+                                <span class="badge bg-dark bg-opacity-75 text-white px-2 py-1">
+                                    @ev.EventMode
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="card-body p-4 d-flex flex-column flex-grow-1">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small fw-semibold font-monospace">#EV-@ev.Id.ToString("D4")</span>
+                                <span class="text-muted small">@ev.EventCategory?.Name</span>
+                            </div>
+
+                            <h5 class="fw-bold text-dark mb-1 text-truncate" title="@ev.Title">@ev.Title</h5>
+                            <p class="text-muted small mb-3 flex-grow-1 text-truncate-2">@ev.ShortDescription</p>
+
+                            <!-- Metadata List -->
+                            <div class="pt-2 border-top small text-muted mb-3">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary flex-shrink-0">
+                                        <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                    <span>@ev.EventStartDate.ToString("MMM dd, yyyy") (@ev.EventStartDate.ToString("hh:mm tt"))</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary flex-shrink-0">
+                                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                                        <circle cx="12" cy="10" r="3"></circle>
+                                    </svg>
+                                    <span class="text-truncate">@(string.IsNullOrEmpty(ev.Venue) ? (!string.IsNullOrEmpty(ev.OnlineMeetingUrl) ? "Virtual Online" : "Campus Venue TBD") : ev.Venue)</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary flex-shrink-0">
+                                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                    </svg>
+                                    <span>@ev.Department?.Name (@ev.Department?.Code)</span>
+                                </div>
+                            </div>
+
+                            <!-- Capacity & Fee Bar -->
+                            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+                                <div>
+                                    @if (ev.EventType == EventType.Free)
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Free</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1">₹@ev.RegistrationFee.ToString("F2")</span>
+                                    }
+                                </div>
+                                <div class="small text-muted">
+                                    Capacity: <strong class="text-dark">@ev.RegisteredCount / @ev.TotalCapacity</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer Actions -->
+                        <div class="card-footer bg-light border-0 px-4 py-3 d-flex justify-content-between align-items-center">
+                            <a asp-action="Details" asp-route-id="@ev.Id" class="btn btn-sm btn-primary px-3 rounded-pill shadow-sm">
+                                View Details
+                            </a>
+
+                            <div class="d-flex gap-2">
+                                @if (ev.Status == EventStatus.Draft || ev.Status == EventStatus.Rejected)
+                                {
+                                    <a asp-action="Edit" asp-route-id="@ev.Id" class="btn btn-sm btn-outline-secondary px-3 rounded-pill">
+                                        Edit
+                                    </a>
+                                }
+                                @if (ev.Status == EventStatus.Approved && area == "Admin")
+                                {
+                                    <form asp-action="Publish" asp-route-id="@ev.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-success px-3 rounded-pill">Publish</button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.PagedEvents.TotalPages > 1)
+        {
+            <nav aria-label="Page navigation" class="d-flex justify-content-center mt-4">
+                <ul class="pagination pagination-sm">
+                    <li class="page-item @(!Model.PagedEvents.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-tab="@Model.ActiveTab" asp-route-searchTerm="@Model.SearchTerm" asp-route-categoryId="@Model.CategoryId" asp-route-departmentId="@Model.DepartmentId" asp-route-pageNumber="@(Model.PagedEvents.PageNumber - 1)">Previous</a>
+                    </li>
+                    @for (int p = 1; p <= Model.PagedEvents.TotalPages; p++)
+                    {
+                        <li class="page-item @(p == Model.PagedEvents.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-tab="@Model.ActiveTab" asp-route-searchTerm="@Model.SearchTerm" asp-route-categoryId="@Model.CategoryId" asp-route-departmentId="@Model.DepartmentId" asp-route-pageNumber="@p">@p</a>
+                        </li>
+                    }
+                    <li class="page-item @(!Model.PagedEvents.HasNextPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-tab="@Model.ActiveTab" asp-route-searchTerm="@Model.SearchTerm" asp-route-categoryId="@Model.CategoryId" asp-route-departmentId="@Model.DepartmentId" asp-route-pageNumber="@(Model.PagedEvents.PageNumber + 1)">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    }
+</div>

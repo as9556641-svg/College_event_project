@@ -1,0 +1,71 @@
+@model CollegeEventRegistration.Web.Areas.SuperAdmin.Models.DepartmentCreateViewModel
+@{
+    ViewData["Title"] = "Add Department";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid px-0" style="max-width: 800px;">
+    <!-- Breadcrumb & Header -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-2 small">
+            <li class="breadcrumb-item"><a asp-area="SuperAdmin" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none">Governance</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Departments</a></li>
+            <li class="breadcrumb-item active" aria-current="page">New Department</li>
+        </ol>
+    </nav>
+    <div class="mb-4">
+        <h1 class="h3 fw-bold text-dark mb-1">Create Academic Department</h1>
+        <p class="text-muted small">Register a new academic department or institutional division in VAP UNIVERSITY.</p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4 p-md-5">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 small mb-4" role="alert"></div>
+
+                <div class="row g-3">
+                    <!-- Department Name -->
+                    <div class="col-md-8">
+                        <label asp-for="Name" class="form-label fw-semibold text-dark small"></label>
+                        <input asp-for="Name" class="form-control rounded-3 py-2" placeholder="e.g. Computer Science and Engineering" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Department Code -->
+                    <div class="col-md-4">
+                        <label asp-for="Code" class="form-label fw-semibold text-dark small"></label>
+                        <input asp-for="Code" class="form-control rounded-3 py-2 font-monospace text-uppercase" placeholder="e.g. CSE" maxlength="10" />
+                        <span asp-validation-for="Code" class="text-danger small"></span>
+                        <div class="form-text small">Unique uppercase identifier (max 10 chars).</div>
+                    </div>
+
+                    <!-- Head of Department -->
+                    <div class="col-12">
+                        <label asp-for="HeadOfDepartment" class="form-label fw-semibold text-dark small"></label>
+                        <input asp-for="HeadOfDepartment" class="form-control rounded-3 py-2" placeholder="e.g. Dr. Alan Turing" />
+                        <span asp-validation-for="HeadOfDepartment" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12">
+                        <label asp-for="Description" class="form-label fw-semibold text-dark small"></label>
+                        <textarea asp-for="Description" class="form-control rounded-3" rows="3" placeholder="Brief mission, research areas, or operational description..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4 rounded-pill">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-4 rounded-pill shadow-sm">Save Department</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

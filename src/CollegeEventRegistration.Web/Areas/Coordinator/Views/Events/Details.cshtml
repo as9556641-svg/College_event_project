@@ -1,0 +1,8 @@
+@model CollegeEventRegistration.Web.Areas.Admin.Models.EventDetailsViewModel
+@{
+    ViewData["Title"] = Model.Event.Title;
+    Layout = "_DashboardLayout";
+}
+
+<partial name="~/Areas/Admin/Views/Events/Details.cshtml" model="Model" />
+

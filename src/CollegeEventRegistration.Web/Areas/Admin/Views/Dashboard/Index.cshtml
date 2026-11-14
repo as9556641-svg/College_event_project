@@ -187,7 +187,9 @@
                                 @foreach (var ev in Model.EventsAwaitingApproval)
                                 {
                                     <tr>
-                                        <td class="fw-semibold text-dark">@ev.Title</td>
+                                        <td class="fw-semibold text-dark">
+                                            <a asp-controller="Events" asp-action="Details" asp-route-id="@ev.Id" class="text-dark text-decoration-none">@ev.Title</a>
+                                        </td>
                                         <td class="small text-muted">@ev.Department?.Name</td>
                                         <td>
                                             <span class="badge bg-light text-dark border">
@@ -227,7 +229,9 @@
                                 @foreach (var ev in Model.RecentEvents)
                                 {
                                     <tr>
-                                        <td class="fw-semibold text-dark">@ev.Title</td>
+                                        <td class="fw-semibold text-dark">
+                                            <a asp-controller="Events" asp-action="Details" asp-route-id="@ev.Id" class="text-dark text-decoration-none">@ev.Title</a>
+                                        </td>
                                         <td class="small text-muted">@ev.Department?.Code</td>
                                         <td class="small text-muted">@ev.EventCategory?.Name</td>
                                         <td class="small text-muted text-nowrap">@ev.EventStartDate.ToString("MMM dd, yyyy")</td>

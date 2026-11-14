@@ -53,6 +53,12 @@ public class Event : BaseEntity
     public string CreatedByUserId { get; set; } = string.Empty;
     public ApplicationUser CreatedByUser { get; set; } = null!;
 
+    // Approval & Governance Audit Trail
+    public string? RejectionReason { get; set; }
+    public string? ApprovedByUserId { get; set; }
+    public ApplicationUser? ApprovedByUser { get; set; }
+    public DateTime? ApprovedAt { get; set; }
+
     // Soft delete to protect registration and payment history
     public bool IsDeleted { get; set; } = false;
     public DateTime? DeletedAt { get; set; }
