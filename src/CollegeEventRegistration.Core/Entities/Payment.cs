@@ -23,3 +23,4 @@ public class Payment : BaseEntity
     public DateTime? CompletedAt { get; set; }
     public string? FailureReason { get; set; }
 }
+

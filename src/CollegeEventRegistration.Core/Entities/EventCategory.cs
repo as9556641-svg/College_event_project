@@ -15,3 +15,4 @@ public class EventCategory : BaseEntity
     // Navigation properties
     public ICollection<Event> Events { get; set; } = new List<Event>();
 }
+

@@ -16,3 +16,4 @@ public class EventCoordinator : BaseEntity
     public bool IsPrimaryCoordinator { get; set; } = false;
     public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
 }
+

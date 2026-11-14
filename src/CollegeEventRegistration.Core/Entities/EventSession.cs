@@ -21,3 +21,4 @@ public class EventSession : BaseEntity
     public TimeSpan EndTime { get; set; }
     public string? VenueOrRoom { get; set; }
 }
+

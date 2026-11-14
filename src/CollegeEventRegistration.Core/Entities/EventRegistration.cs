@@ -22,9 +22,16 @@ public class EventRegistration : BaseEntity
     public string? CancellationReason { get; set; }
     public DateTime? CancelledAt { get; set; }
 
+    // 1-to-Many Navigation for payments & retry history
+    public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
+    // Convenience read-only accessors for business logic
+    public Payment? SuccessfulPayment => Payments.FirstOrDefault(p => p.Status == PaymentStatus.Success);
+    public bool HasSuccessfulPayment => Payments.Any(p => p.Status == PaymentStatus.Success);
+
     // 1-to-1 Navigations
-    public Payment? Payment { get; set; }
     public Ticket? Ticket { get; set; }
     public Attendance? Attendance { get; set; }
     public EventFeedback? Feedback { get; set; }
 }
+

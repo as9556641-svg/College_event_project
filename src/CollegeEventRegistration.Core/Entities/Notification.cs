@@ -22,3 +22,4 @@ public class Notification : BaseEntity
     public bool IsRead { get; set; } = false;
     public DateTime? ReadAt { get; set; }
 }
+

@@ -18,3 +18,4 @@ public class EventEligibility : BaseEntity
     public bool IsOpenToOtherColleges { get; set; } = true;
     public string? Remarks { get; set; }
 }
+

@@ -24,3 +24,4 @@ public class EventFeedback : BaseEntity
     public bool IsAnonymous { get; set; } = false;
     public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
 }
+

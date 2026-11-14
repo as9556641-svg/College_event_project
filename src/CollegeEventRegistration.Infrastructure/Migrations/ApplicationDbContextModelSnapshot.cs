@@ -489,7 +489,12 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", t =>
+                        {
+                            t.HasCheckConstraint("CK_Events_Capacity", "[RegisteredCount] <= [TotalCapacity]");
+
+                            t.HasCheckConstraint("CK_Events_NonNegativeCounts", "[RegisteredCount] >= 0 AND [TotalCapacity] >= 0");
+                        });
                 });
 
             modelBuilder.Entity("CollegeEventRegistration.Core.Entities.EventCategory", b =>
@@ -910,10 +915,17 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RegistrationId")
-                        .IsUnique();
+                    b.HasIndex(new[] { "OrderId" }, "IX_Payments_OrderId");
 
-                    b.HasIndex("TransactionId");
+                    b.HasIndex(new[] { "RegistrationId" }, "IX_Payments_RegistrationId");
+
+                    b.HasIndex(new[] { "RegistrationId" }, "UX_Payments_Registration_Success")
+                        .IsUnique()
+                        .HasFilter("[Status] = 3");
+
+                    b.HasIndex(new[] { "TransactionId" }, "UX_Payments_TransactionId")
+                        .IsUnique()
+                        .HasFilter("[TransactionId] IS NOT NULL");
 
                     b.ToTable("Payments");
                 });
@@ -1259,8 +1271,8 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
             modelBuilder.Entity("CollegeEventRegistration.Core.Entities.Payment", b =>
                 {
                     b.HasOne("CollegeEventRegistration.Core.Entities.EventRegistration", "Registration")
-                        .WithOne("Payment")
-                        .HasForeignKey("CollegeEventRegistration.Core.Entities.Payment", "RegistrationId")
+                        .WithMany("Payments")
+                        .HasForeignKey("RegistrationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1377,7 +1389,7 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
 
                     b.Navigation("Feedback");
 
-                    b.Navigation("Payment");
+                    b.Navigation("Payments");
 
                     b.Navigation("Ticket");
                 });

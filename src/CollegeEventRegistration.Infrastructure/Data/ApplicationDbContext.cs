@@ -1,4 +1,7 @@
 using CollegeEventRegistration.Core.Entities;
+using CollegeEventRegistration.Core.Enums;
+using CollegeEventRegistration.Core.Exceptions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -83,6 +86,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         // ---------------------------------------------------------------------
         builder.Entity<Event>(entity =>
         {
+            entity.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_Events_Capacity", "[RegisteredCount] <= [TotalCapacity]");
+                t.HasCheckConstraint("CK_Events_NonNegativeCounts", "[RegisteredCount] >= 0 AND [TotalCapacity] >= 0");
+            });
+
             entity.Property(e => e.Title).HasMaxLength(200).IsRequired();
             entity.Property(e => e.Slug).HasMaxLength(220).IsRequired();
             entity.Property(e => e.ShortDescription).HasMaxLength(300).IsRequired();
@@ -206,7 +215,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         });
 
         // ---------------------------------------------------------------------
-        // 9. Payment (1-to-1 with Registration)
+        // 9. Payment (1-to-Many with Registration for retries and attempt history)
         // ---------------------------------------------------------------------
         builder.Entity<Payment>(entity =>
         {
@@ -217,11 +226,25 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.Property(p => p.PaymentMethod).HasMaxLength(50);
             entity.Property(p => p.FailureReason).HasMaxLength(300);
 
-            entity.HasIndex(p => p.TransactionId);
+            // Foreign key index (non-unique to permit multiple payment attempts/retries)
+            entity.HasIndex(p => p.RegistrationId, "IX_Payments_RegistrationId");
 
+            // Filtered UNIQUE index: Strictly prevents more than one SUCCESSFUL payment per registration
+            entity.HasIndex(p => p.RegistrationId, "UX_Payments_Registration_Success")
+                  .IsUnique()
+                  .HasFilter($"[Status] = {(int)PaymentStatus.Success}");
+
+            // Filtered index on TransactionId (non-null unique to prevent transaction ID replays)
+            entity.HasIndex(p => p.TransactionId, "UX_Payments_TransactionId")
+                  .IsUnique()
+                  .HasFilter("[TransactionId] IS NOT NULL");
+
+            entity.HasIndex(p => p.OrderId, "IX_Payments_OrderId");
+
+            // 1-to-Many Relationship: One EventRegistration has many Payment attempts
             entity.HasOne(p => p.Registration)
-                  .WithOne(r => r.Payment)
-                  .HasForeignKey<Payment>(p => p.RegistrationId)
+                  .WithMany(r => r.Payments)
+                  .HasForeignKey(p => p.RegistrationId)
                   .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasQueryFilter(p => !p.Registration.Event.IsDeleted);
@@ -355,5 +378,61 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
                   .HasForeignKey(al => al.UserId)
                   .OnDelete(DeleteBehavior.SetNull);
         });
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        EnforceSuperAdminProtection();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    public override int SaveChanges()
+    {
+        EnforceSuperAdminProtection();
+        return base.SaveChanges();
+    }
+
+    private void EnforceSuperAdminProtection()
+    {
+        // 1. Guard against deleting, deactivating, or locking out a protected Super Admin user
+        foreach (var entry in ChangeTracker.Entries<ApplicationUser>())
+        {
+            if (entry.State == EntityState.Deleted && entry.Entity.IsSuperAdminProtected)
+            {
+                throw new SuperAdminProtectionException("The primary Super Admin account is system-protected and cannot be deleted.");
+            }
+
+            if (entry.State == EntityState.Modified && entry.Entity.IsSuperAdminProtected)
+            {
+                if (entry.Property(u => u.IsActive).IsModified && !entry.Entity.IsActive)
+                {
+                    throw new SuperAdminProtectionException("The primary Super Admin account is system-protected and cannot be deactivated.");
+                }
+
+                if (entry.Property(u => u.LockoutEnd).IsModified &&
+                    entry.Entity.LockoutEnd.HasValue &&
+                    entry.Entity.LockoutEnd.Value > DateTimeOffset.UtcNow)
+                {
+                    throw new SuperAdminProtectionException("The primary Super Admin account is system-protected and cannot be locked out.");
+                }
+            }
+        }
+
+        // 2. Guard against removing the SuperAdmin role from a protected Super Admin
+        foreach (var entry in ChangeTracker.Entries<IdentityUserRole<string>>())
+        {
+            if (entry.State == EntityState.Deleted)
+            {
+                var user = Users.AsNoTracking().FirstOrDefault(u => u.Id == entry.Entity.UserId);
+                if (user != null && user.IsSuperAdminProtected)
+                {
+                    var superAdminRole = Roles.AsNoTracking().FirstOrDefault(r => r.Name == nameof(UserRole.SuperAdmin));
+                    if (superAdminRole != null && entry.Entity.RoleId == superAdminRole.Id)
+                    {
+                        throw new SuperAdminProtectionException("The SuperAdmin role cannot be removed from the protected Super Admin account.");
+                    }
+                }
+            }
+        }
     }
 }

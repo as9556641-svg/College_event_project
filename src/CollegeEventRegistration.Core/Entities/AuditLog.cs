@@ -19,3 +19,4 @@ public class AuditLog : BaseEntity
     public string? UserAgent { get; set; }
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }
+

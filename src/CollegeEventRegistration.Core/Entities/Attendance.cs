@@ -19,3 +19,4 @@ public class Attendance : BaseEntity
     public CheckInMethod CheckInMethod { get; set; } = CheckInMethod.QrCode;
     public string? Remarks { get; set; }
 }
+

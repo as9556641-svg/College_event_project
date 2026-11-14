@@ -64,3 +64,4 @@ public enum NotificationType
     AttendanceConfirmed = 5,
     CertificateAvailable = 6
 }
+

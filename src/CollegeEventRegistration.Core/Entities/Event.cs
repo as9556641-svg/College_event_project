@@ -65,3 +65,4 @@ public class Event : BaseEntity
     public ICollection<EventFeedback> FeedbackList { get; set; } = new List<EventFeedback>();
     public CertificateTemplate? CertificateTemplate { get; set; }
 }
+

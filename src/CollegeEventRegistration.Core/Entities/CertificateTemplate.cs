@@ -18,3 +18,4 @@ public class CertificateTemplate : BaseEntity
     public DateTime IssueDate { get; set; } = DateTime.UtcNow;
     public string CertificateCodePrefix { get; set; } = "CERT";
 }
+

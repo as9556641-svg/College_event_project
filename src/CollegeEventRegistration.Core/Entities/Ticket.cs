@@ -18,3 +18,4 @@ public class Ticket : BaseEntity
     public bool IsUsed { get; set; } = false;
     public DateTime? UsedAt { get; set; }
 }
+

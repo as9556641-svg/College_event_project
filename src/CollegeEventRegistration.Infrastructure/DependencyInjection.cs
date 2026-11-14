@@ -1,5 +1,8 @@
 using CollegeEventRegistration.Core.Entities;
+using CollegeEventRegistration.Core.Interfaces;
 using CollegeEventRegistration.Infrastructure.Data;
+using CollegeEventRegistration.Infrastructure.Identity;
+using CollegeEventRegistration.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -50,7 +53,12 @@ public static class DependencyInjection
             options.SignIn.RequireConfirmedEmail = false; // Enabled later when SMTP is configured
         })
         .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddUserValidator<SuperAdminUserValidator>()
         .AddDefaultTokenProviders();
+
+        // Register Phase 2.1 Domain & Protection Services
+        services.AddScoped<ISuperAdminProtectionService, SuperAdminProtectionService>();
+        services.AddScoped<IEventCapacityService, EventCapacityService>();
 
         return services;
     }
