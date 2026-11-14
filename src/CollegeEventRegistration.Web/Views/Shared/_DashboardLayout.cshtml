@@ -1,0 +1,298 @@
+@using Microsoft.AspNetCore.Identity
+@using CollegeEventRegistration.Core.Entities
+@using CollegeEventRegistration.Core.Enums
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var currentUser = SignInManager.IsSignedIn(User) ? await UserManager.GetUserAsync(User) : null;
+    var roles = currentUser != null ? await UserManager.GetRolesAsync(currentUser) : new List<string>();
+    var primaryRole = roles.FirstOrDefault() ?? "User";
+    var currentArea = ViewContext.RouteData.Values["area"]?.ToString() ?? "";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - College Event & Workshop Registration System</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="dash-sidebar-backdrop"></div>
+
+    <div class="dash-app-layout">
+        <!-- Sidebar Navigation Shell -->
+        <aside class="dash-sidebar">
+            <div class="dash-sidebar-header">
+                <div class="dash-brand-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                </div>
+                <div>
+                    <div class="dash-brand-title">Campus Event Hub</div>
+                    <div class="dash-brand-sub">Central University</div>
+                </div>
+            </div>
+
+            <div class="dash-sidebar-nav">
+                @if (User.IsInRole(nameof(UserRole.SuperAdmin)))
+                {
+                    <div class="dash-nav-section-title">System Governance</div>
+                    <a asp-area="SuperAdmin" asp-controller="Dashboard" asp-action="Index" class="dash-nav-link @(currentArea == "SuperAdmin" ? "active" : "")">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="7" height="9" x="3" y="3" rx="1"></rect>
+                            <rect width="7" height="5" x="14" y="3" rx="1"></rect>
+                            <rect width="7" height="9" x="14" y="12" rx="1"></rect>
+                            <rect width="7" height="5" x="3" y="16" rx="1"></rect>
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+                    <span class="dash-nav-link text-muted pe-none opacity-75">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span>User Management</span>
+                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
+                    </span>
+                    <span class="dash-nav-link text-muted pe-none opacity-75">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        <span>Departments</span>
+                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
+                    </span>
+                    <span class="dash-nav-link text-muted pe-none opacity-75">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        </svg>
+                        <span>Event Categories</span>
+                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
+                    </span>
+                    <span class="dash-nav-link text-muted pe-none opacity-75">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>All Events</span>
+                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
+                    </span>
+                    <span class="dash-nav-link text-muted pe-none opacity-75">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        <span>Audit Logs</span>
+                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
+                    </span>
+                    <span class="dash-nav-link text-muted pe-none opacity-75">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        <span>System Settings</span>
+                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
+                    </span>
+                }
+                else if (User.IsInRole(nameof(UserRole.Admin)))
+                {
+                    <div class="dash-nav-section-title">Campus Administration</div>
+                    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="dash-nav-link @(currentArea == "Admin" ? "active" : "")">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="7" height="9" x="3" y="3" rx="1"></rect>
+                            <rect width="7" height="5" x="14" y="3" rx="1"></rect>
+                            <rect width="7" height="9" x="14" y="12" rx="1"></rect>
+                            <rect width="7" height="5" x="3" y="16" rx="1"></rect>
+                        </svg>
+                        <span>Admin Dashboard</span>
+                    </a>
+                    <span class="dash-nav-link text-muted pe-none opacity-75">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>Manage Events</span>
+                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
+                    </span>
+                    <span class="dash-nav-link text-muted pe-none opacity-75">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <span>Event Approvals</span>
+                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
+                    </span>
+                }
+                else if (User.IsInRole(nameof(UserRole.Coordinator)))
+                {
+                    <div class="dash-nav-section-title">Event Operations</div>
+                    <a asp-area="Coordinator" asp-controller="Dashboard" asp-action="Index" class="dash-nav-link @(currentArea == "Coordinator" ? "active" : "")">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="7" height="9" x="3" y="3" rx="1"></rect>
+                            <rect width="7" height="5" x="14" y="3" rx="1"></rect>
+                            <rect width="7" height="9" x="14" y="12" rx="1"></rect>
+                            <rect width="7" height="5" x="3" y="16" rx="1"></rect>
+                        </svg>
+                        <span>Coordinator Workspace</span>
+                    </a>
+                    <span class="dash-nav-link text-muted pe-none opacity-75">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                        </svg>
+                        <span>Assigned Events</span>
+                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
+                    </span>
+                }
+                else
+                {
+                    <div class="dash-nav-section-title">Student Portal</div>
+                    <a asp-area="Student" asp-controller="Dashboard" asp-action="Index" class="dash-nav-link @(currentArea == "Student" ? "active" : "")">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="7" height="9" x="3" y="3" rx="1"></rect>
+                            <rect width="7" height="5" x="14" y="3" rx="1"></rect>
+                            <rect width="7" height="9" x="14" y="12" rx="1"></rect>
+                            <rect width="7" height="5" x="3" y="16" rx="1"></rect>
+                        </svg>
+                        <span>Student Dashboard</span>
+                    </a>
+                    <span class="dash-nav-link text-muted pe-none opacity-75">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"></path>
+                        </svg>
+                        <span>My Event Passes</span>
+                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
+                    </span>
+                }
+
+                <div class="dash-nav-section-title mt-3">Navigation</div>
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="dash-nav-link">
+                    <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    <span>Public Catalog</span>
+                </a>
+            </div>
+
+            <!-- Sidebar User Profile Footer -->
+            <div class="dash-sidebar-footer">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle fw-bold" 
+                          style="width: 32px; height: 32px; font-size: 0.85rem;">
+                        @(currentUser?.FirstName?.FirstOrDefault() ?? 'U')
+                    </span>
+                    <div class="overflow-hidden">
+                        <div class="fw-semibold text-truncate small">@(currentUser?.FullName ?? "Administrator")</div>
+                        <div class="text-muted text-truncate" style="font-size: 0.72rem;">@(currentUser?.Email ?? "")</div>
+                    </div>
+                </div>
+                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-1">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        <span>Sign Out</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="dash-main-wrapper">
+            <!-- Top Navigation Bar -->
+            <header class="dash-topbar">
+                <div class="d-flex align-items-center gap-3">
+                    <button type="button" class="dash-sidebar-toggle" aria-label="Toggle Navigation">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge badge-role @(primaryRole == "SuperAdmin" || primaryRole == "Admin" ? "badge-role-admin" : primaryRole == "Coordinator" ? "badge-role-coordinator" : "badge-role-student")">
+                            @primaryRole Workspace
+                        </span>
+                        <span class="text-muted small d-none d-md-inline">&bull; Central University</span>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Live System Operational Pill -->
+                    <div class="dash-status-pill d-none d-sm-inline-flex">
+                        <span class="dash-pulse-dot"></span>
+                        <span>System Operational</span>
+                    </div>
+
+                    <!-- User Dropdown Menu -->
+                    <div class="dropdown">
+                        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark" id="dashUserMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle fw-bold me-2" 
+                                  style="width: 32px; height: 32px; font-size: 0.85rem;">
+                                @(currentUser?.FirstName?.FirstOrDefault() ?? 'U')
+                            </span>
+                            <span class="fw-semibold small d-none d-lg-inline">@(currentUser?.FullName ?? "Administrator")</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2" aria-labelledby="dashUserMenu">
+                            <li class="px-3 py-2 border-bottom">
+                                <div class="fw-semibold small">@(currentUser?.FullName ?? "Administrator")</div>
+                                <div class="text-muted small text-truncate" style="max-width: 200px;">@(currentUser?.Email ?? "")</div>
+                            </li>
+                            <li><a class="dropdown-item py-2" asp-area="" asp-controller="Home" asp-action="Index">Public Event Catalog</a></li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="dropdown-item py-2 text-danger">Sign Out</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main role="main" class="dash-content">
+                @RenderBody()
+            </main>
+
+            <!-- Dashboard Footer -->
+            <footer class="dash-footer d-flex flex-wrap justify-content-between align-items-center">
+                <span>&copy; @DateTime.UtcNow.Year - College Event &amp; Workshop Registration System (.NET 10 LTS)</span>
+                <span class="text-muted small">SQL Server 2025 Express &bull; Institutional Governance</span>
+            </footer>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/dashboard.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

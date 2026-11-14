@@ -7,26 +7,56 @@
     <div class="col-md-8">
         <div class="d-flex align-items-center gap-2 mb-1">
             <span class="badge badge-role badge-role-student">Student Portal</span>
-            <span class="text-muted small">My Events, Tickets & Certificates</span>
+            <span class="text-muted small">My Events, Passes &amp; Certificates</span>
         </div>
-        <h2 class="fw-bold mb-0">Welcome, @(Model?.FullName ?? "Student")</h2>
+        <h2 class="fw-bold mb-0" style="color: #0F172A; letter-spacing: -0.02em;">Welcome, @(Model?.FullName ?? "Student")</h2>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-3d-primary btn-sm">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <span>Browse Event Catalog</span>
+        </a>
     </div>
 </div>
 
-<div class="row g-4 mb-5">
+<div class="row g-4 mb-4">
     <div class="col-md-6">
-        <div class="card card-3d p-4 h-100">
-            <span class="text-muted small text-uppercase fw-semibold">My Registrations</span>
-            <h3 class="fw-bold my-2 text-primary">@ViewBag.RegistrationsCount</h3>
-            <span class="text-muted small">Total events enrolled</span>
+        <div class="dash-metric-card">
+            <div>
+                <div class="dash-metric-header">
+                    <span class="dash-metric-label">My Registrations</span>
+                    <div class="dash-metric-icon-wrap icon-wrap-blue">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </div>
+                </div>
+                <div class="dash-metric-value text-primary">@ViewBag.RegistrationsCount</div>
+            </div>
+            <p class="dash-metric-subtext">Total campus events and workshops enrolled</p>
         </div>
     </div>
+
     <div class="col-md-6">
-        <div class="card card-3d p-4 h-100">
-            <span class="text-muted small text-uppercase fw-semibold">Confirmed Passes</span>
-            <h3 class="fw-bold my-2 text-success">@ViewBag.ConfirmedCount</h3>
-            <span class="text-muted small">Ready for QR check-in</span>
+        <div class="dash-metric-card">
+            <div>
+                <div class="dash-metric-header">
+                    <span class="dash-metric-label">Confirmed Passes</span>
+                    <div class="dash-metric-icon-wrap icon-wrap-green">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="dash-metric-value" style="color: #059669;">@ViewBag.ConfirmedCount</div>
+            </div>
+            <p class="dash-metric-subtext">Confirmed passes ready for QR check-in</p>
         </div>
     </div>
 </div>
-
