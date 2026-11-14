@@ -1,4 +1,4 @@
-@model string?
+﻿@model string?
 @{
     var logoClass = Model ?? ViewData["LogoClass"]?.ToString() ?? "branding-logo-default";
     var showText = (bool?)ViewData["ShowBrandingText"] ?? false;
@@ -10,8 +10,8 @@
 }
 
 <div class="d-inline-flex align-items-center gap-2 branding-container @logoClass">
-    <img src="~/images/branding/varp-university-logo.png"
-         alt="VARP University Logo"
+    <img src="~/images/branding/vap-university-logo.png"
+         alt="VAP University Logo"
          class="branding-logo-img"
          style="@(string.IsNullOrEmpty(styleStr) ? "" : styleStr)object-fit: contain;"
          asp-append-version="true" />
@@ -19,7 +19,7 @@
     {
         <div class="branding-text-block text-start">
             <div class="branding-app-title">Campus Event Hub</div>
-            <div class="branding-univ-title">VARP UNIVERSITY</div>
+            <div class="branding-univ-title">VAP UNIVERSITY</div>
         </div>
     }
 </div>

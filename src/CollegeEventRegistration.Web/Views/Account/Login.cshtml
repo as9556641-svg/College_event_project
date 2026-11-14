@@ -1,7 +1,7 @@
-@model CollegeEventRegistration.Web.Models.Account.LoginViewModel
+﻿@model CollegeEventRegistration.Web.Models.Account.LoginViewModel
 @{
     Layout = null;
-    ViewData["Title"] = "Sign In - VARP UNIVERSITY | Campus Event Hub";
+    ViewData["Title"] = "Sign In - VAP UNIVERSITY | Campus Event Hub";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -17,8 +17,8 @@
     <div class="auth-split-wrapper">
         <!-- LEFT PANEL: 50% Full-Height University Campus Photo -->
         <div class="auth-split-left" aria-hidden="true">
-            <img src="~/images/branding/varp-university-campus.jpg"
-                 alt="VARP University Campus"
+            <img src="~/images/branding/vap-university-campus.jpg"
+                 alt="VAP University Campus"
                  class="auth-campus-img"
                  asp-append-version="true" />
         </div>
@@ -37,10 +37,10 @@
             </div>
 
             <div class="auth-split-container">
-                <!-- Official VARP University Logo -->
+                <!-- Official VAP University Logo -->
                 <div class="auth-split-logo-wrap text-start">
-                    <img src="~/images/branding/varp-university-logo.png"
-                         alt="VARP University Logo"
+                    <img src="~/images/branding/vap-university-logo.png"
+                         alt="VAP University Logo"
                          class="auth-split-logo"
                          asp-append-version="true" />
                 </div>
@@ -96,7 +96,7 @@
                     <div class="auth-form-group mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <label asp-for="Password" class="auth-form-label mb-0" for="loginPasswordInput">Password</label>
-                            <a asp-controller="Account" asp-action="ForgotPassword" class="auth-varp-subtle-link" tabindex="4">
+                            <a asp-controller="Account" asp-action="ForgotPassword" class="auth-vap-subtle-link" tabindex="4">
                                 Forgot Password?
                             </a>
                         </div>
@@ -145,7 +145,7 @@
                     </div>
 
                     <!-- Primary Action: Sign In Button -->
-                    <button type="submit" class="btn-auth-varp btn-auth-primary mb-3" id="submitLoginBtn">
+                    <button type="submit" class="btn-auth-vap btn-auth-primary mb-3" id="submitLoginBtn">
                         <span class="btn-spinner" aria-hidden="true"></span>
                         <span class="btn-text">Sign In</span>
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
@@ -159,7 +159,7 @@
                 <div class="text-center pt-3 border-top border-slate-100">
                     <p class="auth-register-text mb-0">
                         Don't have an account?
-                        <a asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" class="auth-varp-link ms-1">
+                        <a asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" class="auth-vap-link ms-1">
                             Create Student Account
                         </a>
                     </p>
@@ -167,7 +167,7 @@
 
                 <!-- Institutional Footer Badge -->
                 <div class="auth-portal-tagline text-center mt-4">
-                    <span>&copy; @DateTime.UtcNow.Year VARP UNIVERSITY &bull; Campus Event Hub</span>
+                    <span>&copy; @DateTime.UtcNow.Year VAP UNIVERSITY &bull; Campus Event Hub</span>
                 </div>
             </div>
         </div>

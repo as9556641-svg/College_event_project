@@ -1,4 +1,4 @@
-@model CollegeEventRegistration.Web.Models.Account.RegisterViewModel
+﻿@model CollegeEventRegistration.Web.Models.Account.RegisterViewModel
 @{
     ViewData["Title"] = "Student Registration - College Event & Workshop Registration";
     var departments = ViewData["Departments"] as IEnumerable<CollegeEventRegistration.Core.Entities.Department> ?? Enumerable.Empty<CollegeEventRegistration.Core.Entities.Department>();
@@ -13,12 +13,12 @@
         <!-- Institutional Header & Branding -->
         <div class="auth-card-header text-center mb-4">
             <div class="text-center mb-3">
-                <img src="~/images/branding/varp-university-logo.png" 
-                     alt="VARP University Logo" 
+                <img src="~/images/branding/vap-university-logo.png" 
+                     alt="VAP University Logo" 
                      style="height: 52px; width: auto; object-fit: contain; max-width: 240px;" 
                      asp-append-version="true" />
             </div>
-            <div class="auth-system-kicker" style="color: #0BA9AC;">VARP UNIVERSITY &bull; STUDENT ENROLLMENT</div>
+            <div class="auth-system-kicker" style="color: #0BA9AC;">VAP UNIVERSITY &bull; STUDENT ENROLLMENT</div>
             <h1 class="auth-card-title" style="color: #1F2C58;">Create Student Account</h1>
             <p class="auth-card-subtitle">Register to discover workshops, enroll in hackathons, and receive verified certificates</p>
         </div>
@@ -236,7 +236,7 @@
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" class="btn-auth-varp btn-auth-primary mt-4 mb-3" id="submitRegisterBtn" data-loading-text="Creating account...">
+            <button type="submit" class="btn-auth-vap btn-auth-primary mt-4 mb-3" id="submitRegisterBtn" data-loading-text="Creating account...">
                 <span class="btn-spinner" aria-hidden="true"></span>
                 <span class="btn-text">Complete Student Registration</span>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
@@ -250,7 +250,7 @@
         <div class="auth-card-footer text-center pt-3 border-top border-slate-100">
             <p class="auth-register-text mb-0">
                 Already have an account?
-                <a asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" class="auth-varp-link ms-1">
+                <a asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" class="auth-vap-link ms-1">
                     Sign in here
                 </a>
             </p>
@@ -259,7 +259,7 @@
 
     <!-- Minimal Institutional Platform Badge -->
     <div class="auth-portal-tagline text-center mt-3">
-        <span>&copy; @DateTime.UtcNow.Year VARP UNIVERSITY &bull; Campus Event Hub</span>
+        <span>&copy; @DateTime.UtcNow.Year VAP UNIVERSITY &bull; Campus Event Hub</span>
     </div>
 </div>
 

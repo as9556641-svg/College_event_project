@@ -45,7 +45,7 @@ public class RegisterViewModel
     public int? YearOfStudy { get; set; } = 1;
 
     [Display(Name = "College / Institution Name")]
-    public string CollegeName { get; set; } = "VARP UNIVERSITY";
+    public string CollegeName { get; set; } = "VAP UNIVERSITY";
 
     public string? ReturnUrl { get; set; }
 }

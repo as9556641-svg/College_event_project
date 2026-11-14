@@ -17,7 +17,7 @@
 }
 
 /* ==========================================================================
-   VARP UNIVERSITY Split-Screen Authentication Layout
+   VAP UNIVERSITY Split-Screen Authentication Layout
    ========================================================================== */
 .auth-split-wrapper {
   display: flex;
@@ -117,7 +117,7 @@
 .auth-split-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #1F2C58; /* VARP Navy */
+  color: #1F2C58; /* VAP Navy */
   letter-spacing: -0.025em;
   margin-bottom: 0.35rem;
   line-height: 1.25;
@@ -131,7 +131,7 @@
 }
 
 /* Brand Sign In Button */
-.btn-auth-varp {
+.btn-auth-vap {
   width: 100%;
   height: 2.875rem;
   background-color: #1F2C58;
@@ -149,7 +149,7 @@
   transition: all 0.2s ease;
 }
 
-.btn-auth-varp:hover {
+.btn-auth-vap:hover {
   background-color: #16203E;
   border-color: #16203E;
   color: #FFFFFF;
@@ -157,42 +157,42 @@
   transform: translateY(-1px);
 }
 
-.btn-auth-varp:active {
+.btn-auth-vap:active {
   transform: translateY(0);
   box-shadow: 0 2px 6px rgba(31, 44, 88, 0.2);
 }
 
-.btn-auth-varp:focus-visible {
+.btn-auth-vap:focus-visible {
   outline: 3px solid rgba(11, 169, 172, 0.5) !important;
   outline-offset: 2px;
 }
 
-.btn-auth-varp.is-loading .btn-spinner {
+.btn-auth-vap.is-loading .btn-spinner {
   display: inline-block;
 }
 
-.btn-auth-varp.is-loading .btn-icon {
+.btn-auth-vap.is-loading .btn-icon {
   display: none;
 }
 
-.btn-auth-varp.is-loading .btn-text {
+.btn-auth-vap.is-loading .btn-text {
   opacity: 0.9;
 }
 
 /* Links & Accents */
-.auth-varp-link {
+.auth-vap-link {
   color: #0BA9AC;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.15s ease;
 }
 
-.auth-varp-link:hover {
+.auth-vap-link:hover {
   color: #08898E;
   text-decoration: underline;
 }
 
-.auth-varp-subtle-link {
+.auth-vap-subtle-link {
   font-size: 0.84rem;
   color: #0BA9AC;
   text-decoration: none;
@@ -200,7 +200,7 @@
   transition: color 0.15s ease;
 }
 
-.auth-varp-subtle-link:hover {
+.auth-vap-subtle-link:hover {
   color: #08898E;
   text-decoration: underline;
 }
