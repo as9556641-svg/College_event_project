@@ -223,6 +223,8 @@
 
 ## 8. Phase 11 Implementation & Verification Summary
 
+- **Git Commit:** `73869f2` (`feat(feedback): implement Phase 11 post-event feedback, rating aggregation, and coordinator analytics`)
+
 ### Deliverables:
 1. **Domain-Enforced Feedback Service (`IFeedbackService`, `FeedbackService`):**
    - Server-side post-event evaluation validation requiring:
