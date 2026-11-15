@@ -1,0 +1,120 @@
+@model CollegeEventRegistration.Core.DTOs.FeedbackItemDto
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Feedback Inspection";
+}
+
+<div class="dash-page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-role badge-role-coord">Faculty Coordinator</span>
+            <span class="text-muted small">Participant Review Inspection</span>
+        </div>
+        <h2 class="dash-page-title">Feedback #@Model.Id</h2>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" asp-route-eventId="@Model.EventId" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span>Back to Event Feedback</span>
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm p-4 mb-4 bg-white">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3 pb-3 border-bottom">
+                <div>
+                    <h4 class="fw-bold text-dark mb-1">@Model.EventTitle</h4>
+                    <div class="text-muted small">Registration: <span class="font-monospace">@Model.RegistrationNumber</span></div>
+                </div>
+                <div class="text-end">
+                    <div class="text-muted small">Submitted On</div>
+                    <div class="fw-medium text-dark">@Model.SubmittedAt.ToString("MMM dd, yyyy HH:mm") UTC</div>
+                </div>
+            </div>
+
+            <!-- Student Profile Summary -->
+            <div class="card bg-light border-0 p-3 mb-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-bold text-dark">@Model.StudentName</div>
+                        @if (!Model.IsAnonymous)
+                        {
+                            <div class="text-muted small">Roll: @(Model.StudentRollNumber ?? "N/A") | Department: @(Model.StudentDepartment ?? "N/A")</div>
+                        }
+                        else
+                        {
+                            <div class="text-muted small">Student opted to submit this evaluation anonymously.</div>
+                        }
+                    </div>
+                    @if (Model.IsAnonymous)
+                    {
+                        <span class="badge bg-secondary-subtle text-secondary border">Anonymous</span>
+                    }
+                </div>
+            </div>
+
+            <!-- Overall Rating -->
+            <div class="p-3 mb-4 rounded bg-light border text-center">
+                <div class="text-muted small text-uppercase fw-bold mb-1">Overall Rating</div>
+                <div class="display-6 fw-bold text-warning mb-1">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        if (i <= Model.OverallRating)
+                        {
+                            <span>&#9733;</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted opacity-25">&#9733;</span>
+                        }
+                    }
+                </div>
+                <div class="fw-bold text-dark">@Model.OverallRating / 5 Stars</div>
+            </div>
+
+            <!-- Breakdown -->
+            <h5 class="fw-bold text-dark mb-3">Dimensional Evaluation</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="border rounded p-3 text-center bg-white">
+                        <div class="text-muted small">Content Quality</div>
+                        <div class="h5 fw-bold text-warning mb-0 mt-1">@Model.ContentQualityRating / 5 ★</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="border rounded p-3 text-center bg-white">
+                        <div class="text-muted small">Speaker / Instructor</div>
+                        <div class="h5 fw-bold text-warning mb-0 mt-1">@Model.SpeakerRating / 5 ★</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="border rounded p-3 text-center bg-white">
+                        <div class="text-muted small">Venue &amp; Logistics</div>
+                        <div class="h5 fw-bold text-warning mb-0 mt-1">@Model.VenueRating / 5 ★</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments -->
+            <h5 class="fw-bold text-dark mb-2">Participant Comments &amp; Suggestions</h5>
+            <div class="p-3 rounded bg-light border mb-4">
+                @if (!string.IsNullOrWhiteSpace(Model.Comments))
+                {
+                    <p class="mb-0 text-dark" style="white-space: pre-wrap;">@Model.Comments</p>
+                }
+                else
+                {
+                    <div class="text-muted fst-italic">Participant did not leave written comments.</div>
+                }
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <a asp-action="Index" asp-route-eventId="@Model.EventId" class="btn btn-outline-secondary">
+                    Back to Event Overview
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

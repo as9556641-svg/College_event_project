@@ -84,6 +84,9 @@ public static class DependencyInjection
         // Register Phase 10 Attendance Management Services
         services.AddScoped<IAttendanceService, AttendanceService>();
 
+        // Register Phase 11 Feedback & Ratings Services
+        services.AddScoped<IFeedbackService, FeedbackService>();
+
         return services;
     }
 }

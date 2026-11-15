@@ -1,0 +1,224 @@
+@model CollegeEventRegistration.Core.DTOs.PagedResult<CollegeEventRegistration.Core.DTOs.FeedbackItemDto>
+@using CollegeEventRegistration.Core.DTOs
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Campus Feedback & Ratings";
+    var criteria = ViewBag.Criteria as FeedbackFilterCriteria ?? new FeedbackFilterCriteria();
+    var events = ViewBag.Events as List<SelectListItem> ?? new List<SelectListItem>();
+    var departments = ViewBag.Departments as List<SelectListItem> ?? new List<SelectListItem>();
+}
+
+<div class="dash-page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-role badge-role-admin">University Governance</span>
+            <span class="text-muted small">Campus Event Hub</span>
+        </div>
+        <h2 class="dash-page-title">Campus Feedback &amp; Ratings Ledger</h2>
+    </div>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
+        <span>@TempData["ErrorMessage"]</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Campus Overview Metrics -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm p-3 h-100 bg-white border-start border-4 border-warning">
+            <div class="text-muted small fw-semibold text-uppercase">Average Campus Rating</div>
+            <div class="d-flex align-items-baseline gap-2 mt-1">
+                <span class="display-6 fw-bold text-warning">@ViewBag.AvgCampusRating</span>
+                <span class="text-muted">/ 5.0</span>
+            </div>
+            <div class="text-muted small mt-1">Institution-wide satisfaction</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm p-3 h-100 bg-white border-start border-4 border-primary">
+            <div class="text-muted small fw-semibold text-uppercase">Total Reviews</div>
+            <div class="display-6 fw-bold text-primary mt-1">@ViewBag.TotalFeedbacks</div>
+            <div class="text-muted small mt-1">Submitted student evaluations</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm p-3 h-100 bg-white border-start border-4 border-success">
+            <div class="text-muted small fw-semibold text-uppercase">Feedback Rate</div>
+            <div class="display-6 fw-bold text-success mt-1">@ViewBag.FeedbackRate%</div>
+            <div class="text-muted small mt-1">Of @ViewBag.TotalAttended verified attendees</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm p-3 h-100 bg-white border-start border-4 border-info">
+            <div class="text-muted small fw-semibold text-uppercase">Active Events Evaluated</div>
+            <div class="display-6 fw-bold text-dark mt-1">@events.Count</div>
+            <div class="text-muted small mt-1">Total published campus events</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters Bar -->
+<div class="card border-0 shadow-sm p-3 mb-4 bg-white">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Search</label>
+            <input type="text" name="SearchTerm" class="form-control form-control-sm" placeholder="Student, roll #, event, comment..." value="@criteria.SearchTerm" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Event</label>
+            <select name="EventId" class="form-select form-select-sm">
+                <option value="">All Events</option>
+                @foreach (var ev in events)
+                {
+                    <option value="@ev.Value" selected="@ev.Selected">@ev.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold text-muted">Department</label>
+            <select name="DepartmentId" class="form-select form-select-sm">
+                <option value="">All Departments</option>
+                @foreach (var d in departments)
+                {
+                    <option value="@d.Value" selected="@d.Selected">@d.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold text-muted">Min Rating</label>
+            <select name="MinRating" class="form-select form-select-sm">
+                <option value="">All Ratings</option>
+                <option value="5" selected="@(criteria.MinRating == 5)">5 Stars</option>
+                <option value="4" selected="@(criteria.MinRating == 4)">4+ Stars</option>
+                <option value="3" selected="@(criteria.MinRating == 3)">3+ Stars</option>
+                <option value="2" selected="@(criteria.MinRating == 2)">2+ Stars</option>
+                <option value="1" selected="@(criteria.MinRating == 1)">1+ Stars</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-sm btn-primary fw-medium px-3 w-100">Filter</button>
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Reset</a>
+        </div>
+    </form>
+</div>
+
+<!-- Master Table -->
+<div class="card border-0 shadow-sm bg-white mb-4">
+    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+        <h5 class="fw-bold text-dark mb-0">Campus Feedback Entries</h5>
+        <span class="badge bg-secondary-subtle text-secondary">@(Model?.TotalCount ?? 0) Total</span>
+    </div>
+    <div class="card-body p-0">
+        @if (Model != null && Model.Items.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-uppercase text-muted">
+                        <tr>
+                            <th class="ps-3">Event</th>
+                            <th>Student</th>
+                            <th>Rating</th>
+                            <th>Breakdown</th>
+                            <th>Comments</th>
+                            <th>Submitted On</th>
+                            <th class="text-end pe-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td class="ps-3">
+                                    <div class="fw-bold text-dark">@item.EventTitle</div>
+                                    <div class="text-muted small">@(item.DepartmentName ?? "Campus")</div>
+                                </td>
+                                <td>
+                                    <div class="fw-medium text-dark">@item.StudentName</div>
+                                    @if (item.IsAnonymous)
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary" style="font-size: 0.7rem;">Anonymous</span>
+                                    }
+                                    else if (!string.IsNullOrWhiteSpace(item.StudentRollNumber))
+                                    {
+                                        <div class="text-muted small">@item.StudentRollNumber</div>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="text-warning fw-bold">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            if (i <= item.OverallRating)
+                                            {
+                                                <span>&#9733;</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted opacity-25">&#9733;</span>
+                                            }
+                                        }
+                                        <span class="text-dark small ms-1">(@item.OverallRating/5)</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small text-muted" style="font-size: 0.78rem;">
+                                        <div>Content: <strong>@item.ContentQualityRating★</strong></div>
+                                        <div>Speaker: <strong>@item.SpeakerRating★</strong></div>
+                                        <div>Venue: <strong>@item.VenueRating★</strong></div>
+                                    </div>
+                                </td>
+                                <td style="max-width: 300px;">
+                                    @if (!string.IsNullOrWhiteSpace(item.Comments))
+                                    {
+                                        <div class="text-truncate small text-dark" title="@item.Comments">@item.Comments</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small fst-italic">None</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="small text-muted">@item.SubmittedAt.ToString("MMM dd, yyyy HH:mm")</div>
+                                </td>
+                                <td class="text-end pe-3">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">
+                                        Inspect
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            @if (Model.TotalPages > 1)
+            {
+                <div class="d-flex justify-content-between align-items-center p-3 border-top">
+                    <div class="text-muted small">
+                        Showing page @Model.PageNumber of @Model.TotalPages
+                    </div>
+                    <div class="btn-group">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <a asp-action="Index" asp-route-PageNumber="@(Model.PageNumber - 1)" asp-route-EventId="@criteria.EventId" asp-route-DepartmentId="@criteria.DepartmentId" asp-route-MinRating="@criteria.MinRating" asp-route-SearchTerm="@criteria.SearchTerm" class="btn btn-sm btn-outline-secondary">&laquo; Prev</a>
+                        }
+                        @if (Model.HasNextPage)
+                        {
+                            <a asp-action="Index" asp-route-PageNumber="@(Model.PageNumber + 1)" asp-route-EventId="@criteria.EventId" asp-route-DepartmentId="@criteria.DepartmentId" asp-route-MinRating="@criteria.MinRating" asp-route-SearchTerm="@criteria.SearchTerm" class="btn btn-sm btn-outline-secondary">Next &raquo;</a>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="p-4 text-center text-muted">
+                <div class="small">No feedback records found matching criteria.</div>
+            </div>
+        }
+    </div>
+</div>

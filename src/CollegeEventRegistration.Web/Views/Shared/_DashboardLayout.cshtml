@@ -184,6 +184,13 @@
                         </svg>
                         <span>Attendance Ledger</span>
                     </a>
+                    <a asp-area="Admin" asp-controller="Feedback" asp-action="Index" 
+                       class="dash-nav-link @(currentArea == "Admin" && currentController == "Feedback" ? "active" : "")">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                        <span>Feedback &amp; Ratings</span>
+                    </a>
                     <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -257,6 +264,13 @@
                         </svg>
                         <span>Attendance Scanner</span>
                     </a>
+                    <a asp-area="Coordinator" asp-controller="Feedback" asp-action="Index" 
+                       class="dash-nav-link @(currentArea == "Coordinator" && currentController == "Feedback" ? "active" : "")">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                        <span>Event Feedback</span>
+                    </a>
                     <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="8" r="7"></circle>
@@ -308,6 +322,13 @@
                             <path d="M7 7h10v10H7z"></path>
                         </svg>
                         <span>My Tickets</span>
+                    </a>
+                    <a asp-area="Student" asp-controller="Feedback" asp-action="Index" 
+                       class="dash-nav-link @(currentArea == "Student" && currentController == "Feedback" ? "active" : "")">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                        <span>My Feedback</span>
                     </a>
                     <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

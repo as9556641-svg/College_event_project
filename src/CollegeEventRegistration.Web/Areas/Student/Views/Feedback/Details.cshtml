@@ -1,0 +1,117 @@
+@model CollegeEventRegistration.Core.DTOs.FeedbackItemDto
+@{
+    Layout = "_StudentPortalLayout";
+    ViewData["Title"] = "Feedback Details";
+}
+
+<div class="container-xl my-4">
+    <!-- Breadcrumb & Back -->
+    <div class="mb-3">
+        <a asp-action="Index" class="btn btn-sm btn-link text-decoration-none text-muted ps-0 d-inline-flex align-items-center gap-1">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span>Back to My Feedback</span>
+        </a>
+    </div>
+
+    <!-- Feedback Alerts -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
+            <div class="d-flex align-items-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <span>@TempData["SuccessMessage"]</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 mb-4 bg-white">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3 pb-3 border-bottom">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-1"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                Feedback Submitted
+                            </span>
+                            @if (Model.IsAnonymous)
+                            {
+                                <span class="badge bg-secondary-subtle text-secondary border">Anonymous Review</span>
+                            }
+                        </div>
+                        <h3 class="fw-bold text-dark mb-0">@Model.EventTitle</h3>
+                        <div class="text-muted small mt-1">Registration: <span class="font-monospace">@Model.RegistrationNumber</span></div>
+                    </div>
+                    <div class="text-end">
+                        <div class="text-muted small">Submitted On</div>
+                        <div class="fw-medium text-dark">@Model.SubmittedAt.ToString("MMM dd, yyyy HH:mm") UTC</div>
+                    </div>
+                </div>
+
+                <!-- Overall Rating Display -->
+                <div class="p-3 mb-4 rounded bg-light border text-center">
+                    <div class="text-muted small text-uppercase fw-bold mb-1">Overall Rating</div>
+                    <div class="display-6 fw-bold text-warning mb-1">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= Model.OverallRating)
+                            {
+                                <span>&#9733;</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted opacity-25">&#9733;</span>
+                            }
+                        }
+                    </div>
+                    <div class="fw-bold text-dark">@Model.OverallRating out of 5 Stars</div>
+                </div>
+
+                <!-- Detailed Breakdown -->
+                <h5 class="fw-bold text-dark mb-3">Detailed Assessment</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 text-center bg-white">
+                            <div class="text-muted small">Content Quality</div>
+                            <div class="h5 fw-bold text-warning mb-0 mt-1">@Model.ContentQualityRating / 5 ★</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 text-center bg-white">
+                            <div class="text-muted small">Speaker / Instructor</div>
+                            <div class="h5 fw-bold text-warning mb-0 mt-1">@Model.SpeakerRating / 5 ★</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 text-center bg-white">
+                            <div class="text-muted small">Venue &amp; Logistics</div>
+                            <div class="h5 fw-bold text-warning mb-0 mt-1">@Model.VenueRating / 5 ★</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comments & Reflections -->
+                <h5 class="fw-bold text-dark mb-2">Written Reflections &amp; Suggestions</h5>
+                <div class="p-3 rounded bg-light border mb-4">
+                    @if (!string.IsNullOrWhiteSpace(Model.Comments))
+                    {
+                        <p class="mb-0 text-dark" style="white-space: pre-wrap;">@Model.Comments</p>
+                    }
+                    else
+                    {
+                        <div class="text-muted fst-italic">No additional comments provided.</div>
+                    }
+                </div>
+
+                <!-- Navigation buttons -->
+                <div class="d-flex justify-content-between pt-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary">All Feedback</a>
+                    <a asp-area="Student" asp-controller="Registrations" asp-action="Details" asp-route-id="@Model.RegistrationId" class="btn btn-primary">
+                        View Registration Pass &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

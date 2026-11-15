@@ -25,7 +25,7 @@
 | **08** | **Payment Integration** | Payment gateway integration (Razorpay/Stripe test sandbox), fee calculation, transaction logging, payment webhook, receipt generation. | `Payment` entity and table exist in database. `Event.EventType` and `RegistrationFee` properties verified. | Entity mapping and database schema verified. | Gateway client integration, checkout initiation, signature verification, payment failure/refund handling. | **COMPLETED (59/59 TESTS PASSED)** |
 | **09** | **QR Ticket Generation** | Unique QR code generation per registration, cryptographically signed payload, digital admission ticket view, printable PDF/pass. | `Ticket` entity and table exist in database with `TicketCode`, `QrCodeDataUrl`, `IssuedAt`. | Entity mapping and database schema verified. | QR generation library integration (e.g. QRCoder), digital ticket Razor view, PDF download service. | **COMPLETED (53/53 TESTS PASSED)** |
 | **10** | **Attendance & Check-In** | Live scanner interface for coordinators, QR scanner via device camera, manual roll-number check-in, attendance timestamping, duplicate scan prevention. | `Attendance` entity and table exist in database. | Entity mapping and database schema verified. | HTML5 QR camera scanner view, attendance verification API endpoint, real-time checked-in count sync. | **COMPLETED (50/50 TESTS PASSED)** |
-| **11** | **Feedback & Ratings** | Post-event student feedback form, 5-star rating, quantitative and qualitative questions, feedback aggregation, coordinator feedback report. | `EventFeedback` entity and table exist in database. | Entity mapping and database schema verified. | Post-event feedback submission form, eligibility check (attended students only), coordinator rating analytics view. | **PENDING** |
+| **11** | **Feedback & Ratings** | Post-event student feedback form, 5-star rating, quantitative and qualitative questions, feedback aggregation, coordinator feedback report. | `EventFeedback` entity and table exist in database with unique constraint `IX_EventFeedbacks_RegistrationId`. | Entity mapping and database schema verified. | `FeedbackService`, `IFeedbackService`, `FeedbackDtos`, student submission workflow, coordinator rating analytics, admin campus ledger, 47/47 automated tests passed. | **COMPLETED (47/47 TESTS PASSED)** |
 | **12** | **Automated Certificate Generation** | Certificate template designer, dynamic student name/event replacement, PDF certificate generation, certificate verification portal. | `CertificateTemplate` entity exists in database. | Entity mapping and database schema verified. | PDF rendering engine (QuestPDF/DinkToPdf), certificate issuance pipeline, public verification URL. | **PENDING** |
 | **13** | **Notifications & Announcements** | Email notification service (SMTP/SendGrid), in-app notification center, event announcement broadcasts, registration confirmation emails. | `Notification` entity and table exist in database. | Entity mapping and database schema verified. | Background email dispatch service, notification dropdown partial in navbar, event broadcast composer for coordinators. | **PENDING** |
 | **14** | **Analytics & Reporting** | Administrative reports, participation trends, revenue summaries, department engagement charts, export to Excel/CSV/PDF. | Metric queries exist in Admin and SuperAdmin controllers; schema tracks historical registrations and payments. | Database queries for department and event metrics verified. | Chart.js interactive visualizations, CSV/Excel export service, executive PDF attendance and revenue summary reports. | **PENDING** |
@@ -221,8 +221,45 @@
 
 ---
 
-## 8. Strict Boundary Rules for Next Phase
+## 8. Phase 11 Implementation & Verification Summary
 
-- **Current Status:** Phase 10 is **COMPLETED & VERIFIED (50/50 TESTS PASSED | 307/307 FULL REGRESSION SUITE PASSED)**.
-- **Strict Boundary:** No post-event feedback or ratings (Phase 11), certificate generation (Phase 12), notifications (Phase 13), or analytics (Phase 14) was implemented in Phase 10.
-- **Rule:** Phase 11 (Feedback & Ratings) will only be commenced upon explicit user instruction, maintaining step-by-step verified architectural integrity.
+### Deliverables:
+1. **Domain-Enforced Feedback Service (`IFeedbackService`, `FeedbackService`):**
+   - Server-side post-event evaluation validation requiring:
+     - Confirmed registration status.
+     - Verified attendance record (`Attendance != null && Attendance.Status == AttendanceStatus.CheckedIn`).
+     - Event conclusion requirement (`EventEndDate <= DateTime.UtcNow || Event.Status == EventStatus.Completed`).
+   - Anti-tampering & Student Tenant Isolation: Students can only submit and view evaluations for their own registrations (`reg.UserId == studentUserId`).
+   - Multi-metric quantitative rating scale (1 to 5 stars for Overall Experience, Content Quality, Speaker Effectiveness, Venue & Logistics).
+   - Qualitative review capture with length boundary enforcement (max 1,000 characters) and stored XSS defense.
+   - Anonymity option: Participants can submit feedback anonymously to public and coordinator views; student name and roll number are masked.
+   - Duplicate submission protection enforced by application logic and unique database constraint `IX_EventFeedbacks_RegistrationId`.
+   - Concurrency race-condition safety guaranteed via execution strategy: simultaneous duplicate submissions result in exactly 1 persisted record and safe rejections.
+   - Event-level Coordinator Scoping: Coordinators are strictly confined to feedback for their assigned events; unauthorized access throws `UnauthorizedAccessException`.
+   - Admin cross-campus governance: Full institutional visibility across all departments and events.
+   - Audit logging: Submissions recorded in `AuditLogs` (`SubmitEventFeedback`).
+2. **Student Portal Feedback Experience:**
+   - Dedicated feedback index (`/Student/Feedback`): Displays available attended events awaiting review, completed reviews, and status badges.
+   - Interactive feedback submission form (`/Student/Feedback/Submit?registrationId={id}`): Star rating selectors, dimensional assessment, character-counted comments box, and anonymity toggle.
+   - Submitted feedback details view (`/Student/Feedback/Details?registrationId={id}`).
+   - Integration on Registration Pass view (`/Student/Registrations/Details/{id}`): Post-event feedback card prompts attended students to share feedback once the event has concluded.
+3. **Coordinator Quality Analytics Portal:**
+   - Coordinator Feedback Dashboard (`/Coordinator/Feedback?eventId={id}`): Event switcher, satisfaction averages (Overall, Content, Speaker, Venue), 5-star histogram distribution, and participant review comments ledger.
+   - Individual feedback inspection view (`/Coordinator/Feedback/Details/{id}`).
+4. **Admin Governance Feedback Ledger:**
+   - Admin Master Feedback Ledger (`/Admin/Feedback`): Campus-wide overview, average campus satisfaction, feedback participation rate, and multi-criteria filters (Department, Event, Min Rating, Search Term).
+   - Administrative feedback detail audit view (`/Admin/Feedback/Details/{id}`).
+5. **Navigation & Shared Shell:**
+   - Added active navigation links for "My Feedback", "Event Feedback", and "Feedback & Ratings" across `_DashboardLayout.cshtml` and `_StudentPortalLayout.cshtml`.
+6. **Automated Verification:**
+   - 47/47 automated tests in `Phase11Verifier` passed cleanly across all 18 target scenarios.
+   - 307 regression tests passed across Phase 1 (28), Phase 2 (24), Google OAuth (19), Phase 6 (25), Phase 7 (49), Phase 8 (59), Phase 9 (53), and Phase 10 (50).
+   - Total: 354 / 354 passing automated tests with 0 failures and 0 warnings.
+
+---
+
+## 9. Strict Boundary Rules for Next Phase
+
+- **Current Status:** Phase 11 is **COMPLETED & VERIFIED (47/47 TESTS PASSED | 354/354 FULL REGRESSION SUITE PASSED)**.
+- **Strict Boundary:** No automated certificate generation (Phase 12), notifications (Phase 13), or analytics (Phase 14) was implemented in Phase 11.
+- **Rule:** Phase 12 (Automated Certificate Generation) will only be commenced upon explicit user instruction, maintaining step-by-step verified architectural integrity.

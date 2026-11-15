@@ -139,6 +139,44 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Post-Event Feedback & Ratings (Phase 11) -->
+                var hasEventEnded = Model.EventEndDate <= DateTime.UtcNow;
+                <div class="card border-0 shadow-sm p-4 mb-4 bg-white border-start border-4 border-warning">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-warning-subtle text-warning-emphasis d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold text-dark mb-1">Event Feedback &amp; Evaluation</h5>
+                                <div class="text-muted small">
+                                    @if (hasEventEnded)
+                                    {
+                                        <span>Share your experience and rate the sessions, speakers, and venue.</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Feedback will become available after the event concludes on @Model.EventEndDate.ToString("MMM dd, yyyy HH:mm") UTC.</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            @if (hasEventEnded)
+                            {
+                                <a asp-area="Student" asp-controller="Feedback" asp-action="Submit" asp-route-registrationId="@Model.Id" class="btn btn-warning fw-bold px-3 py-2 shadow-sm d-inline-flex align-items-center gap-2">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                    <span>Leave Feedback &rarr;</span>
+                                </a>
+                            }
+                            else
+                            {
+                                <button class="btn btn-secondary disabled" disabled>Event Ongoing</button>
+                            }
+                        </div>
+                    </div>
+                </div>
             }
 
             <!-- Payment Prompt / Confirmation Callout (Phase 8) -->
