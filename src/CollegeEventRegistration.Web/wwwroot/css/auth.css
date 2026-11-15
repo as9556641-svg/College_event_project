@@ -826,3 +826,154 @@ input.input-validation-error:focus {
     transform: none !important;
   }
 }
+
+/* ==========================================================================
+   PART 3 — STUDENT REGISTRATION SPLIT-SCREEN LAYOUT
+   Minimal White Form on Left (~440px), Purple Illustration Panel on Right
+   ========================================================================== */
+.reg-split-wrapper {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #FFFFFF;
+  box-sizing: border-box;
+}
+
+/* Left Side: White Background, Form width ~440px */
+.reg-split-left {
+  flex: 0 0 50%;
+  width: 50%;
+  max-width: 50%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 2rem;
+  background-color: #FFFFFF;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.reg-form-container {
+  width: 100%;
+  max-width: 440px;
+  box-sizing: border-box;
+}
+
+.reg-brand-header {
+  margin-bottom: 1.5rem;
+}
+
+.reg-brand-logo {
+  height: 44px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+  display: block;
+}
+
+.reg-brand-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #1F2C58;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+.reg-brand-subtitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #0BA9AC;
+  letter-spacing: 0.08em;
+}
+
+.reg-heading-block {
+  margin-bottom: 1.5rem;
+}
+
+.reg-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  margin-bottom: 0.45rem;
+}
+
+.reg-subtitle {
+  font-size: 0.9rem;
+  color: #64748B;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+/* Right Side: Purple Background Panel (#712DFC), Centered Illustration */
+.reg-split-right {
+  flex: 0 0 50%;
+  width: 50%;
+  max-width: 50%;
+  min-height: 100vh;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  background-color: #712DFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 3rem;
+  overflow: hidden;
+}
+
+.reg-illustration-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.reg-illustration-img {
+  max-width: 100%;
+  max-height: 82vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: auto;
+  border-radius: 12px;
+}
+
+/* Responsive Overrides (< 992px) */
+@media (max-width: 991.98px) {
+  .reg-split-wrapper {
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #F8FAFC;
+  }
+
+  .reg-split-left {
+    flex: 1 0 auto;
+    width: 100%;
+    max-width: 100%;
+    padding: 2.5rem 1.25rem 3rem;
+    min-height: auto;
+    background-color: transparent;
+  }
+
+  .reg-form-container {
+    background-color: #FFFFFF;
+    border-radius: 1.5rem;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
+    padding: 2.25rem 1.75rem;
+  }
+
+  .reg-split-right {
+    display: none; /* Hide illustration on small screens to eliminate vertical clutter */
+  }
+}
+

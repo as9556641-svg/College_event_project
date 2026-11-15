@@ -1,121 +1,437 @@
+@using CollegeEventRegistration.Core.Interfaces
+@using CollegeEventRegistration.Core.DTOs
+@using CollegeEventRegistration.Core.Entities
+@using CollegeEventRegistration.Core.Enums
+@inject IEventDiscoveryService DiscoveryService
 @{
-    ViewData["Title"] = "College Event & Workshop Registration System";
+    ViewData["Title"] = "Home - Campus Event Hub";
+
+    // 1. Fetch real published events from existing domain discovery service
+    var criteria = new StudentEventQueryCriteria
+    {
+        PageNumber = 1,
+        PageSize = 6,
+        SortBy = "upcoming"
+    };
+    var eventsResult = await DiscoveryService.GetPublishedEventsAsync(criteria);
+    var publishedEvents = eventsResult.Items;
+
+    // 2. Fetch real active categories with dynamic published event counts
+    var categories = await DiscoveryService.GetActiveCategoriesWithCountAsync();
 }
 
-<div class="hero-container mb-5">
-    <div class="hero-glow"></div>
-    <div class="row align-items-center position-relative">
-        <div class="col-lg-8">
-            <span class="badge badge-role badge-role-coordinator mb-3">VAP UNIVERSITY &bull; Campus Event Hub</span>
-            <h1 class="hero-title mb-3">
-                College Event &amp; Workshop <span class="hero-gradient-text">Registration System</span>
-            </h1>
-            <p class="lead text-muted mb-4" style="max-width: 650px;">
-                The official event registration ecosystem for <strong>VAP UNIVERSITY</strong>, built on modern <strong>.NET 10 LTS</strong> and <strong>SQL Server 2025 Express</strong>. Designed for seamless event registration, real-time QR attendance check-in, dynamic certificate issuance, and comprehensive administrative governance.
-            </p>
-            <div class="d-flex flex-wrap gap-3">
-                <a href="#roles" class="btn btn-3d-primary">
-                    <span>Explore Roles &amp; Workflows</span>
+<!-- =========================================================================
+     PART 2.A — HERO SECTION
+     ========================================================================= -->
+<section class="public-hero-section">
+    <div class="container-xl">
+        <div class="row align-items-center g-5">
+            <!-- Left Column: Institutional Messaging & CTAs (approx 55%) -->
+            <div class="col-lg-7">
+                <!-- University Kicker Badge -->
+                <div class="d-inline-flex align-items-center gap-2 public-hero-kicker mb-3">
+                    <span class="public-hero-kicker-dot"></span>
+                    <span>VAP UNIVERSITY &bull; ACADEMIC EXCELLENCE &amp; STUDENT EXPERIENCE</span>
+                </div>
+
+                <!-- Primary Headline -->
+                <h1 class="public-hero-title mb-4">
+                    Empowering Students Through Premier <span class="public-hero-highlight">Campus Events</span>, Workshops &amp; Hackathons
+                </h1>
+
+                <!-- Supporting Description -->
+                <p class="public-hero-lead mb-4">
+                    Discover, register, and excel in accredited technical symposia, research conferences, faculty-led workshops, and national competitions across all departments at <strong>VAP UNIVERSITY</strong>.
+                </p>
+
+                <!-- Primary & Secondary CTAs -->
+                <div class="d-flex flex-wrap align-items-center gap-3 mb-5">
+                    <a href="#upcoming-events" class="btn-public-hero-primary">
+                        <span>Explore Events</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-area="Student" asp-controller="Events" asp-action="Index" class="btn-public-hero-secondary">
+                            <span>Browse Catalog</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Register" class="btn-public-hero-secondary">
+                            <span>Join VAP University</span>
+                        </a>
+                    }
+                </div>
+
+                <!-- Feature Highlights Strip -->
+                <div class="public-hero-highlights d-flex flex-wrap align-items-center gap-4 pt-3 border-top border-slate-200">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="public-highlight-icon-wrap">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                        </div>
+                        <span class="small fw-semibold text-slate-700">Accredited Certifications</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="public-highlight-icon-wrap">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                        </div>
+                        <span class="small fw-semibold text-slate-700">Live QR Attendance</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="public-highlight-icon-wrap">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        </div>
+                        <span class="small fw-semibold text-slate-700">Department Competitions</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Approved Campus Photograph Composition (approx 45%) -->
+            <div class="col-lg-5">
+                <div class="public-hero-media-card">
+                    <div class="public-hero-media-wrapper">
+                        <img src="~/images/branding/vap-university-campus.jpg" 
+                             alt="VAP UNIVERSITY Campus Building" 
+                             class="public-hero-img" 
+                             asp-append-version="true" />
+                        <div class="public-hero-media-overlay"></div>
+                    </div>
+
+                    <!-- Floating Institutional Pill Badge -->
+                    <div class="public-hero-floating-pill">
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="~/images/branding/vap-university-logo.png" 
+                                 alt="VAP UNIVERSITY Crest" 
+                                 class="public-floating-logo" 
+                                 asp-append-version="true" />
+                            <div>
+                                <div class="fw-bold text-dark fs-6 lh-1">VAP UNIVERSITY</div>
+                                <div class="text-teal-accent small fw-semibold" style="color: #0BA9AC; font-size: 0.72rem;">Central Campus &bull; Event Hub</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     PART 2.B.1 — UPCOMING & FEATURED EVENTS (REAL BACKEND DATA)
+     ========================================================================= -->
+<section class="public-section bg-slate-50" id="upcoming-events">
+    <div class="container-xl">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end gap-3 mb-5">
+            <div>
+                <div class="public-section-kicker">ACCREDITED SCHEDULE</div>
+                <h2 class="public-section-title">Upcoming &amp; Featured Events</h2>
+                <p class="public-section-subtitle mb-0">Discover verified workshops, hackathons, and conferences currently open for student enrollment.</p>
+            </div>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a asp-area="Student" asp-controller="Events" asp-action="Index" class="btn-public-outline-link flex-shrink-0">
+                    <span>View All Catalog</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </a>
-                <a href="#tech-stack" class="btn btn-3d-outline">
-                    <span>Architecture Foundation</span>
-                </a>
-            </div>
+            }
         </div>
-        <div class="col-lg-4 text-center mt-4 mt-lg-0">
-            <div class="card-3d p-4 text-start bg-white">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <span class="fw-bold text-dark">System Status</span>
-                    <span class="badge badge-role badge-role-student">Online &amp; Active</span>
+
+        @if (publishedEvents.Any())
+        {
+            <div class="row g-4">
+                @foreach (var ev in publishedEvents)
+                {
+                    <div class="col-lg-4 col-md-6">
+                        <div class="public-event-card h-100">
+                            <!-- Event Banner Image -->
+                            <div class="public-event-banner-wrap">
+                                @if (!string.IsNullOrWhiteSpace(ev.BannerImageUrl))
+                                {
+                                    <img src="@ev.BannerImageUrl" alt="@ev.Title Banner" class="public-event-banner-img" />
+                                }
+                                else
+                                {
+                                    <img src="~/images/branding/vap-university-campus.jpg" alt="VAP University" class="public-event-banner-img" />
+                                }
+                                <div class="public-event-category-badge">
+                                    @(ev.EventCategory?.Name ?? "Campus Event")
+                                </div>
+                            </div>
+
+                            <!-- Card Body -->
+                            <div class="public-event-body">
+                                <div class="public-event-meta mb-2">
+                                    <span class="public-event-date">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1 inline-block align-text-top"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                        @ev.EventStartDate.ToString("MMM dd, yyyy")
+                                    </span>
+                                    <span class="text-slate-300">&bull;</span>
+                                    <span class="public-event-mode">@ev.EventMode</span>
+                                </div>
+
+                                <h3 class="public-event-title mb-2">
+                                    @ev.Title
+                                </h3>
+
+                                <p class="public-event-desc mb-3">
+                                    @(!string.IsNullOrWhiteSpace(ev.ShortDescription) ? ev.ShortDescription : "Join VAP UNIVERSITY faculty and guest experts for this co-curricular session.")
+                                </p>
+
+                                <div class="public-event-footer pt-3 mt-auto border-top border-slate-100 d-flex align-items-center justify-content-between">
+                                    <span class="badge bg-light text-slate-700 border" style="font-size: 0.72rem;">
+                                        @(ev.Department?.Name ?? "VAP University")
+                                    </span>
+                                    @if (User.Identity?.IsAuthenticated == true)
+                                    {
+                                        <a asp-area="Student" asp-controller="Events" asp-action="Details" asp-route-id="@ev.Id" class="btn-public-card-cta">
+                                            <span>View Details</span>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="Account" asp-action="Login" asp-route-returnurl="@Url.Action("Details", "Events", new { area = "Student", id = ev.Id })" class="btn-public-card-cta">
+                                            <span>Sign In to Enroll</span>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <!-- Elegant Institutional Notice (When No Events Are Published Yet) -->
+            <div class="public-empty-schedule-card text-center p-5">
+                <div class="public-empty-icon-wrap mx-auto mb-3">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                 </div>
-                <div class="mb-2">
-                    <small class="text-muted d-block">Runtime Framework</small>
-                    <strong class="text-primary">.NET 10.0 LTS (x64)</strong>
+                <h4 class="fw-bold text-dark mb-2">Upcoming Events Are Under Academic Review</h4>
+                <p class="text-muted small mx-auto mb-4" style="max-width: 520px;">
+                    Department coordinators and faculty boards are preparing upcoming technical symposia, national hackathons, and certified workshops. Create a student account to receive immediate notification upon publication.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a asp-controller="Account" asp-action="Register" class="btn-public-hero-primary py-2 px-4" style="font-size: 0.9rem;">
+                        <span>Create Student Account</span>
+                    </a>
                 </div>
-                <div class="mb-2">
-                    <small class="text-muted d-block">Relational Database</small>
-                    <strong class="text-dark">SQL Server 2025 Express</strong>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- =========================================================================
+     PART 2.B.2 — EXPLORE EVENT CATEGORIES (REAL DATA)
+     ========================================================================= -->
+<section class="public-section bg-white" id="categories">
+    <div class="container-xl">
+        <div class="text-center max-w-700 mx-auto mb-5">
+            <div class="public-section-kicker">CURATED DOMAINS</div>
+            <h2 class="public-section-title">Explore by Event Category</h2>
+            <p class="public-section-subtitle">Engage in specialized learning and co-curricular competitions tailored to your department and career ambitions.</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            @foreach (var cat in categories)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="public-category-card h-100">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="public-category-icon-box">
+                                @if (cat.Name.Contains("Workshop"))
+                                {
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                                }
+                                else if (cat.Name.Contains("Hackathon"))
+                                {
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+                                }
+                                else if (cat.Name.Contains("Lecture") || cat.Name.Contains("Seminar"))
+                                {
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+                                }
+                                else if (cat.Name.Contains("Symposium"))
+                                {
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                                }
+                                else
+                                {
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2Z"></path></svg>
+                                }
+                            </div>
+                            <span class="badge bg-slate-100 text-slate-700 border" style="font-size: 0.72rem;">
+                                @cat.PublishedCount @(cat.PublishedCount == 1 ? "Event" : "Events")
+                            </span>
+                        </div>
+                        <h4 class="fw-bold text-dark fs-5 mb-2">@cat.Name</h4>
+                        <p class="text-slate-500 small mb-4" style="color: #64748B;">
+                            Explore accredited @cat.Name.ToLower() sessions organized across academic departments with industry mentors.
+                        </p>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <a asp-area="Student" asp-controller="Events" asp-action="Index" asp-route-categoryId="@cat.Id" class="public-cat-link">
+                                <span>Discover Category</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Register" class="public-cat-link">
+                                <span>Enroll in @cat.Name</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                            </a>
+                        }
+                    </div>
                 </div>
-                <div>
-                    <small class="text-muted d-block">Architecture Pattern</small>
-                    <strong class="text-success">Clean Architecture</strong>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     PART 2.B.3 — WHY VAP UNIVERSITY (INSTITUTIONAL VALUE)
+     ========================================================================= -->
+<section class="public-section bg-slate-50" id="why-vap">
+    <div class="container-xl">
+        <div class="text-center max-w-700 mx-auto mb-5">
+            <div class="public-section-kicker">INSTITUTIONAL INTEGRITY</div>
+            <h2 class="public-section-title">Why VAP University Campus Event Hub?</h2>
+            <p class="public-section-subtitle">Designed to elevate students beyond traditional classrooms through accredited experiential learning.</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Pillar 1 -->
+            <div class="col-lg-4">
+                <div class="public-pillar-card h-100">
+                    <div class="public-pillar-num">01</div>
+                    <h4 class="fw-bold text-dark mb-2">Academic Accreditation</h4>
+                    <p class="text-slate-600 small mb-0" style="color: #475569; line-height: 1.6;">
+                        All symposia, research workshops, and hackathons are proposed by faculty, audited for syllabus alignment, and officially approved by department academic committees.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Pillar 2 -->
+            <div class="col-lg-4">
+                <div class="public-pillar-card h-100">
+                    <div class="public-pillar-num">02</div>
+                    <h4 class="fw-bold text-dark mb-2">Hands-on Technical Practice</h4>
+                    <p class="text-slate-600 small mb-0" style="color: #475569; line-height: 1.6;">
+                        Participate in practical coding sprints, engineering labs, and business case competitions led by visiting researchers, industry fellows, and alumni mentors.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Pillar 3 -->
+            <div class="col-lg-4">
+                <div class="public-pillar-card h-100">
+                    <div class="public-pillar-num">03</div>
+                    <h4 class="fw-bold text-dark mb-2">Verifiable Digital Credentials</h4>
+                    <p class="text-slate-600 small mb-0" style="color: #475569; line-height: 1.6;">
+                        Attendance is verified in real time via secure coordinator QR scanners. Verifiable certificates of participation and merit are issued directly to your student portfolio.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<div id="roles" class="mb-5">
-    <div class="text-center mb-4">
-        <h2 class="fw-bold">Role-Based Access Control (RBAC)</h2>
-        <p class="text-muted">Four dedicated roles governing the entire event lifecycle</p>
-    </div>
-
-    <div class="row g-4">
-        <div class="col-md-6 col-lg-3">
-            <div class="card-3d h-100 p-4">
-                <span class="badge badge-role badge-role-superadmin mb-3">Role 1</span>
-                <h5 class="fw-bold text-dark">Super Admin</h5>
-                <p class="text-muted small mb-3">
-                    Global governance, department management, system security, role delegation, and immutable audit logs.
-                </p>
-                <div class="mt-auto">
-                    <span class="small fw-semibold text-danger">&bull; Full System Control</span>
-                </div>
-            </div>
+<!-- =========================================================================
+     PART 2.B.4 — STUDENT EXPERIENCE & PLATFORM BENEFITS
+     ========================================================================= -->
+<section class="public-section bg-white" id="student-experience">
+    <div class="container-xl">
+        <div class="text-center max-w-700 mx-auto mb-5">
+            <div class="public-section-kicker">PLATFORM ARCHITECTURE</div>
+            <h2 class="public-section-title">A Seamless Co-Curricular Experience</h2>
+            <p class="public-section-subtitle">Four integrated capabilities built to simplify student discovery and participation.</p>
         </div>
 
-        <div class="col-md-6 col-lg-3">
-            <div class="card-3d h-100 p-4">
-                <span class="badge badge-role badge-role-admin mb-3">Role 2</span>
-                <h5 class="fw-bold text-dark">Admin</h5>
-                <p class="text-muted small mb-3">
-                    Event review &amp; approval, category governance, coordinator assignment, and institutional reporting.
-                </p>
-                <div class="mt-auto">
-                    <span class="small fw-semibold text-warning">&bull; Faculty &amp; Dept Leads</span>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="public-feature-box text-center p-4 h-100">
+                    <div class="public-feature-icon-circle mx-auto mb-3">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Intelligent Search</h5>
+                    <p class="text-slate-500 small mb-0">Filter by department, event mode (offline, online, hybrid), and category to find matching opportunities.</p>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-6 col-lg-3">
-            <div class="card-3d h-100 p-4">
-                <span class="badge badge-role badge-role-coordinator mb-3">Role 3</span>
-                <h5 class="fw-bold text-dark">Coordinator</h5>
-                <p class="text-muted small mb-3">
-                    Assigned event management, live in-browser QR attendance scanner, roster exports, and attendee announcements.
-                </p>
-                <div class="mt-auto">
-                    <span class="small fw-semibold text-primary">&bull; Live QR Check-in</span>
+            <div class="col-lg-3 col-md-6">
+                <div class="public-feature-box text-center p-4 h-100">
+                    <div class="public-feature-icon-circle mx-auto mb-3">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Instant Enrollment</h5>
+                    <p class="text-slate-500 small mb-0">1-click registration for eligible students with dynamic admission pass generation and seat reservation.</p>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-6 col-lg-3">
-            <div class="card-3d h-100 p-4">
-                <span class="badge badge-role badge-role-student mb-3">Role 4</span>
-                <h5 class="fw-bold text-dark">Student</h5>
-                <p class="text-muted small mb-3">
-                    Event discovery, 1-click registration, admission pass with secure QR badge, and verifiable certificate download.
-                </p>
-                <div class="mt-auto">
-                    <span class="small fw-semibold text-success">&bull; Attendee Self-Service</span>
+            <div class="col-lg-3 col-md-6">
+                <div class="public-feature-box text-center p-4 h-100">
+                    <div class="public-feature-icon-circle mx-auto mb-3">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Session Schedules</h5>
+                    <p class="text-slate-500 small mb-0">Access multi-track chronological session timelines, speaker bios, and venue hall room directions.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="public-feature-box text-center p-4 h-100">
+                    <div class="public-feature-icon-circle mx-auto mb-3">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Verified Transcript</h5>
+                    <p class="text-slate-500 small mb-0">Track completed workshops, maintain accredited attendance logs, and download PDF certificates.</p>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<div id="tech-stack" class="card-3d p-4 mb-4">
-    <div class="row align-items-center">
-        <div class="col-md-8">
-            <h4 class="fw-bold mb-2">Phase 1 Foundation Setup Complete</h4>
-            <p class="text-muted mb-0 small">
-                Solution structure initialized with decoupled projects: <code>Core</code> (Domain), <code>Infrastructure</code> (EF Core 10 &amp; SQL Server), and <code>Web</code> (ASP.NET Core 10 MVC). Configured with dependency injection and ready for Phase 2 data seeding and authentication.
-            </p>
-        </div>
-        <div class="col-md-4 text-md-end mt-3 mt-md-0">
-            <span class="badge bg-light text-dark border p-2 px-3 fw-bold">Clean Architecture</span>
+<!-- =========================================================================
+     PART 2.B.5 — FINAL CALL-TO-ACTION SECTION
+     ========================================================================= -->
+<section class="public-section bg-slate-50" id="join-hub">
+    <div class="container-xl">
+        <div class="public-cta-banner p-5 text-center position-relative overflow-hidden">
+            <div class="public-cta-content position-relative z-2 max-w-700 mx-auto">
+                <span class="badge mb-3" style="background-color: rgba(20, 194, 198, 0.2); color: #14C2C6; border: 1px solid rgba(20, 194, 198, 0.4); font-size: 0.75rem;">
+                    VAP UNIVERSITY STUDENT COMMUNITY
+                </span>
+                <h2 class="text-white fw-bold mb-3 fs-1">
+                    Ready to Accelerate Your Campus Journey?
+                </h2>
+                <p class="text-slate-300 mb-4" style="color: #CBD5E1; font-size: 1.05rem; line-height: 1.6;">
+                    Join thousands of fellow students discovering technical symposiums, research bootcamps, and hackathons. Register your student profile in less than 2 minutes.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-area="Student" asp-controller="Events" asp-action="Index" class="btn-public-hero-primary py-3 px-4">
+                            <span>Browse Available Events</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Register" class="btn-public-hero-primary py-3 px-4">
+                            <span>Create Student Account</span>
+                        </a>
+                        <a asp-controller="Account" asp-action="Login" class="btn-public-hero-secondary py-3 px-4" style="background: rgba(255,255,255,0.1); color: #FFFFFF; border-color: rgba(255,255,255,0.3);">
+                            <span>Sign In to Portal</span>
+                        </a>
+                    }
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</section>
