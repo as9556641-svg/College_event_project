@@ -1,9 +1,11 @@
 @model CollegeEventRegistration.Web.Areas.Admin.Models.EventWizardViewModel
 @{
-    // Edit view uses the exact same rich 6-stage wizard view
-    Layout = "_DashboardLayout";
     ViewData["Title"] = "Edit Event: " + Model.Title;
+    Layout = "_DashboardLayout";
 }
 
-<partial name="Create" model="Model" />
+<partial name="_EventWizardForm" model="Model" />
 
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

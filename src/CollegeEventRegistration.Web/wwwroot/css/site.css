@@ -4,49 +4,156 @@
    ========================================================================== */
 
 :root {
-  /* VAP UNIVERSITY Official Brand Tokens */
-  --vap-navy: #1F2C58;
-  --vap-navy-dark: #16203E;
-  --vap-navy-light: #2A3B75;
-  --vap-teal: #0BA9AC;
-  --vap-teal-dark: #08898E;
-  --vap-teal-light: #14C2C6;
-  --vap-teal-glow: rgba(11, 169, 172, 0.25);
-  --vap-navy-glow: rgba(31, 44, 88, 0.25);
+  /* ==========================================================================
+     DESIGN SYSTEM TOKEN ARCHITECTURE — VAP UNIVERSITY CAMPUS EVENT HUB
+     ========================================================================== */
 
-  /* Surface & Background Colors */
-  --bg-canvas: #E8E8E8;
-  --bg-surface: #FFFFFF;
-  --bg-surface-elevated: #F8FAFC;
-  --bg-subtle: #F1F5F9;
+  /* --------------------------------------------------------------------------
+     1. Surfaces & Canvas Layers
+     -------------------------------------------------------------------------- */
+  --color-canvas: #E8E8E8;              /* App page canvas background */
+  --color-surface: #FFFFFF;             /* Primary card / panel surface */
+  --color-surface-elevated: #F8FAFC;    /* Elevated surface / table headers */
+  --color-surface-subtle: #F1F5F9;      /* Inset wells / secondary container */
+  --color-surface-overlay: rgba(255, 255, 255, 0.95); /* Glass / backdrop blur */
 
-  /* Accent Colors */
-  --color-primary: #3B82F6;
-  --color-primary-dark: #1D4ED8;
-  --color-primary-light: #60A5FA;
-  --color-success: #10B981;
-  --color-success-dark: #047857;
-  --color-success-light: #34D399;
+  /* --------------------------------------------------------------------------
+     2. Brand Colors & Semantic Accents
+     -------------------------------------------------------------------------- */
+  --color-brand-primary: #1F2C58;       /* VAP Navy (Official Primary) */
+  --color-brand-primary-dark: #16203E;  /* VAP Navy Dark */
+  --color-brand-primary-light: #2A3B75; /* VAP Navy Light */
+  --color-brand-accent: #0BA9AC;        /* VAP Teal (Official Accent) */
+  --color-brand-accent-dark: #08898E;   /* VAP Teal Dark */
+  --color-brand-accent-light: #14C2C6;  /* VAP Teal Light */
+  --color-brand-accent-glow: rgba(11, 169, 172, 0.25);
+  --color-brand-primary-glow: rgba(31, 44, 88, 0.25);
 
-  /* Neutrals & Text */
-  --text-main: #0F172A;
-  --text-muted: #475569;
-  --text-subtle: #64748B;
-  --border-subtle: #E2E8F0;
-  --border-card: rgba(255, 255, 255, 0.8);
+  /* Interactive / Action Colors */
+  --color-action-primary: #3B82F6;      /* Vibrant Action Blue */
+  --color-action-primary-dark: #1D4ED8;
+  --color-action-primary-light: #60A5FA;
+  --color-action-glow: rgba(59, 130, 246, 0.25);
 
-  /* 3D Shadows & Depth */
+  /* --------------------------------------------------------------------------
+     3. State & Feedback Semantics
+     -------------------------------------------------------------------------- */
+  --color-state-success: #10B981;
+  --color-state-success-dark: #047857;
+  --color-state-success-light: #34D399;
+  --color-state-success-bg: #D1FAE5;
+  --color-state-success-border: #A7F3D0;
+
+  --color-state-warning: #F59E0B;
+  --color-state-warning-dark: #B45309;
+  --color-state-warning-light: #FCD34D;
+  --color-state-warning-bg: #FEF3C7;
+  --color-state-warning-border: #FDE68A;
+
+  --color-state-danger: #EF4444;
+  --color-state-danger-dark: #B91C1C;
+  --color-state-danger-light: #F87171;
+  --color-state-danger-bg: #FEE2E2;
+  --color-state-danger-border: #FECACA;
+
+  --color-state-info: #0284C7;
+  --color-state-info-dark: #0369A1;
+  --color-state-info-light: #38BDF8;
+  --color-state-info-bg: #E0F2FE;
+  --color-state-info-border: #BAE6FD;
+
+  /* --------------------------------------------------------------------------
+     4. Typography Scale & Font Weights
+     -------------------------------------------------------------------------- */
+  --font-family-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --font-size-xs: 0.75rem;     /* 12px */
+  --font-size-sm: 0.875rem;    /* 14px */
+  --font-size-base: 1rem;      /* 16px */
+  --font-size-lg: 1.125rem;    /* 18px */
+  --font-size-xl: 1.25rem;     /* 20px */
+  --font-size-2xl: 1.5rem;     /* 24px */
+  --font-size-3xl: 1.875rem;   /* 30px */
+  --font-size-4xl: 2.25rem;    /* 36px */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  --color-text-main: #0F172A;
+  --color-text-muted: #475569;
+  --color-text-subtle: #64748B;
+  --color-text-inverse: #FFFFFF;
+
+  /* --------------------------------------------------------------------------
+     5. Borders & Radii
+     -------------------------------------------------------------------------- */
+  --color-border-subtle: #E2E8F0;
+  --color-border-default: #CBD5E1;
+  --color-border-card: rgba(255, 255, 255, 0.8);
+
+  --radius-xs: 0.25rem;  /* 4px */
+  --radius-sm: 0.5rem;   /* 8px */
+  --radius-md: 0.75rem;  /* 12px */
+  --radius-lg: 1rem;     /* 16px */
+  --radius-xl: 1.25rem;  /* 20px */
+  --radius-pill: 9999px;
+
+  /* --------------------------------------------------------------------------
+     6. Shadows & Elevations
+     -------------------------------------------------------------------------- */
   --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.03);
   --shadow-card: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
   --shadow-card-hover: 0 20px 35px -8px rgba(15, 23, 42, 0.12), 0 10px 15px -5px rgba(15, 23, 42, 0.06);
+  --shadow-elevation-lg: 0 25px 50px -12px rgba(15, 23, 42, 0.18);
   --shadow-primary-btn: 0 4px 14px 0 rgba(59, 130, 246, 0.39), inset 0 1px 0 0 rgba(255, 255, 255, 0.35);
   --shadow-success-btn: 0 4px 14px 0 rgba(16, 185, 129, 0.39), inset 0 1px 0 0 rgba(255, 255, 255, 0.35);
 
-  /* Geometry */
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.25rem;
+  /* --------------------------------------------------------------------------
+     7. Spacing Scale
+     -------------------------------------------------------------------------- */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+
+  /* --------------------------------------------------------------------------
+     8. Backward Compatibility Aliases (Preserves all existing component rules)
+     -------------------------------------------------------------------------- */
+  --vap-navy: var(--color-brand-primary);
+  --vap-navy-dark: var(--color-brand-primary-dark);
+  --vap-navy-light: var(--color-brand-primary-light);
+  --vap-teal: var(--color-brand-accent);
+  --vap-teal-dark: var(--color-brand-accent-dark);
+  --vap-teal-light: var(--color-brand-accent-light);
+  --vap-teal-glow: var(--color-brand-accent-glow);
+  --vap-navy-glow: var(--color-brand-primary-glow);
+
+  --bg-canvas: var(--color-canvas);
+  --bg-surface: var(--color-surface);
+  --bg-surface-elevated: var(--color-surface-elevated);
+  --bg-subtle: var(--color-surface-subtle);
+
+  --color-primary: var(--color-action-primary);
+  --color-primary-dark: var(--color-action-primary-dark);
+  --color-primary-light: var(--color-action-primary-light);
+  --color-success: var(--color-state-success);
+  --color-success-dark: var(--color-state-success-dark);
+  --color-success-light: var(--color-state-success-light);
+
+  --text-main: var(--color-text-main);
+  --text-muted: var(--color-text-muted);
+  --text-subtle: var(--color-text-subtle);
+  --border-subtle: var(--color-border-subtle);
+  --border-card: var(--color-border-card);
 }
 
 html {

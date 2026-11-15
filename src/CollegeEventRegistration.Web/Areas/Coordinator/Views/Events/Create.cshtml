@@ -4,5 +4,8 @@
     Layout = "_DashboardLayout";
 }
 
-<partial name="~/Areas/Admin/Views/Events/Create.cshtml" model="Model" />
+<partial name="~/Areas/Admin/Views/Events/_EventWizardForm.cshtml" model="Model" />
 
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
