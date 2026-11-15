@@ -53,14 +53,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // 3. Google Sign-In informational action handler
+    // 3. Google Sign-In button submission feedback
     const googleBtn = document.getElementById('btnGoogleSignIn');
     if (googleBtn) {
         googleBtn.addEventListener('click', function () {
-            const alertBox = document.getElementById('googleAuthAlert');
-            if (alertBox) {
-                alertBox.style.display = 'block';
-                alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            if (!this.disabled) {
+                this.style.opacity = '0.75';
             }
         });
     }

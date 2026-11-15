@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using CollegeEventRegistration.Core.Entities;
 using CollegeEventRegistration.Core.Enums;
 using CollegeEventRegistration.Infrastructure.Data;
@@ -49,6 +50,11 @@ public class AccountController : Controller
             {
                 return await RedirectToRoleDashboardAsync(currentUser, returnUrl);
             }
+        }
+
+        if (TempData["ErrorMessage"] != null)
+        {
+            ModelState.AddModelError(string.Empty, TempData["ErrorMessage"]!.ToString()!);
         }
 
         ViewData["ReturnUrl"] = returnUrl;
@@ -111,6 +117,155 @@ public class AccountController : Controller
         _logger.LogWarning("Login failed for {Email}: Invalid password.", model.Email);
         ModelState.AddModelError(string.Empty, "Invalid email or password. Please verify your credentials.");
         return View(model);
+    }
+
+    // -------------------------------------------------------------------------
+    // EXTERNAL AUTHENTICATION (GOOGLE OAUTH)
+    // -------------------------------------------------------------------------
+    [HttpPost]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    public IActionResult ExternalLogin(string provider, string? returnUrl = null)
+    {
+        var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl });
+        var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+        return Challenge(properties, provider);
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null, string? remoteError = null)
+    {
+        if (remoteError != null)
+        {
+            _logger.LogWarning("External authentication provider returned error: {RemoteError}", remoteError);
+            TempData["ErrorMessage"] = $"External login error: {remoteError}";
+            return RedirectToAction(nameof(Login), new { returnUrl });
+        }
+
+        var info = await _signInManager.GetExternalLoginInfoAsync();
+        if (info == null)
+        {
+            _logger.LogWarning("Failed to retrieve external login info from provider.");
+            TempData["ErrorMessage"] = "Could not authenticate with Google. Please try again or use email credentials.";
+            return RedirectToAction(nameof(Login), new { returnUrl });
+        }
+
+        // 1. Sign in if user already linked this external login
+        var signInResult = await _signInManager.ExternalLoginSignInAsync(
+            info.LoginProvider,
+            info.ProviderKey,
+            isPersistent: false,
+            bypassTwoFactor: true);
+
+        if (signInResult.Succeeded)
+        {
+            var linkedUser = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+            if (linkedUser != null)
+            {
+                if (!linkedUser.IsActive)
+                {
+                    await _signInManager.SignOutAsync();
+                    _logger.LogWarning("External login blocked: Deactivated account {Email}", linkedUser.Email);
+                    TempData["ErrorMessage"] = "Your account has been deactivated. Please contact the college administrator.";
+                    return RedirectToAction(nameof(Login), new { returnUrl });
+                }
+
+                _logger.LogInformation("User {Email} logged in via {Provider}.", linkedUser.Email, info.LoginProvider);
+                return await RedirectToRoleDashboardAsync(linkedUser, returnUrl);
+            }
+        }
+
+        if (signInResult.IsLockedOut)
+        {
+            _logger.LogWarning("External login blocked: Account is locked out.");
+            TempData["ErrorMessage"] = "Your account has been temporarily locked due to multiple failed login attempts. Please try again later.";
+            return RedirectToAction(nameof(Login), new { returnUrl });
+        }
+
+        // 2. Extract verified email claim from external principal
+        var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            _logger.LogWarning("External login error: No email claim provided by {Provider}.", info.LoginProvider);
+            TempData["ErrorMessage"] = "Google did not provide a verified email address.";
+            return RedirectToAction(nameof(Login), new { returnUrl });
+        }
+
+        // 3. Check if user already exists with this email address
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user != null)
+        {
+            if (!user.IsActive)
+            {
+                _logger.LogWarning("External account linking blocked: Deactivated account {Email}", user.Email);
+                TempData["ErrorMessage"] = "Your account has been deactivated. Please contact the college administrator.";
+                return RedirectToAction(nameof(Login), new { returnUrl });
+            }
+
+            // Link Google external login to existing user account (preserves existing roles and data)
+            var addLoginResult = await _userManager.AddLoginAsync(user, info);
+            if (!addLoginResult.Succeeded)
+            {
+                _logger.LogWarning("Failed to link {Provider} to user {Email}: {Errors}",
+                    info.LoginProvider,
+                    email,
+                    string.Join(", ", addLoginResult.Errors.Select(e => e.Description)));
+                TempData["ErrorMessage"] = "Could not link your Google login to the existing account. Please sign in with your password.";
+                return RedirectToAction(nameof(Login), new { returnUrl });
+            }
+
+            _logger.LogInformation("Successfully linked {Provider} login to existing user {Email}.", info.LoginProvider, email);
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            return await RedirectToRoleDashboardAsync(user, returnUrl);
+        }
+
+        // 4. Provision new user account (Strict Requirement: Assign Student role ONLY, never privileged roles)
+        var givenName = info.Principal.FindFirstValue(ClaimTypes.GivenName);
+        var surname = info.Principal.FindFirstValue(ClaimTypes.Surname);
+        var fullName = info.Principal.FindFirstValue(ClaimTypes.Name);
+
+        string firstName = !string.IsNullOrWhiteSpace(givenName)
+            ? givenName.Trim()
+            : (!string.IsNullOrWhiteSpace(fullName) ? fullName.Split(' ')[0].Trim() : "Student");
+
+        string lastName = !string.IsNullOrWhiteSpace(surname)
+            ? surname.Trim()
+            : (!string.IsNullOrWhiteSpace(fullName) && fullName.Contains(' ')
+                ? string.Join(" ", fullName.Split(' ').Skip(1)).Trim()
+                : "User");
+
+        var newUser = new ApplicationUser
+        {
+            UserName = email,
+            Email = email,
+            FirstName = firstName,
+            LastName = lastName,
+            CollegeName = "VAP UNIVERSITY",
+            EmailConfirmed = true,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        var createResult = await _userManager.CreateAsync(newUser);
+        if (!createResult.Succeeded)
+        {
+            _logger.LogError("Failed to create user from {Provider} login: {Errors}",
+                info.LoginProvider,
+                string.Join(", ", createResult.Errors.Select(e => e.Description)));
+            TempData["ErrorMessage"] = "Failed to create a student account from your Google profile.";
+            return RedirectToAction(nameof(Login), new { returnUrl });
+        }
+
+        // Assign default Student role (NEVER privileged roles)
+        await _userManager.AddToRoleAsync(newUser, nameof(UserRole.Student));
+
+        // Add external login mapping
+        await _userManager.AddLoginAsync(newUser, info);
+
+        _logger.LogInformation("Created new Student account for {Email} via {Provider}.", email, info.LoginProvider);
+        await _signInManager.SignInAsync(newUser, isPersistent: false);
+        return await RedirectToRoleDashboardAsync(newUser, returnUrl);
     }
 
     // -------------------------------------------------------------------------

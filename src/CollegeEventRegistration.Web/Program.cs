@@ -22,6 +22,22 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
+// Configure External Google OAuth Authentication (enabled conditionally when valid credentials exist)
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+
+if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
+{
+    builder.Services.AddAuthentication()
+        .AddGoogle(options =>
+        {
+            options.ClientId = googleClientId.Trim();
+            options.ClientSecret = googleClientSecret.Trim();
+            options.CallbackPath = "/signin-google";
+            options.SaveTokens = true;
+        });
+}
+
 // Add MVC Controllers and Views
 builder.Services.AddControllersWithViews();
 
