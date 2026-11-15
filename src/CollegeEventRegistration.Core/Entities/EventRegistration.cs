@@ -33,5 +33,6 @@ public class EventRegistration : BaseEntity
     public Ticket? Ticket { get; set; }
     public Attendance? Attendance { get; set; }
     public EventFeedback? Feedback { get; set; }
+    public Certificate? Certificate { get; set; }
 }
 

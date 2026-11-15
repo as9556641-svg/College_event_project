@@ -87,6 +87,10 @@ public static class DependencyInjection
         // Register Phase 11 Feedback & Ratings Services
         services.AddScoped<IFeedbackService, FeedbackService>();
 
+        // Register Phase 12 Automated Certificate Generation Services
+        services.AddScoped<IPdfCertificateGenerator, PdfCertificateGenerator>();
+        services.AddScoped<ICertificateService, CertificateService>();
+
         return services;
     }
 }

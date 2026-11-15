@@ -26,7 +26,7 @@
 | **09** | **QR Ticket Generation** | Unique QR code generation per registration, cryptographically signed payload, digital admission ticket view, printable PDF/pass. | `Ticket` entity and table exist in database with `TicketCode`, `QrCodeDataUrl`, `IssuedAt`. | Entity mapping and database schema verified. | QR generation library integration (e.g. QRCoder), digital ticket Razor view, PDF download service. | **COMPLETED (53/53 TESTS PASSED)** |
 | **10** | **Attendance & Check-In** | Live scanner interface for coordinators, QR scanner via device camera, manual roll-number check-in, attendance timestamping, duplicate scan prevention. | `Attendance` entity and table exist in database. | Entity mapping and database schema verified. | HTML5 QR camera scanner view, attendance verification API endpoint, real-time checked-in count sync. | **COMPLETED (50/50 TESTS PASSED)** |
 | **11** | **Feedback & Ratings** | Post-event student feedback form, 5-star rating, quantitative and qualitative questions, feedback aggregation, coordinator feedback report. | `EventFeedback` entity and table exist in database with unique constraint `IX_EventFeedbacks_RegistrationId`. | Entity mapping and database schema verified. | `FeedbackService`, `IFeedbackService`, `FeedbackDtos`, student submission workflow, coordinator rating analytics, admin campus ledger, 47/47 automated tests passed. | **COMPLETED (47/47 TESTS PASSED)** |
-| **12** | **Automated Certificate Generation** | Certificate template designer, dynamic student name/event replacement, PDF certificate generation, certificate verification portal. | `CertificateTemplate` entity exists in database. | Entity mapping and database schema verified. | PDF rendering engine (QuestPDF/DinkToPdf), certificate issuance pipeline, public verification URL. | **PENDING** |
+| **12** | **Automated Certificate Generation** | Certificate template designer, dynamic student name/event replacement, PDF certificate generation, certificate verification portal. | `CertificateTemplate` and `Certificate` entities exist in database with unique indexes on `RegistrationId`, `CertificateNumber`, and `VerificationToken`. | Entity mapping and database schema verified via EF Core migration `AddCertificateEntity`. | QuestPDF server-side A4 landscape rendering engine, `CertificateService`, public verification portal, student portal, coordinator/admin ledgers, 21/21 automated tests passed. | **COMPLETED (21/21 TESTS PASSED)** |
 | **13** | **Notifications & Announcements** | Email notification service (SMTP/SendGrid), in-app notification center, event announcement broadcasts, registration confirmation emails. | `Notification` entity and table exist in database. | Entity mapping and database schema verified. | Background email dispatch service, notification dropdown partial in navbar, event broadcast composer for coordinators. | **PENDING** |
 | **14** | **Analytics & Reporting** | Administrative reports, participation trends, revenue summaries, department engagement charts, export to Excel/CSV/PDF. | Metric queries exist in Admin and SuperAdmin controllers; schema tracks historical registrations and payments. | Database queries for department and event metrics verified. | Chart.js interactive visualizations, CSV/Excel export service, executive PDF attendance and revenue summary reports. | **PENDING** |
 | **15** | **System Hardening & Launch** | Security audit, rate limiting, SQL injection defense, security headers (CSP, HSTS), Redis distributed cache (optional), performance benchmarking. | Antiforgery tokens enforced across all POST forms, magic byte file validation, soft-delete query filters, parameterized EF Core queries. | Verified CSRF protection, file upload guards, and role-based authorization policies. | Security header middleware, response compression, output caching, production deployment manifests. | **PENDING** |
@@ -260,8 +260,44 @@
 
 ---
 
-## 9. Strict Boundary Rules for Next Phase
+## 9. Phase 12 Completion Summary — Automated Certificate Generation
 
-- **Current Status:** Phase 11 is **COMPLETED & VERIFIED (47/47 TESTS PASSED | 354/354 FULL REGRESSION SUITE PASSED)**.
-- **Strict Boundary:** No automated certificate generation (Phase 12), notifications (Phase 13), or analytics (Phase 14) was implemented in Phase 11.
-- **Rule:** Phase 12 (Automated Certificate Generation) will only be commenced upon explicit user instruction, maintaining step-by-step verified architectural integrity.
+1. **Database Schema & Migrations:**
+   - Entity `Certificate` created in `CollegeEventRegistration.Core.Entities` with 1-to-1 unique mapping to `EventRegistration`, foreign keys to `Event`, `User`, `IssuedByUser`, `RevokedByUser`, and `CertificateStatus` enum (`Active = 1, Revoked = 2`).
+   - Unique constraints: `IX_Certificates_RegistrationId`, `IX_Certificates_CertificateNumber`, and `IX_Certificates_VerificationToken`.
+   - Migration `20261115161539_AddCertificateEntity` applied cleanly to SQL Server Express `CollegeEventRegistrationDb`.
+2. **Server-Side PDF Rendering Engine (`PdfCertificateGenerator`):**
+   - Implemented high-fidelity institutional A4 landscape PDF certificate generator using `QuestPDF` Community License.
+   - Embeds institutional branding, VAP UNIVERSITY header, dynamic student name, roll number, event title, department, dates, certificate number, verification token, authorized signatory, and verification QR code generated via `QRCoder`.
+   - Anti-traversal security enforced on all file paths in `wwwroot/certificates/{year}/`.
+3. **Domain Service (`CertificateService`, `ICertificateService`):**
+   - Strict eligibility enforcement: Confirmed registration, CheckedIn attendance, concluded event (`EventEndDate <= UtcNow`), successful payment if paid event, not cancelled/refunded.
+   - Non-guessable certificate number generation (`VAP-CERT-{Year}-{EventId}-{RandomAlpha}`) and cryptographic verification token.
+   - Idempotent issuance and concurrency race-condition handling via unique index fallback.
+   - Batch issuance for event coordinators and campus administrators.
+   - Revocation workflow requiring mandatory reason, recording revoker and timestamp, with immutable audit logging.
+4. **Public Verification Portal (`/Certificates/Verify` and `/Certificates/Verify/{id}`):**
+   - Accessible without authentication. Validates authenticity, active/revoked status, and event details while masking student PII.
+5. **Student Portal (`/Student/Certificates`):**
+   - List eligible & issued certificates, claim certificates for completed events, view certificate details, download genuine PDF, and print.
+   - Certificate claim callout card added to registration details page (`/Student/Registrations/Details/{id}`).
+6. **Coordinator Portal (`/Coordinator/Certificates`):**
+   - Scoped strictly to coordinator-assigned events (`UnauthorizedAccessException` on unassigned events).
+   - Batch certificate issuance and template configuration (`/Coordinator/Certificates/Template/{eventId}`).
+7. **Admin Master Ledger (`/Admin/Certificates`):**
+   - Campus-wide certificates ledger, department and event filters, manual issuance, revocation with mandatory reason, and template configuration.
+8. **Navigation & Shared Shell:**
+   - Activated "My Certificates" in `_StudentPortalLayout.cshtml` and `_DashboardLayout.cshtml`.
+   - Activated "Certificates" for Coordinator and Admin roles in `_DashboardLayout.cshtml`.
+9. **Automated Verification & Regression:**
+   - 21/21 automated tests in `Phase12Verifier` passed cleanly with 100% compliance.
+   - 428 regression tests passed across Phase 1 (28), Phase 2 (24), Public Website (33), Google OAuth (19), Phase 5 (41), Phase 6 (25), Phase 7 (49), Phase 8 (59), Phase 9 (53), Phase 10 (50), and Phase 11 (47).
+   - Total: 449 / 449 passing automated tests with 0 failures and 0 warnings.
+
+---
+
+## 10. Strict Boundary Rules for Next Phase
+
+- **Current Status:** Phase 12 is **COMPLETED & VERIFIED (21/21 TESTS PASSED | 449/449 FULL REGRESSION SUITE PASSED)**.
+- **Strict Boundary:** No notifications (Phase 13), reports/analytics (Phase 14), or system hardening (Phase 15) was implemented in Phase 12.
+- **Rule:** Phase 13 (Notifications & Announcements) will only be commenced upon explicit user instruction, maintaining step-by-step verified architectural integrity.

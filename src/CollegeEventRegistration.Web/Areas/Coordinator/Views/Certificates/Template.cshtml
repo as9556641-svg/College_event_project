@@ -1,0 +1,71 @@
+@model CollegeEventRegistration.Core.DTOs.CertificateTemplateUpsertDto
+
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Configure Certificate Template";
+}
+
+<div class="dash-page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-action="Index">Certificates</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Configure Template</li>
+            </ol>
+        </nav>
+        <h2 class="dash-page-title">Certificate Template: @ViewBag.EventTitle</h2>
+    </div>
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Certificates
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold text-dark mb-0">Template &amp; Signatory Settings</h5>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Template" asp-route-eventId="@Model.EventId" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="EventId" />
+
+                    <div class="mb-3">
+                        <label asp-for="TemplateTitle" class="form-label fw-semibold">Template Title</label>
+                        <input asp-for="TemplateTitle" class="form-control" placeholder="e.g. Certificate of Participation" required />
+                        <span asp-validation-for="TemplateTitle" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="SignatoryName" class="form-label fw-semibold">Authorized Signatory Name</label>
+                            <input asp-for="SignatoryName" class="form-control" placeholder="e.g. Dr. A. P. Sharma" required />
+                            <span asp-validation-for="SignatoryName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="SignatoryTitle" class="form-label fw-semibold">Signatory Title / Designation</label>
+                            <input asp-for="SignatoryTitle" class="form-control" placeholder="e.g. Dean, Academic Affairs" required />
+                            <span asp-validation-for="SignatoryTitle" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="CertificateCodePrefix" class="form-label fw-semibold">Certificate Number Prefix</label>
+                        <input asp-for="CertificateCodePrefix" class="form-control font-monospace" placeholder="e.g. VAP-CERT or CSE-CONF" required maxlength="15" />
+                        <div class="form-text">Will be formatted as: PREFIX-YEAR-EVENTID-RANDOM</div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-light border">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                            <i class="bi bi-save me-1"></i> Save Template
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

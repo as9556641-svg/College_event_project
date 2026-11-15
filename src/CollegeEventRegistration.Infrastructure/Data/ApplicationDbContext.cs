@@ -29,6 +29,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<Attendance> Attendances => Set<Attendance>();
     public DbSet<EventFeedback> EventFeedbacks => Set<EventFeedback>();
     public DbSet<CertificateTemplate> CertificateTemplates => Set<CertificateTemplate>();
+    public DbSet<Certificate> Certificates => Set<Certificate>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
@@ -341,6 +342,51 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
                   .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasQueryFilter(ct => !ct.Event.IsDeleted);
+        });
+
+        // ---------------------------------------------------------------------
+        // 13b. Certificate (1-to-1 with EventRegistration)
+        // ---------------------------------------------------------------------
+        builder.Entity<Certificate>(entity =>
+        {
+            entity.Property(c => c.CertificateNumber).HasMaxLength(50).IsRequired();
+            entity.Property(c => c.VerificationToken).HasMaxLength(100).IsRequired();
+            entity.Property(c => c.PdfFilePath).HasMaxLength(500).IsRequired();
+            entity.Property(c => c.RevocationReason).HasMaxLength(500);
+
+            entity.HasIndex(c => c.RegistrationId).IsUnique();
+            entity.HasIndex(c => c.CertificateNumber).IsUnique();
+            entity.HasIndex(c => c.VerificationToken).IsUnique();
+            entity.HasIndex(c => c.EventId);
+            entity.HasIndex(c => c.UserId);
+            entity.HasIndex(c => c.Status);
+
+            entity.HasOne(c => c.Registration)
+                  .WithOne(r => r.Certificate)
+                  .HasForeignKey<Certificate>(c => c.RegistrationId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(c => c.Event)
+                  .WithMany(e => e.Certificates)
+                  .HasForeignKey(c => c.EventId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(c => c.User)
+                  .WithMany(u => u.Certificates)
+                  .HasForeignKey(c => c.UserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(c => c.IssuedByUser)
+                  .WithMany()
+                  .HasForeignKey(c => c.IssuedByUserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(c => c.RevokedByUser)
+                  .WithMany()
+                  .HasForeignKey(c => c.RevokedByUserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasQueryFilter(c => !c.Event.IsDeleted);
         });
 
         // ---------------------------------------------------------------------

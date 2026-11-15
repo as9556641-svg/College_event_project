@@ -65,3 +65,9 @@ public enum NotificationType
     CertificateAvailable = 6
 }
 
+public enum CertificateStatus
+{
+    Active = 1,
+    Revoked = 2
+}
+

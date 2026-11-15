@@ -1,0 +1,161 @@
+@model CollegeEventRegistration.Core.DTOs.CertificateVerificationDto?
+@using CollegeEventRegistration.Core.Enums
+
+@{
+    ViewData["Title"] = "Verify Certificate - VAP UNIVERSITY";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5">
+                <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle p-3 mb-3" style="width: 72px; height: 72px;">
+                    <i class="bi bi-patch-check-fill fs-1"></i>
+                </div>
+                <h1 class="h3 fw-bold text-dark">Certificate Verification Portal</h1>
+                <p class="text-muted">Authenticate official completion and participation credentials issued by VAP UNIVERSITY.</p>
+            </div>
+
+            <!-- Search Box -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <form asp-action="VerifySearch" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                            <input type="text" name="searchIdentifier" class="form-control border-start-0" 
+                                   placeholder="Enter Certificate No (e.g. VAP-CERT-2026-...) or Verification Token" 
+                                   value="@ViewBag.SearchTerm" required autofocus />
+                            <button class="btn btn-primary px-4 fw-semibold" type="submit">Verify</button>
+                        </div>
+                        <div class="form-text text-muted mt-2 text-center">
+                            Scan the QR code on a printed certificate or enter the code printed at the bottom.
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Result Section -->
+            @if (Model != null)
+            {
+                if (Model.IsValid)
+                {
+                    <div class="card shadow-sm border-success mb-4">
+                        <div class="card-header bg-success text-white py-3 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-check-circle-fill fs-4"></i>
+                                <span class="fw-bold fs-5">Officially Verified & Active</span>
+                            </div>
+                            <span class="badge bg-white text-success px-3 py-2 fw-bold">Authentic</span>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="text-center pb-3 border-bottom mb-4">
+                                <h4 class="text-primary fw-bold mb-1">VAP UNIVERSITY</h4>
+                                <p class="text-muted small mb-0">Campus Event Hub • Official Digital Credential</p>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-sm-6">
+                                    <div class="text-muted small">Certificate Number</div>
+                                    <div class="fw-bold font-monospace fs-6 text-dark">@Model.CertificateNumber</div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="text-muted small">Issue Date</div>
+                                    <div class="fw-semibold text-dark">@Model.IssuedAt.ToString("dd MMMM yyyy")</div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="text-muted small">Recipient</div>
+                                    <div class="fw-bold fs-5 text-dark">@Model.RecipientName</div>
+                                    @if (!string.IsNullOrEmpty(Model.RecipientRollNumber))
+                                    {
+                                        <div class="text-muted small">Roll No: @Model.RecipientRollNumber</div>
+                                    }
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="text-muted small">Event Completed</div>
+                                    <div class="fw-bold fs-5 text-primary">@Model.EventTitle</div>
+                                    <div class="text-muted small">Organized by Dept. of @Model.DepartmentName</div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="text-muted small">Event Dates</div>
+                                    <div class="text-dark">@Model.EventStartDate.ToString("dd MMM yyyy") – @Model.EventEndDate.ToString("dd MMM yyyy")</div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="text-muted small">Authorized Signatory</div>
+                                    <div class="fw-semibold text-dark">@Model.SignatoryName</div>
+                                    <div class="text-muted small">@Model.SignatoryTitle</div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-success bg-opacity-25 mt-4 mb-0 d-flex align-items-center gap-2">
+                                <i class="bi bi-shield-check fs-4 text-success"></i>
+                                <div class="small">
+                                    This credential has been validated against VAP UNIVERSITY's secure tamper-proof verification ledger.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (Model.Status == CertificateStatus.Revoked)
+                {
+                    <div class="card shadow-sm border-danger mb-4">
+                        <div class="card-header bg-danger text-white py-3 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-x-octagon-fill fs-4"></i>
+                                <span class="fw-bold fs-5">Certificate Revoked</span>
+                            </div>
+                            <span class="badge bg-white text-danger px-3 py-2 fw-bold">Revoked</span>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="alert alert-danger mb-4">
+                                <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i> Notice of Revocation</h6>
+                                <p class="mb-0">This credential was officially revoked by university authorities and is null and void.</p>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-sm-6">
+                                    <div class="text-muted small">Certificate Number</div>
+                                    <div class="fw-bold font-monospace text-dark">@Model.CertificateNumber</div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="text-muted small">Revocation Date</div>
+                                    <div class="fw-semibold text-danger">@(Model.RevokedAt?.ToString("dd MMMM yyyy") ?? "N/A")</div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="text-muted small">Reason for Revocation</div>
+                                    <div class="p-3 bg-light rounded text-dark fst-italic">@Model.RevocationReason</div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="text-muted small">Recipient (Masked)</div>
+                                    <div class="fw-semibold text-dark">@Model.RecipientName</div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="text-muted small">Associated Event</div>
+                                    <div class="fw-semibold text-dark">@Model.EventTitle</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="card shadow-sm border-warning mb-4">
+                        <div class="card-body p-5 text-center">
+                            <div class="d-inline-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning rounded-circle p-3 mb-3" style="width: 64px; height: 64px;">
+                                <i class="bi bi-question-circle-fill fs-2"></i>
+                            </div>
+                            <h4 class="fw-bold text-dark mb-2">No Matching Certificate Found</h4>
+                            <p class="text-muted mb-4">
+                                We could not find any official certificate registered with the identifier:
+                                <br /><strong class="font-monospace text-dark">@ViewBag.SearchTerm</strong>
+                            </p>
+                            <p class="small text-muted mb-0">
+                                Please verify that the code was copied correctly without extra spaces or symbols.
+                            </p>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

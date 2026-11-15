@@ -69,6 +69,7 @@ public class Event : BaseEntity
     public ICollection<EventEligibility> Eligibilities { get; set; } = new List<EventEligibility>();
     public ICollection<EventRegistration> Registrations { get; set; } = new List<EventRegistration>();
     public ICollection<EventFeedback> FeedbackList { get; set; } = new List<EventFeedback>();
+    public ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
     public CertificateTemplate? CertificateTemplate { get; set; }
 }
 

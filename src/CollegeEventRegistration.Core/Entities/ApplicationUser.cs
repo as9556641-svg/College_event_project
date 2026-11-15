@@ -30,6 +30,7 @@ public class ApplicationUser : IdentityUser
     public ICollection<EventRegistration> Registrations { get; set; } = new List<EventRegistration>();
     public ICollection<Attendance> VerifiedAttendances { get; set; } = new List<Attendance>();
     public ICollection<EventFeedback> SubmittedFeedbacks { get; set; } = new List<EventFeedback>();
+    public ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 }

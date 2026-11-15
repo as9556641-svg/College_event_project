@@ -269,6 +269,91 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
                     b.ToTable("AuditLogs");
                 });
 
+            modelBuilder.Entity("CollegeEventRegistration.Core.Entities.Certificate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CertificateNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("IssuedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IssuedByUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PdfFilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("RegistrationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RevocationReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RevokedByUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("VerificationToken")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CertificateNumber")
+                        .IsUnique();
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("IssuedByUserId");
+
+                    b.HasIndex("RegistrationId")
+                        .IsUnique();
+
+                    b.HasIndex("RevokedByUserId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("VerificationToken")
+                        .IsUnique();
+
+                    b.ToTable("Certificates");
+                });
+
             modelBuilder.Entity("CollegeEventRegistration.Core.Entities.CertificateTemplate", b =>
                 {
                     b.Property<int>("Id")
@@ -1131,6 +1216,47 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CollegeEventRegistration.Core.Entities.Certificate", b =>
+                {
+                    b.HasOne("CollegeEventRegistration.Core.Entities.Event", "Event")
+                        .WithMany("Certificates")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CollegeEventRegistration.Core.Entities.ApplicationUser", "IssuedByUser")
+                        .WithMany()
+                        .HasForeignKey("IssuedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CollegeEventRegistration.Core.Entities.EventRegistration", "Registration")
+                        .WithOne("Certificate")
+                        .HasForeignKey("CollegeEventRegistration.Core.Entities.Certificate", "RegistrationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CollegeEventRegistration.Core.Entities.ApplicationUser", "RevokedByUser")
+                        .WithMany()
+                        .HasForeignKey("RevokedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CollegeEventRegistration.Core.Entities.ApplicationUser", "User")
+                        .WithMany("Certificates")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("IssuedByUser");
+
+                    b.Navigation("Registration");
+
+                    b.Navigation("RevokedByUser");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CollegeEventRegistration.Core.Entities.CertificateTemplate", b =>
                 {
                     b.HasOne("CollegeEventRegistration.Core.Entities.Event", "Event")
@@ -1364,6 +1490,8 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
                 {
                     b.Navigation("AuditLogs");
 
+                    b.Navigation("Certificates");
+
                     b.Navigation("CoordinatedEvents");
 
                     b.Navigation("CreatedEvents");
@@ -1386,6 +1514,8 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
                 {
                     b.Navigation("CertificateTemplate");
 
+                    b.Navigation("Certificates");
+
                     b.Navigation("Coordinators");
 
                     b.Navigation("Eligibilities");
@@ -1405,6 +1535,8 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
             modelBuilder.Entity("CollegeEventRegistration.Core.Entities.EventRegistration", b =>
                 {
                     b.Navigation("Attendance");
+
+                    b.Navigation("Certificate");
 
                     b.Navigation("Feedback");
 

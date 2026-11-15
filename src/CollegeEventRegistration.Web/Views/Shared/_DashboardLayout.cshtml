@@ -191,6 +191,14 @@
                         </svg>
                         <span>Feedback &amp; Ratings</span>
                     </a>
+                    <a asp-area="Admin" asp-controller="Certificates" asp-action="Index" 
+                       class="dash-nav-link @(currentArea == "Admin" && currentController == "Certificates" ? "active" : "")">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="8" r="7"></circle>
+                            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                        </svg>
+                        <span>Certificates</span>
+                    </a>
                     <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -271,14 +279,14 @@
                         </svg>
                         <span>Event Feedback</span>
                     </a>
-                    <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
+                    <a asp-area="Coordinator" asp-controller="Certificates" asp-action="Index" 
+                       class="dash-nav-link @(currentArea == "Coordinator" && currentController == "Certificates" ? "active" : "")">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="8" r="7"></circle>
                             <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
                         </svg>
                         <span>Certificates</span>
-                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
-                    </span>
+                    </a>
                 }
                 else
                 {
@@ -330,14 +338,14 @@
                         </svg>
                         <span>My Feedback</span>
                     </a>
-                    <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
+                    <a asp-area="Student" asp-controller="Certificates" asp-action="Index" 
+                       class="dash-nav-link @(currentArea == "Student" && currentController == "Certificates" ? "active" : "")">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="8" r="7"></circle>
                             <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
                         </svg>
                         <span>My Certificates</span>
-                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
-                    </span>
+                    </a>
                     <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
