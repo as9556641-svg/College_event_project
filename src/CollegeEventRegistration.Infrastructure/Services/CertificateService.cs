@@ -323,20 +323,20 @@ public class CertificateService : ICertificateService
             return CertificateResultDto.Fail(CertificateStatusCode.Success, $"PDF generation failed: {ex.Message}");
         }
 
-        // Save PDF to wwwroot/certificates/{year}/
-        var webRoot = GetWebRootPath();
-        var certsDir = Path.Combine(webRoot, "certificates", year.ToString());
+        // Save PDF outside wwwroot in App_Data/Certificates/{year}/ to prevent direct static URL access
+        var storageRoot = GetSecureStoragePath();
+        var certsDir = Path.Combine(storageRoot, year.ToString());
         Directory.CreateDirectory(certsDir);
 
         var safeFileName = $"cert_{reg.EventId}_{reg.Id}_{verificationToken[..8]}.pdf";
         var physicalPath = Path.Combine(certsDir, safeFileName);
 
         // Anti-path traversal validation
-        var canonicalWebRoot = Path.GetFullPath(webRoot);
+        var canonicalStorageRoot = Path.GetFullPath(storageRoot);
         var canonicalFilePath = Path.GetFullPath(physicalPath);
-        if (!canonicalFilePath.StartsWith(canonicalWebRoot, StringComparison.OrdinalIgnoreCase))
+        if (!canonicalFilePath.StartsWith(canonicalStorageRoot, StringComparison.OrdinalIgnoreCase))
         {
-            throw new InvalidOperationException("Invalid certificate destination path outside web root.");
+            throw new InvalidOperationException("Invalid certificate destination path outside secure storage root.");
         }
 
         await File.WriteAllBytesAsync(physicalPath, pdfBytes);
@@ -631,14 +631,19 @@ public class CertificateService : ICertificateService
         var detail = await GetCertificateByIdAsync(certificateId, requestingUserId, isStaff);
         if (detail == null) return null;
 
-        var webRoot = GetWebRootPath();
-        var relativePath = detail.PdfFilePath.Replace('/', Path.DirectorySeparatorChar);
-        var physicalPath = Path.Combine(webRoot, relativePath);
+        var storageRoot = GetSecureStoragePath();
+        var sanitizedRelPath = detail.PdfFilePath.Replace('/', Path.DirectorySeparatorChar).TrimStart(Path.DirectorySeparatorChar);
+        if (sanitizedRelPath.StartsWith($"certificates{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
+        {
+            sanitizedRelPath = sanitizedRelPath.Substring($"certificates{Path.DirectorySeparatorChar}".Length);
+        }
+
+        var physicalPath = Path.Combine(storageRoot, sanitizedRelPath);
 
         // Security: Prevent Directory Traversal
-        var canonicalWebRoot = Path.GetFullPath(webRoot);
+        var canonicalStorageRoot = Path.GetFullPath(storageRoot);
         var canonicalFilePath = Path.GetFullPath(physicalPath);
-        if (!canonicalFilePath.StartsWith(canonicalWebRoot, StringComparison.OrdinalIgnoreCase))
+        if (!canonicalFilePath.StartsWith(canonicalStorageRoot, StringComparison.OrdinalIgnoreCase))
         {
             throw new UnauthorizedAccessException("Directory traversal attack detected.");
         }
@@ -881,14 +886,14 @@ public class CertificateService : ICertificateService
         return RandomNumberGenerator.GetString(chars, length);
     }
 
-    private string GetWebRootPath()
+    private string GetSecureStoragePath()
     {
-        if (!string.IsNullOrEmpty(_environment.WebRootPath))
-        {
-            return _environment.WebRootPath;
-        }
+        var basePath = !string.IsNullOrEmpty(_environment.ContentRootPath)
+            ? _environment.ContentRootPath
+            : Directory.GetCurrentDirectory();
 
-        var candidate = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        // Stored completely outside wwwroot in App_Data/Certificates/ to protect private certificates from static serving
+        var candidate = Path.Combine(basePath, "App_Data", "Certificates");
         if (!Directory.Exists(candidate))
         {
             Directory.CreateDirectory(candidate);

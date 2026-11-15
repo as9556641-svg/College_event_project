@@ -47,8 +47,12 @@ appsettings.*.local.json
 # Static uploads
 src/CollegeEventRegistration.Web/wwwroot/uploads/*
 !src/CollegeEventRegistration.Web/wwwroot/uploads/.gitkeep
-src/CollegeEventRegistration.Web/wwwroot/certificates/*
-!src/CollegeEventRegistration.Web/wwwroot/certificates/.gitkeep
+
+# Protected private storage (Certificates, sensitive documents)
+src/CollegeEventRegistration.Web/App_Data/*
+!src/CollegeEventRegistration.Web/App_Data/.gitkeep
+App_Data/*
+!App_Data/.gitkeep
 
 # Temporary test logs
 *.log
