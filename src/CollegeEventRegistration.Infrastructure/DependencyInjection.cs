@@ -73,6 +73,10 @@ public static class DependencyInjection
         // Register Phase 7 Event Registration Services
         services.AddScoped<IEventRegistrationService, EventRegistrationService>();
 
+        // Register Phase 8 Payment Integration Services
+        services.AddHttpClient<IPaymentGatewayClient, RazorpayGatewayClient>();
+        services.AddScoped<IPaymentService, PaymentService>();
+
         return services;
     }
 }

@@ -1,0 +1,162 @@
+@model CollegeEventRegistration.Core.DTOs.PagedResult<CollegeEventRegistration.Core.DTOs.PaymentSummaryDto>
+@using CollegeEventRegistration.Core.Enums
+@{
+    Layout = "_StudentPortalLayout";
+    ViewData["Title"] = "My Payment History";
+    var criteria = (CollegeEventRegistration.Core.DTOs.StudentPaymentFilterCriteria)(ViewBag.Criteria ?? new CollegeEventRegistration.Core.DTOs.StudentPaymentFilterCriteria());
+}
+
+<div class="container-xl my-4">
+    <!-- Header -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-primary-subtle text-primary border">Financial Ledger</span>
+                <span class="text-muted small">Campus Event Hub</span>
+            </div>
+            <h2 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">My Payment Transactions</h2>
+        </div>
+        <div>
+            <a asp-area="Student" asp-controller="Registrations" asp-action="Index" class="btn btn-outline-primary btn-sm">
+                &larr; My Registrations
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <form method="get" class="row g-2 align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </span>
+                        <input type="text" name="SearchTerm" class="form-control border-start-0" placeholder="Search by Order ID, Transaction ID, or Event..." value="@criteria.SearchTerm" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select name="Status" class="form-select">
+                        <option value="">All Payment Statuses</option>
+                        <option value="@PaymentStatus.Success" selected="@(criteria.Status == PaymentStatus.Success)">Success</option>
+                        <option value="@PaymentStatus.Pending" selected="@(criteria.Status == PaymentStatus.Pending)">Pending</option>
+                        <option value="@PaymentStatus.Failed" selected="@(criteria.Status == PaymentStatus.Failed)">Failed</option>
+                        <option value="@PaymentStatus.Refunded" selected="@(criteria.Status == PaymentStatus.Refunded)">Refunded</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+                    @if (criteria.Status.HasValue || !string.IsNullOrWhiteSpace(criteria.SearchTerm))
+                    {
+                        <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payments Table -->
+    @if (Model.Items.Count > 0)
+    {
+        <div class="card border-0 shadow-sm overflow-hidden mb-4">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Transaction / Order</th>
+                            <th>Event Details</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date &amp; Time</th>
+                            <th class="text-end pe-4">Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var payment in Model.Items)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="font-monospace fw-semibold text-primary">@(payment.TransactionId ?? payment.OrderId ?? "N/A")</div>
+                                    <div class="small text-muted font-monospace">Reg: @payment.RegistrationNumber</div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">@payment.EventTitle</div>
+                                    <div class="small text-muted">@payment.PaymentMethod</div>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-dark">&#8377;@payment.Amount.ToString("F2")</span>
+                                </td>
+                                <td>
+                                    @switch (payment.Status)
+                                    {
+                                        case PaymentStatus.Success:
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Success</span>
+                                            break;
+                                        case PaymentStatus.Pending:
+                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1">Pending</span>
+                                            break;
+                                        case PaymentStatus.Failed:
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Failed</span>
+                                            break;
+                                        case PaymentStatus.Refunded:
+                                            <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1">Refunded</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="small text-muted text-nowrap">
+                                    @(payment.CompletedAt?.ToString("MMM dd, yyyy HH:mm") ?? payment.InitiatedAt.ToString("MMM dd, yyyy HH:mm")) UTC
+                                </td>
+                                <td class="text-end pe-4">
+                                    @if (payment.Status == PaymentStatus.Success)
+                                    {
+                                        <a asp-action="Receipt" asp-route-id="@payment.Id" class="btn btn-sm btn-outline-success">
+                                            Receipt &rarr;
+                                        </a>
+                                    }
+                                    else if (payment.Status == PaymentStatus.Pending || payment.Status == PaymentStatus.Failed)
+                                    {
+                                        <a asp-action="Checkout" asp-route-registrationId="@payment.RegistrationId" class="btn btn-sm btn-outline-primary">
+                                            Retry
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (Model.TotalPages > 1)
+            {
+                <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3">
+                    <span class="text-muted small">Showing @Model.Items.Count of @Model.TotalCount transactions</span>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                                <a class="page-link" asp-action="Index" asp-route-PageNumber="@(Model.PageNumber - 1)" asp-route-Status="@criteria.Status" asp-route-SearchTerm="@criteria.SearchTerm">&laquo;</a>
+                            </li>
+                            @for (int p = 1; p <= Model.TotalPages; p++)
+                            {
+                                <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-PageNumber="@p" asp-route-Status="@criteria.Status" asp-route-SearchTerm="@criteria.SearchTerm">@p</a>
+                                </li>
+                            }
+                            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                                <a class="page-link" asp-action="Index" asp-route-PageNumber="@(Model.PageNumber + 1)" asp-route-Status="@criteria.Status" asp-route-SearchTerm="@criteria.SearchTerm">&raquo;</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm text-center py-5">
+            <div class="card-body">
+                <h5 class="fw-bold text-dark mb-1">No Transactions Found</h5>
+                <p class="text-muted small mb-0">You have no payment records matching your filter criteria.</p>
+            </div>
+        </div>
+    }
+</div>

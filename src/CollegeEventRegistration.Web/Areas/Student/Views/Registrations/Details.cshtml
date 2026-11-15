@@ -97,6 +97,45 @@
                 }
             </div>
 
+            <!-- Payment Prompt / Confirmation Callout (Phase 8) -->
+            @if (Model.EventType == EventType.Paid)
+            {
+                @if (Model.Status == RegistrationStatus.Confirmed)
+                {
+                    <div class="card border-success bg-success-subtle p-3 mb-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-success"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                <div>
+                                    <div class="fw-bold text-success">Registration Fee Paid (&#8377;@Model.RegistrationFee.ToString("F2"))</div>
+                                    <div class="small text-muted">Your seat is confirmed and your payment has been verified.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (Model.Status == RegistrationStatus.Pending)
+                {
+                    <div class="card border-warning bg-warning-subtle p-3 mb-4">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-warning-emphasis"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                <div>
+                                    <div class="fw-bold text-dark">Payment Required: &#8377;@Model.RegistrationFee.ToString("F2")</div>
+                                    <div class="small text-muted">Complete payment to finalize your registration and reserve your seat.</div>
+                                </div>
+                            </div>
+                            <div>
+                                <a asp-area="Student" asp-controller="Payments" asp-action="Checkout" asp-route-registrationId="@Model.Id" class="btn btn-primary fw-bold px-3 py-2 shadow-sm d-inline-flex align-items-center gap-2">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                                    <span>Pay Now &rarr;</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+
             <!-- Event Information Card -->
             <div class="card border-0 shadow-sm p-4 mb-4">
                 <div class="d-flex align-items-center justify-content-between mb-3">

@@ -199,8 +199,9 @@ public class EventRegistrationService : IEventRegistrationService
                         };
                     }
 
-                    // Determine status: Pending if approval is explicitly required, otherwise Confirmed
-                    var targetStatus = trackedEvent.IsApprovalRequired
+                    // Determine status: Pending if approval is explicitly required or if event is Paid, otherwise Confirmed
+                    var isPaidEvent = trackedEvent.EventType == EventType.Paid && trackedEvent.RegistrationFee > 0;
+                    var targetStatus = (trackedEvent.IsApprovalRequired || isPaidEvent)
                         ? RegistrationStatus.Pending
                         : RegistrationStatus.Confirmed;
 
@@ -267,7 +268,9 @@ public class EventRegistrationService : IEventRegistrationService
                         EventTitle = trackedEvent.Title,
                         Message = targetStatus == RegistrationStatus.Confirmed
                             ? $"Congratulations! You are officially registered for '{trackedEvent.Title}'. Registration #{finalRegistration.RegistrationNumber}."
-                            : $"Your registration request for '{trackedEvent.Title}' has been submitted for faculty review. Registration #{finalRegistration.RegistrationNumber}."
+                            : (isPaidEvent
+                                ? $"Registration initiated for '{trackedEvent.Title}'. Please complete the fee payment of INR {trackedEvent.RegistrationFee:F2} to confirm your seat. Registration #{finalRegistration.RegistrationNumber}."
+                                : $"Your registration request for '{trackedEvent.Title}' has been submitted for faculty review. Registration #{finalRegistration.RegistrationNumber}.")
                     };
                 }
                 catch (DbUpdateConcurrencyException ex)

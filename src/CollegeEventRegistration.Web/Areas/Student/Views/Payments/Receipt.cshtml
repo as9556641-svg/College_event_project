@@ -1,0 +1,119 @@
+@model CollegeEventRegistration.Core.DTOs.PaymentSummaryDto
+@using CollegeEventRegistration.Core.Enums
+@{
+    Layout = "_StudentPortalLayout";
+    ViewData["Title"] = $"Payment Receipt - {Model.TransactionId}";
+}
+
+<div class="container-xl my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3 d-print-none">
+        <a asp-area="Student" asp-controller="Registrations" asp-action="Details" asp-route-id="@Model.RegistrationId" class="text-decoration-none">
+            &larr; Back to Registration
+        </a>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect width="12" height="8" x="6" y="14"></rect></svg>
+                <span>Print Receipt</span>
+            </button>
+            <a asp-action="Index" class="btn btn-primary btn-sm">
+                View All Transactions
+            </a>
+        </div>
+    </div>
+
+    <!-- Official Printable Receipt Card -->
+    <div class="card border shadow-sm p-4 mx-auto" style="max-width: 750px;">
+        <!-- Institutional Header -->
+        <div class="d-flex align-items-center justify-content-between border-bottom pb-4 mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <img src="~/images/branding/vap-university-logo.png" alt="VAP UNIVERSITY" style="height: 48px; width: auto;" />
+                <div>
+                    <h4 class="fw-bold text-dark mb-0">VAP UNIVERSITY</h4>
+                    <span class="text-muted small">Campus Event Hub &bull; Financial Receipts Division</span>
+                </div>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 fs-6">PAID &amp; CONFIRMED</span>
+                <div class="text-muted small mt-1">Receipt Date: @(Model.CompletedAt?.ToString("dd MMM yyyy, hh:mm tt") ?? Model.InitiatedAt.ToString("dd MMM yyyy")) UTC</div>
+            </div>
+        </div>
+
+        <!-- Transaction Details Grid -->
+        <div class="row g-3 mb-4 small">
+            <div class="col-sm-6">
+                <div class="text-muted">Transaction Reference:</div>
+                <div class="fw-bold text-dark font-monospace">@Model.TransactionId</div>
+            </div>
+            <div class="col-sm-6">
+                <div class="text-muted">Gateway Order Reference:</div>
+                <div class="fw-bold text-dark font-monospace">@Model.OrderId</div>
+            </div>
+            <div class="col-sm-6">
+                <div class="text-muted">Registration Number:</div>
+                <div class="fw-bold text-primary font-monospace">@Model.RegistrationNumber</div>
+            </div>
+            <div class="col-sm-6">
+                <div class="text-muted">Payment Channel:</div>
+                <div class="fw-bold text-dark">@(Model.PaymentMethod ?? "Razorpay Gateway")</div>
+            </div>
+        </div>
+
+        <!-- Student & Event Particulars -->
+        <div class="card bg-light border-0 p-3 mb-4">
+            <h6 class="fw-bold text-dark mb-2">Participant Details</h6>
+            <div class="row g-2 small">
+                <div class="col-sm-6">
+                    <span class="text-muted">Student Name:</span>
+                    <strong class="text-dark">@Model.StudentName</strong>
+                </div>
+                <div class="col-sm-6">
+                    <span class="text-muted">Roll Number:</span>
+                    <strong class="text-dark">@(Model.StudentRollNumber ?? "N/A")</strong>
+                </div>
+                <div class="col-sm-6">
+                    <span class="text-muted">Email:</span>
+                    <strong class="text-dark">@Model.StudentEmail</strong>
+                </div>
+                <div class="col-sm-6">
+                    <span class="text-muted">Department:</span>
+                    <strong class="text-dark">@(Model.StudentDepartment ?? "N/A")</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Breakdown -->
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Description</th>
+                        <th>Department</th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">@Model.EventTitle</div>
+                            <div class="text-muted small">Official Admission &amp; Participant Pass</div>
+                        </td>
+                        <td class="small">@(Model.EventDepartmentCode ?? "GEN")</td>
+                        <td class="text-end fw-semibold">&#8377;@Model.Amount.ToString("F2")</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="2" class="text-end">Total Amount Paid:</th>
+                        <th class="text-end fw-bold text-success fs-5">&#8377;@Model.Amount.ToString("F2")</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Institutional Footer Notice -->
+        <div class="text-center pt-3 border-top text-muted small">
+            <div>This is a computer-generated transaction receipt verified under VAP UNIVERSITY Campus Event Hub protocols.</div>
+            <div>For financial inquiries, contact bursar@vap.edu or the event coordinating department.</div>
+        </div>
+    </div>
+</div>

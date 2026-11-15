@@ -1,0 +1,164 @@
+@model CollegeEventRegistration.Core.DTOs.PagedResult<CollegeEventRegistration.Core.DTOs.PaymentSummaryDto>
+@using CollegeEventRegistration.Core.Enums
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Event Payments";
+    var criteria = (CollegeEventRegistration.Core.DTOs.PaymentFilterCriteria)(ViewBag.Criteria ?? new CollegeEventRegistration.Core.DTOs.PaymentFilterCriteria());
+    var eventsList = (List<SelectListItem>)(ViewBag.CoordinatedEvents ?? new List<SelectListItem>());
+}
+
+<div class="dash-page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-role badge-role-coord">Faculty Coordinator</span>
+            <span class="text-muted small">Financial Oversight</span>
+        </div>
+        <h2 class="dash-page-title">Event Payments &amp; Fee Receipts</h2>
+    </div>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>@TempData["ErrorMessage"]</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!eventsList.Any())
+{
+    <div class="dash-panel text-center py-5">
+        <h5 class="fw-bold text-dark mb-1">No Coordinated Events</h5>
+        <p class="text-muted small mb-0">You are currently not assigned to coordinate any events.</p>
+    </div>
+}
+else
+{
+    <!-- Filter Bar -->
+    <div class="dash-panel mb-4 p-3">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label small fw-semibold text-muted">Select Event</label>
+                <select name="EventId" class="form-select" onchange="this.form.submit()">
+                    @foreach (var ev in eventsList)
+                    {
+                        <option value="@ev.Value" selected="@ev.Selected">@ev.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold text-muted">Search Student / Order</label>
+                <input type="text" name="SearchTerm" class="form-control" placeholder="Search by name, roll no, order ID..." value="@criteria.SearchTerm" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold text-muted">Status</label>
+                <select name="Status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="@PaymentStatus.Success" selected="@(criteria.Status == PaymentStatus.Success)">Success</option>
+                    <option value="@PaymentStatus.Pending" selected="@(criteria.Status == PaymentStatus.Pending)">Pending</option>
+                    <option value="@PaymentStatus.Failed" selected="@(criteria.Status == PaymentStatus.Failed)">Failed</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Payments Table -->
+    <div class="dash-panel">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Transaction / Order ID</th>
+                        <th>Student Participant</th>
+                        <th>Roll No &amp; Dept</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th class="text-end pe-3">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Items.Count > 0)
+                    {
+                        @foreach (var p in Model.Items)
+                        {
+                            <tr>
+                                <td class="ps-3">
+                                    <span class="font-monospace fw-semibold text-primary">@(p.TransactionId ?? p.OrderId ?? "N/A")</span>
+                                    <div class="small text-muted font-monospace">Reg: @p.RegistrationNumber</div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">@p.StudentName</div>
+                                    <div class="small text-muted">@p.StudentEmail</div>
+                                </td>
+                                <td class="small">
+                                    <div>@(p.StudentRollNumber ?? "N/A")</div>
+                                    <div class="text-muted">@(p.StudentDepartment ?? "N/A")</div>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-dark">&#8377;@p.Amount.ToString("F2")</span>
+                                </td>
+                                <td>
+                                    @switch (p.Status)
+                                    {
+                                        case PaymentStatus.Success:
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle">Success</span>
+                                            break;
+                                        case PaymentStatus.Pending:
+                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Pending</span>
+                                            break;
+                                        case PaymentStatus.Failed:
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Failed</span>
+                                            break;
+                                        case PaymentStatus.Refunded:
+                                            <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">Refunded</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-end pe-3 small text-muted text-nowrap">
+                                    @(p.CompletedAt?.ToString("MMM dd, yyyy HH:mm") ?? p.InitiatedAt.ToString("MMM dd, yyyy HH:mm")) UTC
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                No payment records found for this event matching your query criteria.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3 border-top">
+                <span class="text-muted small">Showing @Model.Items.Count of @Model.TotalCount payments</span>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                            <a class="page-link" asp-action="Index" asp-route-PageNumber="@(Model.PageNumber - 1)" asp-route-EventId="@criteria.EventId" asp-route-Status="@criteria.Status" asp-route-SearchTerm="@criteria.SearchTerm">&laquo;</a>
+                        </li>
+                        @for (int pg = 1; pg <= Model.TotalPages; pg++)
+                        {
+                            <li class="page-item @(pg == Model.PageNumber ? "active" : "")">
+                                <a class="page-link" asp-action="Index" asp-route-PageNumber="@pg" asp-route-EventId="@criteria.EventId" asp-route-Status="@criteria.Status" asp-route-SearchTerm="@criteria.SearchTerm">@pg</a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                            <a class="page-link" asp-action="Index" asp-route-PageNumber="@(Model.PageNumber + 1)" asp-route-EventId="@criteria.EventId" asp-route-Status="@criteria.Status" asp-route-SearchTerm="@criteria.SearchTerm">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+}
