@@ -176,6 +176,14 @@
                         </svg>
                         <span>Tickets Ledger</span>
                     </a>
+                    <a asp-area="Admin" asp-controller="Attendance" asp-action="Index" 
+                       class="dash-nav-link @(currentArea == "Admin" && currentController == "Attendance" ? "active" : "")">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11l3 3L22 4"></path>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                        <span>Attendance Ledger</span>
+                    </a>
                     <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -241,14 +249,14 @@
                         <span>Sessions</span>
                         <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
                     </span>
-                    <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
+                    <a asp-area="Coordinator" asp-controller="Attendance" asp-action="Index" 
+                       class="dash-nav-link @(currentArea == "Coordinator" && currentController == "Attendance" ? "active" : "")">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M9 11l3 3L22 4"></path>
                             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                         </svg>
-                        <span>Attendance</span>
-                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
-                    </span>
+                        <span>Attendance Scanner</span>
+                    </a>
                     <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="8" r="7"></circle>

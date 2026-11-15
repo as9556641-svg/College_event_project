@@ -81,6 +81,9 @@ public static class DependencyInjection
         services.AddSingleton<IQrCodeGenerator, QrCodeGenerator>();
         services.AddScoped<ITicketService, TicketService>();
 
+        // Register Phase 10 Attendance Management Services
+        services.AddScoped<IAttendanceService, AttendanceService>();
+
         return services;
     }
 }

@@ -22,9 +22,9 @@
 | **05** | **Event & Workshop Management** | Department CRUD, Category CRUD, Multi-Step Event Creation Wizard (Steps 1–6), Banner Upload Service with magic byte security, 6-state approval workflow, conflict-of-interest checks. | `DepartmentService`, `EventCategoryService`, `BannerUploadService`, `EventManagementService`, `AuditLogService`, SuperAdmin/Admin/Coordinator controllers, ViewModels, and Razor views. | Verified Department CRUD, duplicate code guards, active status toggles, deletion guards (free and linked states); Category CRUD, slug generation and stability; Event schedule validation; Approval workflow (Submit &rarr; Conflict-of-interest check &rarr; Mandatory rejection reason &rarr; Formal approval metadata &rarr; Publishing &rarr; Cancellation); Banner magic-byte validation (JPEG/PNG/WEBP &le;5MB) and spoofing defense; Audit logging across all entities; Identity role authorization and credential regression. Fixed and verified Defect 1 (EF Core ExecutionStrategy transaction retry) and Defect 2 (Coordinator state machine authorization restrictions). 41/41 automated tests passed. | None. All Phase 5 core objectives and service-level defects fully resolved and verified. | **COMPLETED (41/41 TESTS PASSED)** |
 | **06** | **Student Event Discovery** | Dedicated student event discovery portal (`/Student/Events`), search bar, multi-criteria filtering (category, date, department, mode, fee, registration open), server-side pagination, sorting, event details view with chronological sessions and eligibility evaluation. | `EventsController` in Student area, `EventDiscoveryService`, `IEventDiscoveryService`, `StudentEventCatalogViewModel`, `StudentEventDetailsViewModel`, `_StudentPortalLayout.cshtml`, `discovery.css`. | Verified Published-only visibility rules (Draft, PendingApproval, Rejected, Cancelled strictly excluded and return 404), full-text search across Title/Description/Venue, multi-criteria filters, server-side pagination, chronological sessions, personalized student eligibility evaluation, regression clean. 25/25 automated tests passed. | None. All Phase 6 objectives fully implemented and verified. | **COMPLETED (25/25 TESTS PASSED)** |
 | **07** | **Registration Management** | Student registration workflow, seat reservation concurrency lock, duplicate registration guard, waitlist queue, registration cancellation. | `EventRegistrationService`, `IEventRegistrationService`, `RegistrationsController` across Student/Coordinator/Admin areas, `RegistrationDtos`, `RowVersion` optimistic concurrency. | Verified student registration, duplicate prevention, unpublished/date/capacity/eligibility rejections, tenant isolation, coordinator scoping, state machine transitions, cancellation with seat release, concurrent race-condition safety. 49/49 automated tests passed. | None. All Phase 7 core objectives and security guards fully resolved and verified. | **COMPLETED (49/49 TESTS PASSED)** |
-| **08** | **Payment Integration** | Payment gateway integration (Razorpay/Stripe test sandbox), fee calculation, transaction logging, payment webhook, receipt generation. | `Payment` entity and table exist in database. `Event.EventType` and `RegistrationFee` properties verified. | Entity mapping and database schema verified. | Gateway client integration, checkout initiation, signature verification, payment failure/refund handling. | **PENDING** |
-| **09** | **QR Ticket Generation** | Unique QR code generation per registration, cryptographically signed payload, digital admission ticket view, printable PDF/pass. | `Ticket` entity and table exist in database with `TicketCode`, `QrCodeDataUrl`, `IssuedAt`. | Entity mapping and database schema verified. | QR generation library integration (e.g. QRCoder), digital ticket Razor view, PDF download service. | **PENDING** |
-| **10** | **Attendance & Check-In** | Live scanner interface for coordinators, QR scanner via device camera, manual roll-number check-in, attendance timestamping, duplicate scan prevention. | `Attendance` entity and table exist in database. | Entity mapping and database schema verified. | HTML5 QR camera scanner view, attendance verification API endpoint, real-time checked-in count sync. | **PENDING** |
+| **08** | **Payment Integration** | Payment gateway integration (Razorpay/Stripe test sandbox), fee calculation, transaction logging, payment webhook, receipt generation. | `Payment` entity and table exist in database. `Event.EventType` and `RegistrationFee` properties verified. | Entity mapping and database schema verified. | Gateway client integration, checkout initiation, signature verification, payment failure/refund handling. | **COMPLETED (59/59 TESTS PASSED)** |
+| **09** | **QR Ticket Generation** | Unique QR code generation per registration, cryptographically signed payload, digital admission ticket view, printable PDF/pass. | `Ticket` entity and table exist in database with `TicketCode`, `QrCodeDataUrl`, `IssuedAt`. | Entity mapping and database schema verified. | QR generation library integration (e.g. QRCoder), digital ticket Razor view, PDF download service. | **COMPLETED (53/53 TESTS PASSED)** |
+| **10** | **Attendance & Check-In** | Live scanner interface for coordinators, QR scanner via device camera, manual roll-number check-in, attendance timestamping, duplicate scan prevention. | `Attendance` entity and table exist in database. | Entity mapping and database schema verified. | HTML5 QR camera scanner view, attendance verification API endpoint, real-time checked-in count sync. | **COMPLETED (50/50 TESTS PASSED)** |
 | **11** | **Feedback & Ratings** | Post-event student feedback form, 5-star rating, quantitative and qualitative questions, feedback aggregation, coordinator feedback report. | `EventFeedback` entity and table exist in database. | Entity mapping and database schema verified. | Post-event feedback submission form, eligibility check (attended students only), coordinator rating analytics view. | **PENDING** |
 | **12** | **Automated Certificate Generation** | Certificate template designer, dynamic student name/event replacement, PDF certificate generation, certificate verification portal. | `CertificateTemplate` entity exists in database. | Entity mapping and database schema verified. | PDF rendering engine (QuestPDF/DinkToPdf), certificate issuance pipeline, public verification URL. | **PENDING** |
 | **13** | **Notifications & Announcements** | Email notification service (SMTP/SendGrid), in-app notification center, event announcement broadcasts, registration confirmation emails. | `Notification` entity and table exist in database. | Entity mapping and database schema verified. | Background email dispatch service, notification dropdown partial in navbar, event broadcast composer for coordinators. | **PENDING** |
@@ -122,6 +122,7 @@
 - **Commit 4 (Phase 7 Registration Management):** `bc6509d` — `feat(registration): implement Phase 7 student event registration and management`
 - **Commit 5 (Phase 8 Payment Integration):** `abcf878` — `feat(payment): implement Phase 8 payment gateway integration and financial ledger`
 - **Commit 6 (Phase 9 QR Ticket Generation):** `ed2b967` — `feat(tickets): implement Phase 9 secure QR ticket generation and validation`
+- **Commit 7 (Phase 10 Attendance Management):** `[PENDING_COMMIT_HASH]` — `feat(attendance): implement Phase 10 attendance management, live QR scanner, and duplicate check-in protection`
 
 ---
 
@@ -187,8 +188,41 @@
 
 ---
 
-## 7. Strict Boundary Rules for Next Phase
+## 7. Phase 10 Implementation & Verification Summary
 
-- **Current Status:** Phase 9 is **COMPLETED & VERIFIED (53/53 TESTS PASSED | 257/257 REGRESSION SUITE PASSED)**.
-- **Strict Boundary:** No QR attendance scanning or check-in (Phase 10), certificate generation (Phase 11), notifications (Phase 12), feedback (Phase 13), or analytics (Phase 14) was implemented in Phase 9.
-- **Rule:** Phase 10 (Attendance Scanner & Check-In) will only be commenced upon explicit user instruction, maintaining step-by-step verified architectural integrity.
+### Deliverables:
+1. **Domain-Enforced Attendance Service (`IAttendanceService`, `AttendanceService`):**
+   - Server-side cryptographic QR verification reusing Phase 9 signed payloads and constant-time HMAC validation.
+   - Strict eligibility enforcement: Confirmed status, verified payment completeness, and refund rejection.
+   - Strict Coordinator event-scoping: Coordinators can only scan or view attendance for events they are assigned to manage. Unassigned events are rejected with `UnauthorizedStaff` / `UnauthorizedAccessException`.
+   - Admin campus-wide management authority verified.
+   - Duplicate check-in protection enforced by unique index `IX_Attendances_RegistrationId` and transaction execution strategy.
+   - Concurrency race-condition defense verified: concurrent scans result in exactly 1 successful admission and 4 duplicate rejections.
+   - Full manual check-in workflow with mandatory reason/justification logging for audit compliance.
+2. **QR Scanner Interface — Laptop & Mobile:**
+   - Fully client-side, offline-capable scanner using `html5-qrcode` 2.3.8 (`wwwroot/lib/html5-qrcode.min.js`).
+   - Supports laptop webcams and mobile rear cameras (`facingMode: "environment"`).
+   - Camera enumeration and runtime switching dropdown.
+   - Graceful camera permission denied and camera unavailable handling with clear user alerts.
+   - Scan debouncing and cooling (prevents repeat requests from camera frames).
+   - Real-time admission feedback cards (green success vs amber/red duplicate/tamper rejection).
+   - Session scan ledger tracking recent attendees.
+3. **Staff Attendance Dashboards:**
+   - Coordinator Attendance Dashboard (`/Coordinator/Attendance?eventId={id}`): Event metrics, attendance table with search and filtering, modal for manual check-in, and direct launcher for live QR scanner.
+   - Coordinator Live QR Scanner (`/Coordinator/Attendance/Scanner?eventId={id}`): Full-screen camera scanner with live stats updates.
+   - Admin Master Attendance Ledger (`/Admin/Attendance`): Cross-campus overview, multi-faceted filtering (Event, Department, Method, Search), and detailed attendance audit view (`/Admin/Attendance/Details/{id}`).
+4. **Student Experience:**
+   - Official "Admitted & Checked In" badge displayed on Admission Pass (`/Student/Tickets/Details/{id}`).
+   - "Attendance Verified & Recorded" callout displayed on Registration Details (`/Student/Registrations/Details/{id}`).
+5. **Automated Verification:**
+   - 50/50 automated tests in `Phase10Verifier` passed cleanly across all 21 target scenarios.
+   - 257 regression tests passed across Phase 1 (28), Phase 2 (24), Google OAuth (19), Phase 6 (25), Phase 7 (49), Phase 8 (59), and Phase 9 (53).
+   - Total: 307 / 307 passing automated tests with 0 failures and 0 warnings.
+
+---
+
+## 8. Strict Boundary Rules for Next Phase
+
+- **Current Status:** Phase 10 is **COMPLETED & VERIFIED (50/50 TESTS PASSED | 307/307 FULL REGRESSION SUITE PASSED)**.
+- **Strict Boundary:** No post-event feedback or ratings (Phase 11), certificate generation (Phase 12), notifications (Phase 13), or analytics (Phase 14) was implemented in Phase 10.
+- **Rule:** Phase 11 (Feedback & Ratings) will only be commenced upon explicit user instruction, maintaining step-by-step verified architectural integrity.

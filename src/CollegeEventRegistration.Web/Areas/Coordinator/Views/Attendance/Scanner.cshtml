@@ -1,0 +1,584 @@
+@using CollegeEventRegistration.Core.DTOs
+@using CollegeEventRegistration.Core.Entities
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Live QR Attendance Scanner";
+    var ev = ViewBag.Event as Event;
+    var summary = ViewBag.Summary as EventAttendanceSummaryDto;
+    var eventId = ev?.Id ?? 0;
+}
+
+<div class="dash-page-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-role badge-role-coord">Live Verification Terminal</span>
+            <span class="text-muted small">Campus Event Hub</span>
+        </div>
+        <h2 class="dash-page-title mb-0">QR Scanner — @ev?.Title</h2>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" asp-route-eventId="@eventId" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Exit to Dashboard</span>
+        </a>
+        <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#manualScannerModal">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+            <span>Manual Roll Entry</span>
+        </button>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+<!-- Event Quick Metrics Ribbon -->
+<div class="row g-2 mb-3">
+    <div class="col-6 col-md-3">
+        <div class="p-2 border rounded bg-white text-center">
+            <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem;">Event Venue</div>
+            <div class="fw-bold text-dark text-truncate small mt-1" title="@ev?.Venue">@(ev?.Venue ?? "On-Campus Venue")</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="p-2 border rounded bg-white text-center">
+            <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem;">Confirmed Registrations</div>
+            <div class="fw-bold text-dark small mt-1" id="statTotalRegistered">@(summary?.TotalRegistered ?? 0)</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="p-2 border rounded bg-white text-center border-success">
+            <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem;">Checked In (Admitted)</div>
+            <div class="fw-bold text-success fs-6 mt-1" id="statTotalCheckedIn">@(summary?.TotalCheckedIn ?? 0)</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="p-2 border rounded bg-white text-center">
+            <div class="text-muted small text-uppercase fw-semibold" style="font-size: 0.72rem;">Attendance Rate</div>
+            <div class="fw-bold text-primary small mt-1" id="statCheckInRate">@(summary?.CheckInPercentage ?? 0)%</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Camera Viewfinder & Controls Column -->
+    <div class="col-lg-7">
+        <div class="dash-panel p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="spinner-grow spinner-grow-sm text-danger" id="scannerLiveDot" role="status"></span>
+                    <span class="fw-bold small" id="scannerStatusText">Camera Scanner Ready</span>
+                </div>
+                <!-- Camera selector -->
+                <div class="d-flex align-items-center gap-2">
+                    <select id="cameraSelect" class="form-select form-select-sm" style="max-width: 220px;">
+                        <option value="">Detecting cameras...</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Viewfinder Container -->
+            <div class="position-relative bg-dark rounded overflow-hidden text-center" style="min-height: 340px; display: flex; align-items: center; justify-content: center;">
+                <div id="qr-reader" style="width: 100%;"></div>
+
+                <!-- Overlay placeholder before start -->
+                <div id="cameraPlaceholder" class="p-4 text-white">
+                    <div class="mb-3 text-white-50">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                    </div>
+                    <h6 class="fw-bold mb-1">Camera Standby</h6>
+                    <p class="text-white-50 small mb-3">Position student admission QR pass inside camera viewfinder.</p>
+                    <button type="button" class="btn btn-primary btn-sm px-4" id="btnStartScan" onclick="startScanner()">
+                        Start Camera Scan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Controls row -->
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-danger btn-sm" id="btnStopScan" onclick="stopScanner()" disabled>
+                        Stop Camera
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnResumeScan" onclick="resumeScanner()" style="display: none;">
+                        Scan Next Ticket
+                    </button>
+                </div>
+                <div class="text-muted small">
+                    <span id="scanCooldownNotice" class="badge bg-secondary-subtle text-secondary">Ready to scan</span>
+                </div>
+            </div>
+
+            <!-- Camera Permission Alert -->
+            <div id="cameraErrorAlert" class="alert alert-warning mt-3 mb-0 d-none" role="alert"></div>
+        </div>
+    </div>
+
+    <!-- Live Scan Results & Audit Column -->
+    <div class="col-lg-5">
+        <!-- Live Result Banner -->
+        <div id="resultBanner" class="dash-panel p-4 mb-3 border-2 border-dashed text-center">
+            <div class="text-muted mb-2">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+            </div>
+            <h6 class="fw-bold mb-1 text-muted">Awaiting QR Scan</h6>
+            <p class="text-muted small mb-0">Present student's digital or printed QR pass to verify admission.</p>
+        </div>
+
+        <!-- Recent Scans Session Ledger -->
+        <div class="dash-panel p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                <h6 class="fw-bold mb-0 small text-uppercase text-muted">Recent Scans (Current Session)</h6>
+                <span class="badge bg-light text-secondary border" id="recentScansBadge">0 verified</span>
+            </div>
+            <div id="recentScansList" style="max-height: 280px; overflow-y: auto;">
+                <div class="text-center text-muted small py-3" id="recentScansEmpty">
+                    No scans in this session yet.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manual Check-In Modal for Scanner View -->
+<div class="modal fade" id="manualScannerModal" tabindex="-1" aria-labelledby="manualScannerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom pb-3">
+                <h5 class="modal-title fw-bold" id="manualScannerModalLabel">Manual Roll / Registration Check-In</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="scannerModalAlert" class="alert d-none mb-3" role="alert"></div>
+                <form id="scannerManualForm">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Target Event</label>
+                        <input type="text" class="form-control bg-light" value="@ev?.Title" readonly />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Student Identifier</label>
+                        <select id="scannerIdType" class="form-select mb-2" onchange="toggleScannerIdInput()">
+                            <option value="roll">Roll Number (e.g. CS-2024-001)</option>
+                            <option value="reg">Registration Number (e.g. REG-0105-...)</option>
+                            <option value="ticket">Ticket Code (e.g. TKT-202611-...)</option>
+                        </select>
+                        <input type="text" id="scannerIdValue" class="form-control" placeholder="Enter roll number..." />
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold">Justification / Reason <span class="text-danger">*</span></label>
+                        <textarea id="scannerRemarks" class="form-control" rows="2" placeholder="e.g. Student physical ID verified; camera unable to scan" required></textarea>
+                        <div class="form-text small">Mandatory for audit trail verification</div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="btnScannerManualSubmit" onclick="submitScannerManual()">Check In</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/html5-qrcode.min.js"></script>
+    <script>
+        var html5QrCode = null;
+        var isScanning = false;
+        var isProcessing = false;
+        var lastScannedCode = null;
+        var lastScanTime = 0;
+        var sessionScans = [];
+        var eventId = @eventId;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            initCameraList();
+        });
+
+        async function initCameraList() {
+            var select = document.getElementById('cameraSelect');
+            if (typeof Html5Qrcode === 'undefined') {
+                showCameraError('QR Scanner library failed to load. Please check network or file permissions.');
+                return;
+            }
+
+            try {
+                var devices = await Html5Qrcode.getCameras();
+                select.innerHTML = '';
+
+                if (devices && devices.length > 0) {
+                    devices.forEach(function (device, index) {
+                        var opt = document.createElement('option');
+                        opt.value = device.id;
+                        var label = device.label || ('Camera ' + (index + 1));
+                        if (label.toLowerCase().includes('back') || label.toLowerCase().includes('environment') || label.toLowerCase().includes('rear')) {
+                            opt.selected = true;
+                            label += ' (Rear Camera)';
+                        }
+                        opt.text = label;
+                        select.appendChild(opt);
+                    });
+                } else {
+                    var opt = document.createElement('option');
+                    opt.value = '';
+                    opt.text = 'No cameras found';
+                    select.appendChild(opt);
+                    showCameraError('No camera devices detected on this system.');
+                }
+            } catch (err) {
+                select.innerHTML = '<option value="">Camera access restricted</option>';
+                if (err.name === 'NotAllowedError' || err.toString().includes('Permission')) {
+                    showCameraError('Camera access permission was denied. Please allow camera permissions in your browser address bar.');
+                } else {
+                    showCameraError('Camera error: ' + err);
+                }
+            }
+        }
+
+        async function startScanner() {
+            var select = document.getElementById('cameraSelect');
+            var cameraId = select.value;
+
+            document.getElementById('cameraPlaceholder').style.display = 'none';
+            document.getElementById('cameraErrorAlert').classList.add('d-none');
+
+            html5QrCode = new Html5Qrcode('qr-reader');
+
+            var config = {
+                fps: 10,
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0
+            };
+
+            var cameraSource = cameraId ? { deviceId: { exact: cameraId } } : { facingMode: "environment" };
+
+            try {
+                await html5QrCode.start(
+                    cameraSource,
+                    config,
+                    onScanSuccess,
+                    onScanFailure
+                );
+
+                isScanning = true;
+                document.getElementById('btnStartScan').disabled = true;
+                document.getElementById('btnStopScan').disabled = false;
+                document.getElementById('scannerLiveDot').className = 'spinner-grow spinner-grow-sm text-success';
+                document.getElementById('scannerStatusText').innerText = 'Camera Scanning Active';
+                document.getElementById('scanCooldownNotice').innerText = 'Live Scanning';
+                document.getElementById('scanCooldownNotice').className = 'badge bg-success-subtle text-success';
+            } catch (err) {
+                document.getElementById('cameraPlaceholder').style.display = 'block';
+                if (err.name === 'NotAllowedError') {
+                    showCameraError('Camera permission denied. Click the lock/camera icon in your browser URL bar to grant camera access.');
+                } else {
+                    showCameraError('Unable to start camera stream: ' + err);
+                }
+            }
+        }
+
+        async function stopScanner() {
+            if (html5QrCode && isScanning) {
+                try {
+                    await html5QrCode.stop();
+                    html5QrCode.clear();
+                } catch (e) {
+                    console.error('Error stopping scanner', e);
+                }
+            }
+            isScanning = false;
+            document.getElementById('cameraPlaceholder').style.display = 'block';
+            document.getElementById('btnStartScan').disabled = false;
+            document.getElementById('btnStopScan').disabled = true;
+            document.getElementById('btnResumeScan').style.display = 'none';
+            document.getElementById('scannerLiveDot').className = 'spinner-grow spinner-grow-sm text-secondary';
+            document.getElementById('scannerStatusText').innerText = 'Scanner Stopped';
+            document.getElementById('scanCooldownNotice').innerText = 'Standby';
+            document.getElementById('scanCooldownNotice').className = 'badge bg-secondary-subtle text-secondary';
+        }
+
+        function onScanFailure(error) {
+            // Normal scan cycle when frame doesn't contain a QR code
+        }
+
+        async function onScanSuccess(decodedText, decodedResult) {
+            var now = Date.now();
+
+            // Prevent repeat scans of same code within 3 seconds
+            if (isProcessing || (decodedText === lastScannedCode && (now - lastScanTime) < 3000)) {
+                return;
+            }
+
+            isProcessing = true;
+            lastScannedCode = decodedText;
+            lastScanTime = now;
+
+            // Pause camera scanner while validating
+            if (html5QrCode && isScanning) {
+                try {
+                    html5QrCode.pause();
+                } catch (e) { }
+            }
+
+            document.getElementById('scanCooldownNotice').innerText = 'Verifying Ticket...';
+            document.getElementById('scanCooldownNotice').className = 'badge bg-warning-subtle text-warning';
+
+            await processCheckInPayload(decodedText);
+
+            // Auto-resume after 2.5 seconds or let user click resume
+            setTimeout(function () {
+                if (isScanning && html5QrCode) {
+                    try {
+                        html5QrCode.resume();
+                    } catch (e) { }
+                }
+                isProcessing = false;
+                document.getElementById('scanCooldownNotice').innerText = 'Live Scanning';
+                document.getElementById('scanCooldownNotice').className = 'badge bg-success-subtle text-success';
+            }, 2500);
+        }
+
+        function resumeScanner() {
+            if (isScanning && html5QrCode) {
+                try {
+                    html5QrCode.resume();
+                } catch (e) { }
+            }
+            isProcessing = false;
+            document.getElementById('btnResumeScan').style.display = 'none';
+            document.getElementById('scanCooldownNotice').innerText = 'Live Scanning';
+            document.getElementById('scanCooldownNotice').className = 'badge bg-success-subtle text-success';
+        }
+
+        async function processCheckInPayload(payload) {
+            var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            try {
+                var response = await fetch('@Url.Action("CheckInQr", "Attendance", new { area = "Coordinator" })', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify({
+                        EventId: eventId,
+                        QrPayload: payload
+                    })
+                });
+
+                var data = await response.json();
+                renderScanResult(data);
+                if (data.totalCheckedIn !== undefined) {
+                    updateLiveStats(data);
+                }
+            } catch (err) {
+                renderScanResult({
+                    success: false,
+                    message: 'Network error or server unreachable: ' + err.message
+                });
+            }
+        }
+
+        function renderScanResult(data) {
+            var banner = document.getElementById('resultBanner');
+
+            if (data.success) {
+                banner.className = 'dash-panel p-4 mb-3 border-2 border-success bg-success-subtle text-start';
+                banner.innerHTML = `
+                    <div class="d-flex align-items-center gap-2 text-success mb-2">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <h5 class="fw-bold mb-0 text-success">ADMISSION GRANTED</h5>
+                    </div>
+                    <div class="fs-4 fw-bold text-dark mb-1">${escapeHtml(data.studentName || 'Student')}</div>
+                    <div class="text-secondary small mb-2">
+                        <strong>Roll No:</strong> ${escapeHtml(data.studentRollNumber || 'N/A')} | 
+                        <strong>Reg #:</strong> <span class="font-monospace">${escapeHtml(data.registrationNumber || '')}</span>
+                    </div>
+                    <div class="small text-muted border-top pt-2 mt-2">
+                        <span>Ticket: <strong class="font-monospace text-primary">${escapeHtml(data.ticketCode || '')}</strong></span>
+                        <span class="float-end text-success fw-semibold">Method: QR Scan</span>
+                    </div>
+                `;
+                addRecentScan(data, true);
+            } else {
+                var isDuplicate = data.statusCode === 2; // DuplicateCheckIn
+                var alertClass = isDuplicate ? 'border-warning bg-warning-subtle' : 'border-danger bg-danger-subtle';
+                var headerColor = isDuplicate ? 'text-warning' : 'text-danger';
+                var headerTitle = isDuplicate ? 'DUPLICATE TICKET — ALREADY USED' : 'ADMISSION DENIED';
+
+                banner.className = `dash-panel p-4 mb-3 border-2 ${alertClass} text-start`;
+                banner.innerHTML = `
+                    <div class="d-flex align-items-center gap-2 ${headerColor} mb-2">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <h5 class="fw-bold mb-0 ${headerColor}">${headerTitle}</h5>
+                    </div>
+                    <div class="fw-bold text-dark mb-1">${escapeHtml(data.message || 'Check-in validation failed.')}</div>
+                    ${data.studentName ? `
+                        <div class="text-secondary small mt-2">
+                            <strong>Attendee:</strong> ${escapeHtml(data.studentName)} (${escapeHtml(data.studentRollNumber || data.registrationNumber || '')})
+                        </div>
+                    ` : ''}
+                    ${data.checkedInAt ? `
+                        <div class="small text-muted mt-1">
+                            Previously Checked In: <strong>${data.checkedInAt}</strong> by <strong>${escapeHtml(data.checkedInByName || 'Staff')}</strong>
+                        </div>
+                    ` : ''}
+                `;
+                addRecentScan(data, false);
+            }
+        }
+
+        function addRecentScan(data, isSuccess) {
+            var list = document.getElementById('recentScansList');
+            var empty = document.getElementById('recentScansEmpty');
+            if (empty) empty.remove();
+
+            var item = document.createElement('div');
+            item.className = 'p-2 mb-2 rounded border bg-white d-flex justify-content-between align-items-center small';
+            var timeStr = new Date().toLocaleTimeString();
+
+            item.innerHTML = `
+                <div>
+                    <div class="fw-semibold ${isSuccess ? 'text-dark' : 'text-danger'}">
+                        ${escapeHtml(data.studentName || data.ticketCode || 'Scan Entry')}
+                    </div>
+                    <div class="text-muted" style="font-size: 0.75rem;">
+                        ${isSuccess ? (data.studentRollNumber || data.registrationNumber || 'Verified') : escapeHtml(data.message || 'Rejected')}
+                    </div>
+                </div>
+                <div class="text-end">
+                    <span class="badge ${isSuccess ? 'bg-success' : 'bg-danger'}">${isSuccess ? 'Admitted' : 'Rejected'}</span>
+                    <div class="text-muted" style="font-size: 0.7rem;">${timeStr}</div>
+                </div>
+            `;
+
+            list.insertBefore(item, list.firstChild);
+
+            sessionScans.push(data);
+            document.getElementById('recentScansBadge').innerText = sessionScans.filter(s => s.success).length + ' verified';
+        }
+
+        function updateLiveStats(data) {
+            document.getElementById('statTotalCheckedIn').innerText = data.totalCheckedIn;
+            if (data.totalRegistered > 0) {
+                var rate = Math.round((data.totalCheckedIn / data.totalRegistered) * 1000) / 10;
+                document.getElementById('statCheckInRate').innerText = rate + '%';
+            }
+        }
+
+        function showCameraError(msg) {
+            var alert = document.getElementById('cameraErrorAlert');
+            alert.innerText = msg;
+            alert.classList.remove('d-none');
+        }
+
+        function toggleScannerIdInput() {
+            var type = document.getElementById('scannerIdType').value;
+            var input = document.getElementById('scannerIdValue');
+            if (type === 'roll') input.placeholder = 'Enter student roll number (e.g. CS-2024-001)...';
+            else if (type === 'reg') input.placeholder = 'Enter registration number (e.g. REG-0105-...)...';
+            else input.placeholder = 'Enter ticket code (e.g. TKT-202611-...)...';
+        }
+
+        async function submitScannerManual() {
+            var alertBox = document.getElementById('scannerModalAlert');
+            alertBox.className = 'alert d-none';
+            var btn = document.getElementById('btnScannerManualSubmit');
+
+            var type = document.getElementById('scannerIdType').value;
+            var idVal = document.getElementById('scannerIdValue').value.trim();
+            var remarks = document.getElementById('scannerRemarks').value.trim();
+
+            if (!idVal) {
+                alertBox.className = 'alert alert-warning';
+                alertBox.innerText = 'Please provide an identifier.';
+                return;
+            }
+
+            if (!remarks) {
+                alertBox.className = 'alert alert-warning';
+                alertBox.innerText = 'Remarks / justification is required.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'Verifying...';
+
+            var payload = {
+                EventId: eventId,
+                Remarks: remarks
+            };
+
+            if (type === 'roll') payload.RollNumber = idVal;
+            else if (type === 'reg') payload.RegistrationNumber = idVal;
+            else payload.TicketCode = idVal;
+
+            var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            try {
+                var response = await fetch('@Url.Action("ManualCheckIn", "Attendance", new { area = "Coordinator" })', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                var data = await response.json();
+
+                if (data.success) {
+                    alertBox.className = 'alert alert-success';
+                    alertBox.innerText = data.message;
+                    renderScanResult(data);
+                    if (data.totalCheckedIn !== undefined) updateLiveStats(data);
+                    setTimeout(function () {
+                        var modal = bootstrap.Modal.getInstance(document.getElementById('manualScannerModal'));
+                        if (modal) modal.hide();
+                        btn.disabled = false;
+                        btn.innerText = 'Check In';
+                    }, 1200);
+                } else {
+                    alertBox.className = 'alert alert-danger';
+                    alertBox.innerText = data.message || 'Check-in rejected.';
+                    btn.disabled = false;
+                    btn.innerText = 'Check In';
+                }
+            } catch (err) {
+                alertBox.className = 'alert alert-danger';
+                alertBox.innerText = 'Error: ' + err.message;
+                btn.disabled = false;
+                btn.innerText = 'Check In';
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+}

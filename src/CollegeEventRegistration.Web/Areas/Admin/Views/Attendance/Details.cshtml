@@ -1,0 +1,145 @@
+@model CollegeEventRegistration.Core.DTOs.AttendanceRecordDto
+@using CollegeEventRegistration.Core.Enums
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = $"Attendance Audit #{Model.Id}";
+}
+
+<div class="dash-page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-role badge-role-admin">University Governance</span>
+            <span class="text-muted small">Attendance Verification Audit</span>
+        </div>
+        <h2 class="dash-page-title">Attendance Record #@Model.Id</h2>
+    </div>
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Back to Ledger</span>
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Verification Status Banner -->
+    <div class="col-12">
+        <div class="dash-panel p-4 border-start border-4 border-success bg-success-subtle">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-2 bg-success text-white rounded-circle">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-success mb-0">Verified Event Admission</h5>
+                        <div class="text-muted small">Attendee was confirmed present at the event venue.</div>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge bg-success fs-6 px-3 py-2">Status: Checked In</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Attendee Profile -->
+    <div class="col-md-6">
+        <div class="dash-panel h-100 p-4">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">Student Attendee Profile</h5>
+            <dl class="row mb-0">
+                <dt class="col-sm-4 text-muted small">Full Name</dt>
+                <dd class="col-sm-8 fw-semibold">@Model.StudentName</dd>
+
+                <dt class="col-sm-4 text-muted small">Email Address</dt>
+                <dd class="col-sm-8">@Model.StudentEmail</dd>
+
+                <dt class="col-sm-4 text-muted small">Roll Number</dt>
+                <dd class="col-sm-8">
+                    @if (!string.IsNullOrEmpty(Model.StudentRollNumber))
+                    {
+                        <span class="badge bg-light text-dark border font-monospace">@Model.StudentRollNumber</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">—</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-4 text-muted small">Department</dt>
+                <dd class="col-sm-8">@(Model.StudentDepartment ?? "General Campus")</dd>
+
+                <dt class="col-sm-4 text-muted small">Registration #</dt>
+                <dd class="col-sm-8">
+                    <span class="font-monospace fw-bold text-primary">@Model.RegistrationNumber</span>
+                </dd>
+
+                <dt class="col-sm-4 text-muted small">Ticket Code</dt>
+                <dd class="col-sm-8">
+                    @if (!string.IsNullOrEmpty(Model.TicketCode))
+                    {
+                        <span class="font-monospace text-secondary">@Model.TicketCode</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">—</span>
+                    }
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Check-In Verification Metadata -->
+    <div class="col-md-6">
+        <div class="dash-panel h-100 p-4">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">Check-In Verification Metadata</h5>
+            <dl class="row mb-0">
+                <dt class="col-sm-4 text-muted small">Event Name</dt>
+                <dd class="col-sm-8 fw-semibold">@Model.EventTitle (Event #@Model.EventId)</dd>
+
+                <dt class="col-sm-4 text-muted small">Check-In Time</dt>
+                <dd class="col-sm-8">
+                    <strong>@Model.CheckedInAt.ToString("dd MMMM yyyy, HH:mm:ss") UTC</strong>
+                </dd>
+
+                <dt class="col-sm-4 text-muted small">Method</dt>
+                <dd class="col-sm-8">
+                    @if (Model.CheckInMethod == CheckInMethod.QrCode)
+                    {
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                            Live QR Code Scan
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-info-subtle text-info border border-info-subtle">
+                            Manual Roll Check-In
+                        </span>
+                    }
+                </dd>
+
+                <dt class="col-sm-4 text-muted small">Verified By Staff</dt>
+                <dd class="col-sm-8">
+                    <div class="fw-semibold">@Model.CheckedInByName</div>
+                    <div class="text-muted small font-monospace">User ID: @Model.CheckedInByUserId</div>
+                </dd>
+
+                <dt class="col-sm-4 text-muted small">Justification / Remarks</dt>
+                <dd class="col-sm-8">
+                    @if (!string.IsNullOrEmpty(Model.Remarks))
+                    {
+                        <div class="p-2 rounded bg-light border small text-dark">@Model.Remarks</div>
+                    }
+                    else
+                    {
+                        <span class="text-muted small">Standard live QR scan check-in</span>
+                    }
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>

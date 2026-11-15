@@ -1,0 +1,371 @@
+@model CollegeEventRegistration.Core.DTOs.PagedResult<CollegeEventRegistration.Core.DTOs.AttendanceRecordDto>
+@using CollegeEventRegistration.Core.DTOs
+@using CollegeEventRegistration.Core.Enums
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Event Attendance Dashboard";
+    var summary = ViewBag.Summary as EventAttendanceSummaryDto;
+    var activeEventId = (int)(ViewBag.ActiveEventId ?? 0);
+    var filter = ViewBag.FilterCriteria as AttendanceFilterCriteria ?? new AttendanceFilterCriteria();
+    var coordinatedEvents = ViewBag.CoordinatedEvents as List<SelectListItem> ?? new List<SelectListItem>();
+}
+
+<div class="dash-page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-role badge-role-coord">Faculty Coordinator</span>
+            <span class="text-muted small">Event Admission & Check-In</span>
+        </div>
+        <h2 class="dash-page-title">@(summary?.EventTitle ?? "Event Attendance")</h2>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Scanner" asp-route-eventId="@activeEventId" class="btn btn-primary d-inline-flex align-items-center gap-2 shadow-sm">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                <rect x="7" y="7" width="10" height="10" rx="1"></rect>
+            </svg>
+            <span>Launch QR Scanner</span>
+        </a>
+        <button type="button" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#manualCheckInModal">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+            <span>Manual Check-In</span>
+        </button>
+    </div>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
+        <span>@TempData["ErrorMessage"]</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
+        <span>@TempData["SuccessMessage"]</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Summary Statistics Metrics -->
+@if (summary != null)
+{
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="dash-stat-card">
+                <div class="text-muted small fw-semibold text-uppercase">Confirmed Registrations</div>
+                <div class="fs-3 fw-bold text-dark mt-1">@summary.TotalRegistered</div>
+                <div class="text-muted small mt-1">Capacity: @summary.TotalCapacity seats</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="dash-stat-card border-start border-4 border-success">
+                <div class="text-muted small fw-semibold text-uppercase">Admitted / Checked In</div>
+                <div class="fs-3 fw-bold text-success mt-1">@summary.TotalCheckedIn</div>
+                <div class="text-muted small mt-1">Real-time attendance count</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="dash-stat-card">
+                <div class="text-muted small fw-semibold text-uppercase">Check-In Rate</div>
+                <div class="fs-3 fw-bold text-primary mt-1">@summary.CheckInPercentage%</div>
+                <div class="progress mt-2" style="height: 6px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: @summary.CheckInPercentage%" aria-valuenow="@summary.CheckInPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="dash-stat-card">
+                <div class="text-muted small fw-semibold text-uppercase">Pending Admission</div>
+                <div class="fs-3 fw-bold text-warning mt-1">@summary.PendingCheckIn</div>
+                <div class="text-muted small mt-1">Awaiting hall check-in</div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Event Switcher & Filter Bar -->
+<div class="dash-panel mb-4 p-3">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label small fw-semibold text-muted">Select Event</label>
+            <select name="eventId" class="form-select" onchange="this.form.submit()">
+                @foreach (var ev in coordinatedEvents)
+                {
+                    <option value="@ev.Value" selected="@ev.Selected">@ev.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label small fw-semibold text-muted">Search Attendee</label>
+            <input type="text" name="SearchTerm" class="form-control" placeholder="Search by name, roll no, reg #, or ticket code..." value="@filter.SearchTerm" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Check-In Method</label>
+            <select name="CheckInMethod" class="form-select" onchange="this.form.submit()">
+                <option value="">All Verification Methods</option>
+                <option value="1" selected="@(filter.CheckInMethod == CheckInMethod.QrCode)">QR Code Scan</option>
+                <option value="2" selected="@(filter.CheckInMethod == CheckInMethod.Manual)">Manual Roll Entry</option>
+            </select>
+        </div>
+    </form>
+</div>
+
+<!-- Attendance Records Table -->
+<div class="dash-panel">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">Verified Attendees</h5>
+        <span class="badge bg-light text-dark border">@Model.TotalCount Records</span>
+    </div>
+
+    @if (Model == null || !Model.Items.Any())
+    {
+        <div class="text-center py-5">
+            <div class="text-muted mb-2">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 6v6l4 2"></path>
+                </svg>
+            </div>
+            <h6 class="fw-bold mb-1">No Attendance Records Yet</h6>
+            <p class="text-muted small mb-3">No students have been checked in for this event so far.</p>
+            <a asp-action="Scanner" asp-route-eventId="@activeEventId" class="btn btn-sm btn-primary">Open Camera Scanner</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Student Attendee</th>
+                        <th>Roll Number</th>
+                        <th>Registration #</th>
+                        <th>Ticket Code</th>
+                        <th>Check-In Time</th>
+                        <th>Method</th>
+                        <th>Verified By</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var record in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-semibold text-dark">@record.StudentName</div>
+                                <div class="text-muted small">@record.StudentEmail</div>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(record.StudentRollNumber))
+                                {
+                                    <span class="font-monospace fw-bold small text-secondary">@record.StudentRollNumber</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">—</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border font-monospace">@record.RegistrationNumber</span>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(record.TicketCode))
+                                {
+                                    <span class="font-monospace small text-primary fw-semibold">@record.TicketCode</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">—</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="fw-semibold small">@record.CheckedInAt.ToString("dd MMM yyyy")</div>
+                                <div class="text-muted small">@record.CheckedInAt.ToString("HH:mm:ss") UTC</div>
+                            </td>
+                            <td>
+                                @if (record.CheckInMethod == CheckInMethod.QrCode)
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+                                            <rect x="3" y="3" width="7" height="7"></rect>
+                                            <rect x="14" y="3" width="7" height="7"></rect>
+                                            <rect x="14" y="14" width="7" height="7"></rect>
+                                            <rect x="3" y="14" width="7" height="7"></rect>
+                                        </svg>
+                                        QR Scan
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info-subtle text-info border border-info-subtle">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+                                            <path d="M12 20h9"></path>
+                                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                        </svg>
+                                        Manual Entry
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <span class="small fw-semibold text-secondary">@record.CheckedInByName</span>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(record.Remarks))
+                                {
+                                    <span class="small text-muted fst-italic" title="@record.Remarks">@record.Remarks</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">—</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<!-- Manual Check-In Modal -->
+<div class="modal fade" id="manualCheckInModal" tabindex="-1" aria-labelledby="manualCheckInModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom pb-3">
+                <h5 class="modal-title fw-bold" id="manualCheckInModalLabel">Manual Roll / Registration Check-In</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="manualModalAlert" class="alert d-none mb-3" role="alert"></div>
+                <form id="manualCheckInForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="EventId" value="@activeEventId" />
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Target Event</label>
+                        <input type="text" class="form-control bg-light" value="@summary?.EventTitle" readonly />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Identifier Type</label>
+                        <select id="identifierType" class="form-select mb-2" onchange="toggleIdentifierInput()">
+                            <option value="roll">Student College Roll Number</option>
+                            <option value="reg">Event Registration Number</option>
+                            <option value="ticket">Ticket Code</option>
+                        </select>
+                        <div id="rollInputGroup">
+                            <input type="text" id="manualRollNumber" class="form-control" placeholder="e.g. CS-2024-042" />
+                            <div class="form-text small">University student ID / Roll number</div>
+                        </div>
+                        <div id="regInputGroup" class="d-none">
+                            <input type="text" id="manualRegNumber" class="form-control font-monospace" placeholder="e.g. REG-0105-20261115-A1B2C3" />
+                            <div class="form-text small">Official registration identifier</div>
+                        </div>
+                        <div id="ticketInputGroup" class="d-none">
+                            <input type="text" id="manualTicketCode" class="form-control font-monospace" placeholder="e.g. TKT-202611-ABCDEF12" />
+                            <div class="form-text small">Digital ticket alphanumeric code</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold">Justification / Remarks <span class="text-danger">*</span></label>
+                        <textarea id="manualRemarks" class="form-control" rows="2" placeholder="e.g. Physical college ID card verified; phone battery depleted" required></textarea>
+                        <div class="form-text small">Required for administrative audit verification</div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="btnSubmitManual" onclick="submitManualCheckIn()">Confirm Check-In</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleIdentifierInput() {
+            var type = document.getElementById('identifierType').value;
+            document.getElementById('rollInputGroup').classList.toggle('d-none', type !== 'roll');
+            document.getElementById('regInputGroup').classList.toggle('d-none', type !== 'reg');
+            document.getElementById('ticketInputGroup').classList.toggle('d-none', type !== 'ticket');
+        }
+
+        async function submitManualCheckIn() {
+            var btn = document.getElementById('btnSubmitManual');
+            var alertBox = document.getElementById('manualModalAlert');
+            alertBox.className = 'alert d-none';
+
+            var eventId = @activeEventId;
+            var type = document.getElementById('identifierType').value;
+            var roll = type === 'roll' ? document.getElementById('manualRollNumber').value.trim() : null;
+            var reg = type === 'reg' ? document.getElementById('manualRegNumber').value.trim() : null;
+            var ticket = type === 'ticket' ? document.getElementById('manualTicketCode').value.trim() : null;
+            var remarks = document.getElementById('manualRemarks').value.trim();
+
+            if (!roll && !reg && !ticket) {
+                alertBox.className = 'alert alert-warning';
+                alertBox.innerText = 'Please provide an identifier.';
+                return;
+            }
+
+            if (!remarks) {
+                alertBox.className = 'alert alert-warning';
+                alertBox.innerText = 'Justification remarks are strictly required.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'Verifying...';
+
+            var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            try {
+                var response = await fetch('@Url.Action("ManualCheckIn", "Attendance", new { area = "Coordinator" })', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify({
+                        EventId: eventId,
+                        RollNumber: roll,
+                        RegistrationNumber: reg,
+                        TicketCode: ticket,
+                        Remarks: remarks
+                    })
+                });
+
+                var data = await response.json();
+
+                if (data.success) {
+                    alertBox.className = 'alert alert-success';
+                    alertBox.innerHTML = '<strong>' + data.message + '</strong><br>Attendee: ' + (data.studentName || 'Student') + ' (' + (data.studentRollNumber || data.registrationNumber) + ')';
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1200);
+                } else {
+                    alertBox.className = 'alert alert-danger';
+                    alertBox.innerText = data.message || 'Check-in rejected.';
+                    btn.disabled = false;
+                    btn.innerText = 'Confirm Check-In';
+                }
+            } catch (err) {
+                alertBox.className = 'alert alert-danger';
+                alertBox.innerText = 'Server communication error: ' + err.message;
+                btn.disabled = false;
+                btn.innerText = 'Confirm Check-In';
+            }
+        }
+    </script>
+}
