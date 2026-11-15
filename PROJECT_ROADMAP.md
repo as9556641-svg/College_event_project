@@ -269,7 +269,7 @@
 2. **Server-Side PDF Rendering Engine (`PdfCertificateGenerator`):**
    - Implemented high-fidelity institutional A4 landscape PDF certificate generator using `QuestPDF` Community License.
    - Embeds institutional branding, VAP UNIVERSITY header, dynamic student name, roll number, event title, department, dates, certificate number, verification token, authorized signatory, and verification QR code generated via `QRCoder`.
-   - Anti-traversal security enforced on all file paths in `wwwroot/certificates/{year}/`.
+   - Anti-traversal security and secure file streaming enforced on all file paths in private storage `App_Data/Certificates/{year}/` outside `wwwroot` (direct static file serving permanently blocked with 404).
 3. **Domain Service (`CertificateService`, `ICertificateService`):**
    - Strict eligibility enforcement: Confirmed registration, CheckedIn attendance, concluded event (`EventEndDate <= UtcNow`), successful payment if paid event, not cancelled/refunded.
    - Non-guessable certificate number generation (`VAP-CERT-{Year}-{EventId}-{RandomAlpha}`) and cryptographic verification token.
@@ -293,6 +293,7 @@
    - 21/21 automated tests in `Phase12Verifier` passed cleanly with 100% compliance.
    - 428 regression tests passed across Phase 1 (28), Phase 2 (24), Public Website (33), Google OAuth (19), Phase 5 (41), Phase 6 (25), Phase 7 (49), Phase 8 (59), Phase 9 (53), Phase 10 (50), and Phase 11 (47).
    - Total: 449 / 449 passing automated tests with 0 failures and 0 warnings.
+   - Security Audit Fix Commit: `9141d83` (Moved certificate storage outside `wwwroot` to `App_Data/Certificates/`, canonical path validation, and enforced authorized controller streaming).
 
 ---
 
