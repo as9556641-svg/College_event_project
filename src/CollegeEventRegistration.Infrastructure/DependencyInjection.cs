@@ -77,6 +77,10 @@ public static class DependencyInjection
         services.AddHttpClient<IPaymentGatewayClient, RazorpayGatewayClient>();
         services.AddScoped<IPaymentService, PaymentService>();
 
+        // Register Phase 9 QR Ticket Generation Services
+        services.AddSingleton<IQrCodeGenerator, QrCodeGenerator>();
+        services.AddScoped<ITicketService, TicketService>();
+
         return services;
     }
 }

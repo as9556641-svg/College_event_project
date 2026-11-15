@@ -363,6 +363,7 @@ public class EventRegistrationService : IEventRegistrationService
                 {
                     var registration = await _context.EventRegistrations
                         .Include(r => r.Event)
+                        .Include(r => r.Ticket)
                         .FirstOrDefaultAsync(r => r.Id == registrationId, cancellationToken);
 
                     if (registration == null)
@@ -402,6 +403,12 @@ public class EventRegistrationService : IEventRegistrationService
                     registration.CancellationReason = string.IsNullOrWhiteSpace(reason) ? "Cancelled by student" : reason.Trim();
                     registration.CancelledAt = DateTime.UtcNow;
                     registration.UpdatedAt = DateTime.UtcNow;
+
+                    if (registration.Ticket != null)
+                    {
+                        registration.Ticket.IsActive = false;
+                        registration.Ticket.UpdatedAt = DateTime.UtcNow;
+                    }
 
                     await _context.SaveChangesAsync(cancellationToken);
                     await transaction.CommitAsync(cancellationToken);
@@ -808,6 +815,7 @@ public class EventRegistrationService : IEventRegistrationService
                 {
                     var registration = await _context.EventRegistrations
                         .Include(r => r.Event)
+                        .Include(r => r.Ticket)
                         .FirstOrDefaultAsync(r => r.Id == registrationId, cancellationToken);
 
                     if (registration == null || registration.Event == null || registration.Event.IsDeleted)
@@ -887,6 +895,12 @@ public class EventRegistrationService : IEventRegistrationService
                         registration.CancellationReason = string.IsNullOrWhiteSpace(remarks)
                             ? $"Cancelled by {updaterRole}"
                             : remarks.Trim();
+
+                        if (registration.Ticket != null)
+                        {
+                            registration.Ticket.IsActive = false;
+                            registration.Ticket.UpdatedAt = DateTime.UtcNow;
+                        }
                     }
                     else if (currentStatus == RegistrationStatus.Cancelled)
                     {

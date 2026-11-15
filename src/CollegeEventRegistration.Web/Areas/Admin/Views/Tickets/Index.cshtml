@@ -1,0 +1,170 @@
+@model CollegeEventRegistration.Core.DTOs.PagedResult<CollegeEventRegistration.Core.DTOs.TicketDto>
+@using CollegeEventRegistration.Core.DTOs
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Tickets Ledger";
+    var criteria = (TicketFilterCriteria)(ViewBag.Criteria ?? new TicketFilterCriteria());
+}
+
+<div class="dash-page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-role badge-role-admin">University Governance</span>
+            <span class="text-muted small">Access Credentials</span>
+        </div>
+        <h2 class="dash-page-title">Campus Admission Tickets Ledger</h2>
+    </div>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
+        <span>@TempData["ErrorMessage"]</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Filters Bar -->
+<div class="dash-panel mb-4 p-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Search</label>
+            <input type="text" name="SearchTerm" class="form-control" placeholder="Ticket code, student name, roll no..." value="@criteria.SearchTerm" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Event</label>
+            <select name="EventId" class="form-select">
+                <option value="">All Events</option>
+                @foreach (var ev in (List<SelectListItem>)(ViewBag.EventsList ?? new List<SelectListItem>()))
+                {
+                    <option value="@ev.Value" selected="@ev.Selected">@ev.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold text-muted">Department</label>
+            <select name="DepartmentId" class="form-select">
+                <option value="">All Departments</option>
+                @foreach (var dept in (List<SelectListItem>)(ViewBag.DepartmentsList ?? new List<SelectListItem>()))
+                {
+                    <option value="@dept.Value" selected="@dept.Selected">@dept.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold text-muted">Usage Status</label>
+            <select name="IsUsed" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="false" selected="@(criteria.IsUsed == false)">Unused</option>
+                <option value="true" selected="@(criteria.IsUsed == true)">Used / Admitted</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary w-100">Apply</button>
+            @if (criteria.EventId.HasValue || criteria.DepartmentId.HasValue || criteria.IsUsed.HasValue || !string.IsNullOrWhiteSpace(criteria.SearchTerm))
+            {
+                <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+            }
+        </div>
+    </form>
+</div>
+
+<!-- Tickets Table -->
+<div class="dash-panel">
+    @if (Model == null || !Model.Items.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <h5 class="fw-bold text-dark mb-1">No Tickets Found</h5>
+            <p class="small mb-0">No admission tickets match the specified criteria.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Ticket Code</th>
+                        <th>Event</th>
+                        <th>Student Attendee</th>
+                        <th>Roll Number</th>
+                        <th>Registration #</th>
+                        <th>Issued At</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                <span class="font-monospace fw-bold text-dark">@t.TicketCode</span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-dark text-truncate" style="max-width: 200px;">@t.EventTitle</div>
+                                <div class="small text-muted">@t.EventDepartmentCode • @t.EventMode</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-dark">@t.StudentName</div>
+                                <div class="small text-muted">@(t.StudentDepartment ?? "N/A")</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">@(t.StudentRollNumber ?? "N/A")</span>
+                            </td>
+                            <td>
+                                <span class="font-monospace text-muted small">@t.RegistrationNumber</span>
+                            </td>
+                            <td>
+                                <div class="small text-dark">@t.IssuedAt.ToString("dd MMM yyyy")</div>
+                                <div class="small text-muted">@t.IssuedAt.ToString("HH:mm") UTC</div>
+                            </td>
+                            <td>
+                                @if (t.Status == TicketStatus.Valid)
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Valid</span>
+                                }
+                                else if (t.Status == TicketStatus.Used)
+                                {
+                                    <span class="badge bg-info-subtle text-info border border-info-subtle">Used</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Cancelled</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@t.Id" class="btn btn-sm btn-outline-primary">
+                                    Inspect
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <div class="d-flex justify-content-between align-items-center p-3 border-top">
+                <div class="small text-muted">
+                    Showing @Model.Items.Count of @Model.TotalCount total tickets across campus
+                </div>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-eventId="@criteria.EventId" asp-route-departmentId="@criteria.DepartmentId" asp-route-isUsed="@criteria.IsUsed" asp-route-searchTerm="@criteria.SearchTerm">Previous</a>
+                    </li>
+                    @for (int p = 1; p <= Model.TotalPages; p++)
+                    {
+                        <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-pageNumber="@p" asp-route-eventId="@criteria.EventId" asp-route-departmentId="@criteria.DepartmentId" asp-route-isUsed="@criteria.IsUsed" asp-route-searchTerm="@criteria.SearchTerm">@p</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-eventId="@criteria.EventId" asp-route-departmentId="@criteria.DepartmentId" asp-route-isUsed="@criteria.IsUsed" asp-route-searchTerm="@criteria.SearchTerm">Next</a>
+                    </li>
+                </ul>
+            </div>
+        }
+    }
+</div>

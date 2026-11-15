@@ -1,0 +1,134 @@
+@model CollegeEventRegistration.Core.DTOs.TicketDto
+@using CollegeEventRegistration.Core.DTOs
+@{
+    Layout = "_StudentPortalLayout";
+    ViewData["Title"] = $"Ticket: {Model.TicketCode}";
+}
+
+<div class="container-xl my-4">
+    <!-- Header Navigation -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <a asp-action="Index" class="text-decoration-none text-muted small">My Tickets</a>
+                <span class="text-muted small">/</span>
+                <span class="badge bg-primary-subtle text-primary border">Admission Pass</span>
+            </div>
+            <h2 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">Event Admission Pass</h2>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Print" asp-route-id="@Model.Id" target="_blank" class="btn btn-outline-dark d-inline-flex align-items-center gap-2 shadow-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect width="12" height="8" x="6" y="14"></rect></svg>
+                <span>Print Ticket</span>
+            </a>
+            <a asp-area="Student" asp-controller="Registrations" asp-action="Details" asp-route-id="@Model.RegistrationId" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 shadow-sm">
+                <span>View Registration</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Ticket Pass Card Container -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 1rem;">
+                <!-- Institutional Header Banner -->
+                <div class="bg-primary text-white p-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="~/images/branding/vap-university-logo.png" alt="VAP UNIVERSITY" style="height: 48px; background: white; border-radius: 0.5rem; padding: 4px;" />
+                        <div>
+                            <div class="small text-white-50 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">VAP UNIVERSITY • Campus Event Hub</div>
+                            <h4 class="fw-bold text-white mb-0">Official Admission Pass</h4>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        @if (Model.Status == TicketStatus.Valid)
+                        {
+                            <span class="badge bg-success text-white px-3 py-2 fs-6">VALID FOR ADMISSION</span>
+                        }
+                        else if (Model.Status == TicketStatus.Used)
+                        {
+                            <span class="badge bg-warning text-dark px-3 py-2 fs-6">USED / ADMITTED</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger text-white px-3 py-2 fs-6">CANCELLED / INACTIVE</span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Ticket Content Body -->
+                <div class="card-body p-4 p-md-5">
+                    <div class="row g-4 align-items-center">
+                        <!-- Left Details Column -->
+                        <div class="col-md-7 border-end-md">
+                            <span class="badge bg-light text-primary border mb-2">@Model.EventDepartmentCode • @Model.EventMode</span>
+                            <h3 class="fw-bold text-dark mb-3">@Model.EventTitle</h3>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-sm-6">
+                                    <div class="text-muted small">Ticket Reference</div>
+                                    <div class="fw-bold font-monospace text-dark fs-5">@Model.TicketCode</div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="text-muted small">Registration Number</div>
+                                    <div class="fw-bold font-monospace text-dark">@Model.RegistrationNumber</div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="text-muted small">Date & Schedule</div>
+                                    <div class="fw-semibold text-dark">@Model.EventStartDate.ToString("MMM dd, yyyy")</div>
+                                    <div class="small text-muted">@Model.EventStartDate.ToString("HH:mm") - @Model.EventEndDate.ToString("HH:mm") UTC</div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="text-muted small">Venue / Hall</div>
+                                    <div class="fw-semibold text-dark">@(Model.EventVenue ?? "Campus Auditorium")</div>
+                                </div>
+                            </div>
+
+                            <hr />
+
+                            <!-- Attendee Profile -->
+                            <div class="row g-2 text-muted small">
+                                <div class="col-6">
+                                    <strong class="text-dark">Attendee:</strong> @Model.StudentName
+                                </div>
+                                <div class="col-6">
+                                    <strong class="text-dark">Roll Number:</strong> @(Model.StudentRollNumber ?? "N/A")
+                                </div>
+                                <div class="col-6">
+                                    <strong class="text-dark">Department:</strong> @(Model.StudentDepartment ?? "General")
+                                </div>
+                                <div class="col-6">
+                                    <strong class="text-dark">Institution:</strong> @(Model.StudentCollegeName ?? "VAP UNIVERSITY")
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right QR Column -->
+                        <div class="col-md-5 text-center">
+                            <div class="p-3 bg-white border rounded shadow-sm d-inline-block mb-3">
+                                <img src="@Model.QrCodeBase64" alt="Ticket QR Code" class="img-fluid" style="width: 200px; height: 200px; image-rendering: pixelated;" />
+                            </div>
+                            <div class="small text-muted">
+                                Scan with institutional scanner at venue entry.
+                            </div>
+                            <div class="mt-2 text-muted" style="font-size: 0.75rem;">
+                                Issued: @Model.IssuedAt.ToString("MMM dd, yyyy HH:mm") UTC
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Perforated Notice -->
+                <div class="card-footer bg-light border-top p-3 px-4 text-muted small d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <div>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        <span>Admission is subject to college identity card verification and barcode validation. Non-transferable.</span>
+                    </div>
+                    <div class="font-monospace text-uppercase" style="font-size: 0.72rem;">
+                        Security: HMAC-SHA256 Signed
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
