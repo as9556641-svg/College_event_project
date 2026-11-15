@@ -1,0 +1,127 @@
+@model CollegeEventRegistration.Core.DTOs.PagedResult<CollegeEventRegistration.Core.DTOs.AnnouncementDto>
+@using CollegeEventRegistration.Core.Enums
+
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Event Announcements";
+}
+
+<div class="dash-page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-role badge-role-coord">Faculty Coordinator</span>
+            <span class="text-muted small">Participant Broadcasts</span>
+        </div>
+        <h2 class="dash-page-title">Event Announcements</h2>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-area="Coordinator" asp-controller="Announcements" asp-action="Create" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-2">
+            <i class="bi bi-plus-circle"></i>
+            <span>New Announcement</span>
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Title</th>
+                        <th>Target Event</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Items.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-megaphone display-6 d-block mb-2"></i>
+                                No announcements published for your assigned events yet.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model.Items)
+                        {
+                            var priorityClass = item.Priority switch
+                            {
+                                AnnouncementPriority.Urgent => "bg-danger text-white",
+                                AnnouncementPriority.High => "bg-warning text-dark",
+                                AnnouncementPriority.Low => "bg-light text-muted border",
+                                _ => "bg-primary-subtle text-primary border"
+                            };
+
+                            var statusClass = item.Status switch
+                            {
+                                AnnouncementStatus.Published => "bg-success text-white",
+                                AnnouncementStatus.Archived => "bg-secondary text-white",
+                                _ => "bg-warning text-dark"
+                            };
+
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark">@item.Title</div>
+                                    <small class="text-muted">@(item.Content.Length > 80 ? item.Content[..77] + "..." : item.Content)</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        @(item.EventTitle ?? "All Participants")
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge @priorityClass">@item.Priority</span>
+                                </td>
+                                <td>
+                                    <span class="badge @statusClass">@item.Status</span>
+                                </td>
+                                <td>
+                                    <small class="text-muted">@item.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        @if (item.Status == AnnouncementStatus.Draft)
+                                        {
+                                            <form asp-action="Publish" asp-route-id="@item.Id" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-outline-success" title="Publish">
+                                                    <i class="bi bi-send"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                        else if (item.Status == AnnouncementStatus.Published)
+                                        {
+                                            <form asp-action="Archive" asp-route-id="@item.Id" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-outline-warning" title="Archive">
+                                                    <i class="bi bi-archive"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

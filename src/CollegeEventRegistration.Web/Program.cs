@@ -1,5 +1,8 @@
+using CollegeEventRegistration.Core.Interfaces;
 using CollegeEventRegistration.Infrastructure;
 using CollegeEventRegistration.Infrastructure.Data;
+using CollegeEventRegistration.Web.Hubs;
+using CollegeEventRegistration.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +44,10 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
 // Add MVC Controllers and Views
 builder.Services.AddControllersWithViews();
 
+// Real-Time SignalR Notifications
+builder.Services.AddSignalR();
+builder.Services.AddScoped<IRealTimeNotificationPublisher, SignalRNotificationPublisher>();
+
 var app = builder.Build();
 
 // Seed database, default roles, categories, and Super Admin (if configured)
@@ -72,6 +79,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.MapControllerRoute(
     name: "areas",

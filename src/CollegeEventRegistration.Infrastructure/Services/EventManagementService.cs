@@ -14,15 +14,18 @@ public class EventManagementService : IEventManagementService
     private readonly ApplicationDbContext _context;
     private readonly IAuditLogService _auditLog;
     private readonly ILogger<EventManagementService> _logger;
+    private readonly INotificationService? _notificationService;
 
     public EventManagementService(
         ApplicationDbContext context,
         IAuditLogService auditLog,
-        ILogger<EventManagementService> logger)
+        ILogger<EventManagementService> logger,
+        INotificationService? notificationService = null)
     {
         _context = context;
         _auditLog = auditLog;
         _logger = logger;
+        _notificationService = notificationService;
     }
 
     public async Task<(bool Succeeded, string? ErrorMessage, Event? Event)> CreateEventAsync(CreateEventDto dto, string createdByUserId)
@@ -613,6 +616,25 @@ public class EventManagementService : IEventManagementService
             newValues: $"Status=Cancelled, Reason={evt.RejectionReason}");
 
         _logger.LogInformation("Event ID {Id} cancelled by {User}", eventId, currentUserId);
+
+        if (_notificationService != null)
+        {
+            try
+            {
+                await _notificationService.BroadcastEventNotificationAsync(
+                    eventId,
+                    $"Event Cancelled: {evt.Title}",
+                    $"The event '{evt.Title}' has been cancelled. Reason: {evt.RejectionReason}",
+                    NotificationType.EventUpdate,
+                    actionUrl: $"/Student/Events/Details/{evt.Id}",
+                    correlationPrefix: $"EVT-CANCEL-{evt.Id}");
+            }
+            catch (Exception nEx)
+            {
+                _logger.LogWarning(nEx, "Failed to broadcast event cancellation notification for Event #{EventId}", eventId);
+            }
+        }
+
         return (true, null);
     }
 

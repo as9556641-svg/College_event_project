@@ -21,5 +21,16 @@ public class Notification : BaseEntity
 
     public bool IsRead { get; set; } = false;
     public DateTime? ReadAt { get; set; }
+
+    /// <summary>
+    /// Optional direct link to relevant application page (e.g. /Student/Tickets, /Student/Certificates).
+    /// </summary>
+    public string? ActionUrl { get; set; }
+
+    /// <summary>
+    /// Unique correlation/reference ID used for safe deduplication across retries and webhooks.
+    /// E.g. REG-101, PAY-50, CERT-12, TKT-44.
+    /// </summary>
+    public string? CorrelationId { get; set; }
 }
 

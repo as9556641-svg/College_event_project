@@ -31,6 +31,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<CertificateTemplate> CertificateTemplates => Set<CertificateTemplate>();
     public DbSet<Certificate> Certificates => Set<Certificate>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<Announcement> Announcements => Set<Announcement>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -397,9 +398,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.Property(n => n.Title).HasMaxLength(150).IsRequired();
             entity.Property(n => n.Message).HasMaxLength(1000).IsRequired();
             entity.Property(n => n.TargetRole).HasMaxLength(50);
+            entity.Property(n => n.ActionUrl).HasMaxLength(500);
+            entity.Property(n => n.CorrelationId).HasMaxLength(100);
 
             entity.HasIndex(n => n.UserId);
             entity.HasIndex(n => n.IsRead);
+            entity.HasIndex(n => n.CorrelationId);
 
             entity.HasOne(n => n.User)
                   .WithMany(u => u.Notifications)
@@ -413,7 +417,39 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         });
 
         // ---------------------------------------------------------------------
-        // 15. AuditLog
+        // 15. Announcement
+        // ---------------------------------------------------------------------
+        builder.Entity<Announcement>(entity =>
+        {
+            entity.Property(a => a.Title).HasMaxLength(200).IsRequired();
+            entity.Property(a => a.Content).HasMaxLength(4000).IsRequired();
+            entity.Property(a => a.TargetRole).HasMaxLength(50);
+
+            entity.HasIndex(a => a.Status);
+            entity.HasIndex(a => a.AudienceType);
+            entity.HasIndex(a => a.DepartmentId);
+            entity.HasIndex(a => a.EventId);
+            entity.HasIndex(a => a.AuthorUserId);
+            entity.HasIndex(a => a.ExpiresAt);
+
+            entity.HasOne(a => a.AuthorUser)
+                  .WithMany(u => u.AuthoredAnnouncements)
+                  .HasForeignKey(a => a.AuthorUserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(a => a.Department)
+                  .WithMany()
+                  .HasForeignKey(a => a.DepartmentId)
+                  .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(a => a.Event)
+                  .WithMany()
+                  .HasForeignKey(a => a.EventId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // ---------------------------------------------------------------------
+        // 16. AuditLog
         // ---------------------------------------------------------------------
         builder.Entity<AuditLog>(entity =>
         {

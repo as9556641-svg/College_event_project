@@ -23,19 +23,22 @@ public class EventRegistrationService : IEventRegistrationService
     private readonly IEventDiscoveryService _discoveryService;
     private readonly IAuditLogService _auditLogService;
     private readonly ILogger<EventRegistrationService> _logger;
+    private readonly INotificationService? _notificationService;
 
     public EventRegistrationService(
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
         IEventDiscoveryService discoveryService,
         IAuditLogService auditLogService,
-        ILogger<EventRegistrationService> logger)
+        ILogger<EventRegistrationService> logger,
+        INotificationService? notificationService = null)
     {
         _context = context;
         _userManager = userManager;
         _discoveryService = discoveryService;
         _auditLogService = auditLogService;
         _logger = logger;
+        _notificationService = notificationService;
     }
 
     /// <inheritdoc />
@@ -258,6 +261,27 @@ public class EventRegistrationService : IEventRegistrationService
                     _logger.LogInformation("Student {UserId} successfully registered for Event {EventId}. Reg: {RegNumber}, Status: {Status}",
                         studentUserId, eventId, finalRegistration.RegistrationNumber, finalRegistration.Status);
 
+                    if (_notificationService != null && finalRegistration.Status == RegistrationStatus.Confirmed)
+                    {
+                        try
+                        {
+                            await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+                            {
+                                UserId = studentUserId,
+                                EventId = eventId,
+                                Title = "Registration Confirmed",
+                                Message = $"You are confirmed for '{trackedEvent.Title}'. Registration #{finalRegistration.RegistrationNumber}.",
+                                Type = NotificationType.RegistrationConfirmation,
+                                ActionUrl = $"/Student/Registrations/Details/{finalRegistration.Id}",
+                                CorrelationId = $"REG-CONFIRM-{finalRegistration.Id}"
+                            }, cancellationToken);
+                        }
+                        catch (Exception nEx)
+                        {
+                            _logger.LogWarning(nEx, "Failed to dispatch registration confirmation notification for #{RegId}", finalRegistration.Id);
+                        }
+                    }
+
                     return new StudentRegistrationResultDto
                     {
                         Success = true,
@@ -424,6 +448,27 @@ public class EventRegistrationService : IEventRegistrationService
 
                     _logger.LogInformation("Student {UserId} cancelled registration #{RegNum} (ID: {RegId}). Seat released.",
                         studentUserId, registration.RegistrationNumber, registration.Id);
+
+                    if (_notificationService != null)
+                    {
+                        try
+                        {
+                            await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+                            {
+                                UserId = studentUserId,
+                                EventId = registration.EventId,
+                                Title = "Registration Cancelled",
+                                Message = $"Your registration for '{registration.Event?.Title}' has been cancelled.",
+                                Type = NotificationType.RegistrationCancelled,
+                                ActionUrl = "/Student/Registrations",
+                                CorrelationId = $"REG-CANCEL-{registration.Id}"
+                            }, cancellationToken);
+                        }
+                        catch (Exception nEx)
+                        {
+                            _logger.LogWarning(nEx, "Failed to dispatch cancellation notification for #{RegId}", registration.Id);
+                        }
+                    }
 
                     return (true, $"Your registration #{registration.RegistrationNumber} has been successfully cancelled.");
                 }
@@ -922,6 +967,27 @@ public class EventRegistrationService : IEventRegistrationService
 
                     _logger.LogInformation("Registration #{RegNum} status changed {Old} -> {New} by {UserId} ({Role})",
                         registration.RegistrationNumber, currentStatus, newStatus, updaterUserId, updaterRole);
+
+                    if (_notificationService != null && currentStatus == RegistrationStatus.Waitlisted && newStatus == RegistrationStatus.Confirmed)
+                    {
+                        try
+                        {
+                            await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+                            {
+                                UserId = registration.UserId,
+                                EventId = registration.EventId,
+                                Title = "Promoted from Waitlist",
+                                Message = $"Great news! You have been confirmed for '{registration.Event?.Title}'. Registration #{registration.RegistrationNumber}.",
+                                Type = NotificationType.WaitlistPromoted,
+                                ActionUrl = $"/Student/Registrations/Details/{registration.Id}",
+                                CorrelationId = $"REG-PROMOTE-{registration.Id}"
+                            }, cancellationToken);
+                        }
+                        catch (Exception nEx)
+                        {
+                            _logger.LogWarning(nEx, "Failed to dispatch waitlist promotion notification for #{RegId}", registration.Id);
+                        }
+                    }
 
                     return (true, $"Registration #{registration.RegistrationNumber} status updated to '{newStatus}' successfully.");
                 }

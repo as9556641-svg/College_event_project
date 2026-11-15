@@ -86,6 +86,22 @@
                         </svg>
                         <span>My Certificates</span>
                     </a>
+                    <a asp-area="Student" asp-controller="Announcements" asp-action="Index" 
+                       class="portal-nav-link @(currentController == "Announcements" ? "active" : "")">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                            <path d="m3 11 18-5v12L3 14v-3z"></path>
+                            <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path>
+                        </svg>
+                        <span>Announcements</span>
+                    </a>
+                    <a asp-area="Student" asp-controller="Notifications" asp-action="Index" 
+                       class="portal-nav-link @(currentController == "Notifications" ? "active" : "")">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+                        </svg>
+                        <span>Notifications</span>
+                    </a>
                     <a asp-area="Student" asp-controller="Dashboard" asp-action="Index" 
                        class="portal-nav-link @(currentController == "Dashboard" ? "active" : "")">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">

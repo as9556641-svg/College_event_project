@@ -1,0 +1,82 @@
+@model CollegeEventRegistration.Core.DTOs.CreateAnnouncementDto
+@using CollegeEventRegistration.Core.Enums
+
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Create Event Announcement";
+    var assignedEvents = ViewBag.AssignedEvents as dynamic;
+}
+
+<div class="dash-page-header mb-4">
+    <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="badge badge-role badge-role-coord">Faculty Coordinator</span>
+        <span class="text-muted small">Participant Broadcast</span>
+    </div>
+    <h2 class="dash-page-title">Broadcast Event Announcement</h2>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="EventId" class="form-label fw-semibold">Target Event <span class="text-danger">*</span></label>
+                        <select asp-for="EventId" class="form-select" required>
+                            <option value="">-- Select Assigned Event --</option>
+                            @if (assignedEvents != null)
+                            {
+                                foreach (var ev in assignedEvents)
+                                {
+                                    <option value="@ev.Id">@ev.Title</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="EventId" class="text-danger small"></span>
+                        <div class="form-text">As a coordinator, your announcements are broadcasted strictly to confirmed attendees of your event.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label fw-semibold">Announcement Title <span class="text-danger">*</span></label>
+                        <input asp-for="Title" class="form-control" placeholder="e.g. Venue Change or Schedule Update" required maxlength="200" />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Priority" class="form-label fw-semibold">Priority Level</label>
+                            <select asp-for="Priority" asp-items="Html.GetEnumSelectList<AnnouncementPriority>()" class="form-select"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ExpiresAt" class="form-label fw-semibold">Expiration Date (Optional)</label>
+                            <input asp-for="ExpiresAt" type="datetime-local" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Content" class="form-label fw-semibold">Announcement Content <span class="text-danger">*</span></label>
+                        <textarea asp-for="Content" class="form-control" rows="6" placeholder="Write announcement details here..." required maxlength="4000"></textarea>
+                        <span asp-validation-for="Content" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input asp-for="PublishImmediately" class="form-check-input" type="checkbox" id="publishCheck" />
+                        <label class="form-check-label fw-medium text-dark" for="publishCheck">
+                            Publish immediately and notify all confirmed event participants
+                        </label>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-send me-1"></i> Submit Announcement
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

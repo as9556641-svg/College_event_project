@@ -91,6 +91,14 @@ public static class DependencyInjection
         services.AddScoped<IPdfCertificateGenerator, PdfCertificateGenerator>();
         services.AddScoped<ICertificateService, CertificateService>();
 
+        // Register Phase 13 Notifications & Announcements Services
+        services.Configure<Configuration.EmailSettings>(configuration.GetSection(Configuration.EmailSettings.SectionName));
+        services.AddSingleton<IEmailQueue, EmailBackgroundQueue>();
+        services.AddScoped<IEmailService, EmailService>();
+        services.AddHostedService<QueuedEmailBackgroundService>();
+        services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IAnnouncementService, AnnouncementService>();
+
         return services;
     }
 }

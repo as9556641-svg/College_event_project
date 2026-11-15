@@ -1,0 +1,126 @@
+@model CollegeEventRegistration.Core.DTOs.PagedResult<CollegeEventRegistration.Core.DTOs.NotificationDto>
+@using CollegeEventRegistration.Core.Enums
+
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = "Coordinator Notifications";
+    var isUnreadOnly = (bool)(ViewBag.UnreadOnly ?? false);
+    var totalUnread = (int)(ViewBag.TotalUnread ?? 0);
+}
+
+<div class="dash-page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-role badge-role-coord">Faculty Coordinator</span>
+            <span class="text-muted small">Notifications & Broadcasts</span>
+        </div>
+        <h2 class="dash-page-title">
+            Notification Center
+            @if (totalUnread > 0)
+            {
+                <span class="badge bg-danger rounded-pill fs-6 align-middle ms-2">@totalUnread Unread</span>
+            }
+        </h2>
+    </div>
+    <div class="d-flex gap-2">
+        @if (totalUnread > 0)
+        {
+            <form asp-area="Coordinator" asp-controller="Notifications" asp-action="MarkAllAsRead" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-check2-all"></i>
+                    <span>Mark All as Read</span>
+                </button>
+            </form>
+        }
+        <a asp-area="Coordinator" asp-controller="Announcements" asp-action="Index" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2">
+            <i class="bi bi-megaphone"></i>
+            <span>Manage Announcements</span>
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-2 d-flex gap-2">
+        <a asp-area="Coordinator" asp-controller="Notifications" asp-action="Index" asp-route-unreadOnly="false"
+           class="btn btn-sm @(!isUnreadOnly ? "btn-primary" : "btn-light text-muted")">
+            All Notifications (@Model.TotalCount)
+        </a>
+        <a asp-area="Coordinator" asp-controller="Notifications" asp-action="Index" asp-route-unreadOnly="true"
+           class="btn btn-sm @(isUnreadOnly ? "btn-primary" : "btn-light text-muted")">
+            Unread (@totalUnread)
+        </a>
+    </div>
+</div>
+
+@if (!Model.Items.Any())
+{
+    <div class="card border-0 shadow-sm text-center py-5">
+        <div class="card-body">
+            <div class="display-6 text-muted mb-3"><i class="bi bi-bell-slash"></i></div>
+            <h5 class="fw-bold text-dark">No Notifications</h5>
+            <p class="text-muted mb-0">@(isUnreadOnly ? "All notifications have been reviewed." : "No notifications found.")</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="list-group shadow-sm border-0 mb-4">
+        @foreach (var item in Model.Items)
+        {
+            <div class="list-group-item list-group-item-action p-3 @(!item.IsRead ? "bg-light border-start border-primary border-4" : "")">
+                <div class="d-flex w-100 justify-content-between align-items-start gap-3">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="fs-4 mt-1 text-primary"><i class="bi bi-bell-fill"></i></div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <h6 class="mb-0 fw-bold @(!item.IsRead ? "text-dark" : "text-muted")">@item.Title</h6>
+                                @if (!item.IsRead)
+                                {
+                                    <span class="badge bg-primary-subtle text-primary border" style="font-size: 0.7rem;">NEW</span>
+                                }
+                            </div>
+                            <p class="mb-1 text-secondary small">@item.Message</p>
+                            <div class="d-flex flex-wrap align-items-center gap-3 text-muted" style="font-size: 0.8rem;">
+                                <span><i class="bi bi-clock me-1"></i>@item.TimeAgo</span>
+                                @if (!string.IsNullOrEmpty(item.EventTitle))
+                                {
+                                    <span><i class="bi bi-calendar-event me-1"></i>@item.EventTitle</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    @if (!item.IsRead)
+                    {
+                        <form asp-area="Coordinator" asp-controller="Notifications" asp-action="MarkAsRead" asp-route-id="@item.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Mark as read">
+                                <i class="bi bi-check2"></i>
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label="Notification pagination">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber - 1)" asp-route-unreadOnly="@isUnreadOnly">Previous</a>
+                </li>
+                @for (int p = 1; p <= Model.TotalPages; p++)
+                {
+                    <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-unreadOnly="@isUnreadOnly">@p</a>
+                    </li>
+                }
+                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber + 1)" asp-route-unreadOnly="@isUnreadOnly">Next</a>
+                </li>
+            </ul>
+        </nav>
+    }
+}

@@ -22,6 +22,79 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("CollegeEventRegistration.Core.Entities.Announcement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AudienceType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AuthorUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("PublishedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TargetRole")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AudienceType");
+
+                    b.HasIndex("AuthorUserId");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("Announcements");
+                });
+
             modelBuilder.Entity("CollegeEventRegistration.Core.Entities.ApplicationRole", b =>
                 {
                     b.Property<string>("Id")
@@ -907,6 +980,14 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("ActionUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("CorrelationId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -946,6 +1027,8 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CorrelationId");
 
                     b.HasIndex("EventId");
 
@@ -1185,6 +1268,31 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("CollegeEventRegistration.Core.Entities.Announcement", b =>
+                {
+                    b.HasOne("CollegeEventRegistration.Core.Entities.ApplicationUser", "AuthorUser")
+                        .WithMany("AuthoredAnnouncements")
+                        .HasForeignKey("AuthorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CollegeEventRegistration.Core.Entities.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("CollegeEventRegistration.Core.Entities.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("AuthorUser");
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("CollegeEventRegistration.Core.Entities.Attendance", b =>
@@ -1489,6 +1597,8 @@ namespace CollegeEventRegistration.Infrastructure.Migrations
             modelBuilder.Entity("CollegeEventRegistration.Core.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("AuditLogs");
+
+                    b.Navigation("AuthoredAnnouncements");
 
                     b.Navigation("Certificates");
 

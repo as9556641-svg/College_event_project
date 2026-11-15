@@ -30,6 +30,7 @@ public class CertificateService : ICertificateService
     private readonly IWebHostEnvironment _environment;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<CertificateService> _logger;
+    private readonly INotificationService? _notificationService;
 
     public CertificateService(
         ApplicationDbContext context,
@@ -37,7 +38,8 @@ public class CertificateService : ICertificateService
         IAuditLogService auditLogService,
         IWebHostEnvironment environment,
         IHttpContextAccessor httpContextAccessor,
-        ILogger<CertificateService> logger)
+        ILogger<CertificateService> logger,
+        INotificationService? notificationService = null)
     {
         _context = context;
         _pdfGenerator = pdfGenerator;
@@ -45,6 +47,7 @@ public class CertificateService : ICertificateService
         _environment = environment;
         _httpContextAccessor = httpContextAccessor;
         _logger = logger;
+        _notificationService = notificationService;
     }
 
     /// <inheritdoc />
@@ -389,6 +392,27 @@ public class CertificateService : ICertificateService
             userId: issuedByUserId ?? reg.UserId,
             newValues: $"Issued certificate '{certificateNumber}' for registration #{reg.Id} (Student: {reg.User?.FullName}).");
 
+        if (_notificationService != null)
+        {
+            try
+            {
+                await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+                {
+                    UserId = reg.UserId,
+                    EventId = reg.EventId,
+                    Title = "Certificate Available",
+                    Message = $"Congratulations! Your certificate {certificateNumber} for '{reg.Event?.Title ?? "your event"}' is ready for download.",
+                    Type = NotificationType.CertificateAvailable,
+                    ActionUrl = "/Student/Certificates",
+                    CorrelationId = $"CERT-AVAIL-{certificate.Id}"
+                });
+            }
+            catch (Exception nEx)
+            {
+                _logger.LogWarning(nEx, "Failed to dispatch certificate notification for #{CertificateId}", certificate.Id);
+            }
+        }
+
         return CertificateResultDto.Ok(
             certificate.Id,
             certificateNumber,
@@ -703,6 +727,27 @@ public class CertificateService : ICertificateService
             entityId: cert.Id.ToString(),
             userId: revokedByUserId,
             newValues: $"Revoked certificate '{cert.CertificateNumber}' for Student {cert.User?.FullName}. Reason: {cert.RevocationReason}");
+
+        if (_notificationService != null)
+        {
+            try
+            {
+                await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+                {
+                    UserId = cert.UserId,
+                    EventId = cert.EventId,
+                    Title = "Certificate Revoked",
+                    Message = $"Your certificate for '{cert.Event.Title}' has been revoked: {cert.RevocationReason}",
+                    Type = NotificationType.CertificateRevoked,
+                    ActionUrl = "/Student/Certificates",
+                    CorrelationId = $"CERT-REV-{cert.Id}"
+                });
+            }
+            catch (Exception nEx)
+            {
+                _logger.LogWarning(nEx, "Failed to dispatch certificate revocation notification for #{CertificateId}", cert.Id);
+            }
+        }
 
         return CertificateResultDto.Ok(
             cert.Id,

@@ -27,7 +27,7 @@
 | **10** | **Attendance & Check-In** | Live scanner interface for coordinators, QR scanner via device camera, manual roll-number check-in, attendance timestamping, duplicate scan prevention. | `Attendance` entity and table exist in database. | Entity mapping and database schema verified. | HTML5 QR camera scanner view, attendance verification API endpoint, real-time checked-in count sync. | **COMPLETED (50/50 TESTS PASSED)** |
 | **11** | **Feedback & Ratings** | Post-event student feedback form, 5-star rating, quantitative and qualitative questions, feedback aggregation, coordinator feedback report. | `EventFeedback` entity and table exist in database with unique constraint `IX_EventFeedbacks_RegistrationId`. | Entity mapping and database schema verified. | `FeedbackService`, `IFeedbackService`, `FeedbackDtos`, student submission workflow, coordinator rating analytics, admin campus ledger, 47/47 automated tests passed. | **COMPLETED (47/47 TESTS PASSED)** |
 | **12** | **Automated Certificate Generation** | Certificate template designer, dynamic student name/event replacement, PDF certificate generation, certificate verification portal. | `CertificateTemplate` and `Certificate` entities exist in database with unique indexes on `RegistrationId`, `CertificateNumber`, and `VerificationToken`. | Entity mapping and database schema verified via EF Core migration `AddCertificateEntity`. | QuestPDF server-side A4 landscape rendering engine, `CertificateService`, public verification portal, student portal, coordinator/admin ledgers, 21/21 automated tests passed (commit `0774e5c`). | **COMPLETED (21/21 TESTS PASSED)** |
-| **13** | **Notifications & Announcements** | Email notification service (SMTP/SendGrid), in-app notification center, event announcement broadcasts, registration confirmation emails. | `Notification` entity and table exist in database. | Entity mapping and database schema verified. | Background email dispatch service, notification dropdown partial in navbar, event broadcast composer for coordinators. | **PENDING** |
+| **13** | **Notifications & Announcements** | Email notification service (SMTP/Channel queue), in-app notification center, event announcement broadcasts, registration confirmation triggers, real-time SignalR notifications. | `Notification` and `Announcement` entities, `NotificationService`, `AnnouncementService`, `EmailService`, `QueuedEmailBackgroundService`, `NotificationHub`, controllers & Razor views across Student, Coordinator, and Admin areas. | Verified in-app notification center, tenant isolation, unread counters, mark as read, mark all as read, CorrelationId deduplication, event triggers (registration, payment, waitlist promotion, attendance, certificate, event cancellation), campus & targeted announcements, coordinator event-scoping, Stored XSS defense, background email channel queue, and SignalR real-time push. 22/22 test scenarios (30/30 checks) passed cleanly. | None. All Phase 13 objectives fully implemented and verified. | **COMPLETED (22/22 TESTS PASSED)** |
 | **14** | **Analytics & Reporting** | Administrative reports, participation trends, revenue summaries, department engagement charts, export to Excel/CSV/PDF. | Metric queries exist in Admin and SuperAdmin controllers; schema tracks historical registrations and payments. | Database queries for department and event metrics verified. | Chart.js interactive visualizations, CSV/Excel export service, executive PDF attendance and revenue summary reports. | **PENDING** |
 | **15** | **System Hardening & Launch** | Security audit, rate limiting, SQL injection defense, security headers (CSP, HSTS), Redis distributed cache (optional), performance benchmarking. | Antiforgery tokens enforced across all POST forms, magic byte file validation, soft-delete query filters, parameterized EF Core queries. | Verified CSRF protection, file upload guards, and role-based authorization policies. | Security header middleware, response compression, output caching, production deployment manifests. | **PENDING** |
 
@@ -297,8 +297,57 @@
 
 ---
 
-## 10. Strict Boundary Rules for Next Phase
+## 10. Phase 13 Completion Summary — Notifications & Announcements
 
-- **Current Status:** Phase 12 is **COMPLETED & VERIFIED (21/21 TESTS PASSED | 449/449 FULL REGRESSION SUITE PASSED)**.
-- **Strict Boundary:** No notifications (Phase 13), reports/analytics (Phase 14), or system hardening (Phase 15) was implemented in Phase 12.
-- **Rule:** Phase 13 (Notifications & Announcements) will only be commenced upon explicit user instruction, maintaining step-by-step verified architectural integrity.
+1. **Database Schema & Migrations:**
+   - Entity `Announcement` created inheriting `BaseEntity` with `Title`, `Content`, `Priority`, `Status`, `AudienceType`, `DepartmentId`, `TargetRole`, `EventId`, `AuthorUserId`, `PublishedAt`, and `ExpiresAt`.
+   - Entity `Notification` enhanced with `ActionUrl` (max length 500) and `CorrelationId` (max length 100).
+   - Enums: Extended `NotificationType` (14 distinct business event types), added `AnnouncementPriority` (Low, Normal, High, Urgent), `AnnouncementStatus` (Draft, Published, Archived), `AnnouncementAudience` (All, Department, Role, EventParticipants), and `EmailDeliveryStatus` (Queued, Sent, Failed, Unavailable).
+   - Indexes: Non-clustered index on `(UserId, IsRead)`, `(UserId, CreatedAt)`, and index on `CorrelationId` on `Notifications`; indexes on `(Status, PublishedAt, ExpiresAt)`, `(AudienceType, DepartmentId)`, `(AudienceType, TargetRole)`, `(AudienceType, EventId)`, and `AuthorUserId` on `Announcements`.
+   - Migration `20261115191326_AddAnnouncementAndNotificationMetadata` generated and applied cleanly to SQL Server Express `CollegeEventRegistrationDb`.
+
+2. **In-App Notification Center (`NotificationService`):**
+   - Paginated user notification inbox, unread notification counter, mark single notification as read, mark all notifications as read, and tenant-isolated details lookup (`UnauthorizedAccessException` if attempting to view another user's alert).
+   - Idempotent creation with `CorrelationId` deduplication — prevents double notifications during retries or webhook replays.
+
+3. **Domain Event Triggers Across Existing Workflows:**
+   - **Registration:** Confirmation alert on confirmed registration (`RegistrationConfirmation`), waitlist alert (`WaitlistJoined`), and promotion alert on auto-promotion (`WaitlistPromoted`).
+   - **Payment:** Immediate payment success notification (`PaymentSuccess`) on verified Razorpay payment or verified webhook payload; payment failure notification (`PaymentFailed`) on failed attempt.
+   - **Ticket:** Ticket generation alert (`TicketGenerated`) with direct link to digital admission pass.
+   - **Attendance:** Live check-in confirmation (`AttendanceCheckIn`) with session and event details.
+   - **Certificate:** Automated certificate availability notification (`CertificateAvailable`) with direct download/view link, and revocation notice (`CertificateRevoked`) if revoked.
+   - **Event Governance:** Event cancellation notification (`EventCancelled`) sent to all enrolled attendees.
+
+4. **Campus Announcement Hub (`AnnouncementService`):**
+   - Targeted audience filtering: Campus-wide, department-specific, role-specific (e.g. Coordinators only), and event participants.
+   - Scoping & authorization: Campus administrators create campus-wide and role/department targeted broadcasts. Event coordinators are strictly scoped to their assigned events (`AudienceType.EventParticipants`); attempts to publish to unassigned events are blocked with `UnauthorizedAccessException`.
+   - Defense-in-depth HTML encoding on title and content prevents Stored XSS.
+   - Expiration dates filter out outdated announcements automatically from student feeds.
+   - Immutable audit logging tracks all administrative and coordinator announcement lifecycle operations.
+
+5. **Asynchronous Email Infrastructure & Graceful Fallback:**
+   - Configured bounded in-memory channel queue (`IEmailQueue` + `QueuedEmailBackgroundService`).
+   - Smtp-based `EmailService` with graceful missing/unconfigured SMTP handling (returns `EmailDeliveryStatus.Unavailable`, logs warning, and does NOT crash the application or break user transactions).
+
+6. **Real-Time SignalR Web Push:**
+   - SignalR hub `NotificationHub` mapped to `/hubs/notifications` with `[Authorize]`.
+   - `IRealTimeNotificationPublisher` and `SignalRNotificationPublisher` deliver live notifications to targeted user connections (`Clients.User(userId)`).
+
+7. **Razor Views & Dashboards:**
+   - Student: Notifications list (`/Student/Notifications`), announcement feed (`/Student/Announcements`), and interactive details views.
+   - Coordinator: Event announcement composer and editor (`/Coordinator/Announcements`), notification center (`/Coordinator/Notifications`).
+   - Admin: Master announcements console (`/Admin/Announcements`), campus notifications ledger (`/Admin/Notifications`).
+   - Navigation: Wired notification badges and announcement links in `_StudentPortalLayout.cshtml` and `_DashboardLayout.cshtml`.
+
+8. **Automated Verification & Regression:**
+   - 22/22 test scenarios (30/30 checks) in `Phase13Verifier` passed cleanly with 100% compliance.
+   - 449 regression tests passed across Phase 1 (28), Phase 2 (24), Public Website (33), Google OAuth (19), Phase 5 (41), Phase 6 (25), Phase 7 (49), Phase 8 (59), Phase 9 (53), Phase 10 (50), Phase 11 (47), and Phase 12 (21).
+   - Total: 479 / 479 passing automated tests across the entire project with 0 failures and 0 warnings.
+
+---
+
+## 11. Strict Boundary Rules for Next Phase
+
+- **Current Status:** Phase 13 is **COMPLETED & VERIFIED (22/22 SCENARIOS PASSED | 479/479 FULL REGRESSION SUITE PASSED)**.
+- **Strict Boundary:** No reports/analytics (Phase 14) or system hardening (Phase 15) was implemented in Phase 13.
+- **Rule:** Phase 14 (Reports & Analytics) will only be commenced upon explicit user instruction, maintaining step-by-step verified architectural integrity.

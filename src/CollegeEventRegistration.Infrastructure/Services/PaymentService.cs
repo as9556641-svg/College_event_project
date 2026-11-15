@@ -29,19 +29,22 @@ public class PaymentService : IPaymentService
     private readonly IPaymentGatewayClient _gatewayClient;
     private readonly IAuditLogService _auditLogService;
     private readonly ILogger<PaymentService> _logger;
+    private readonly INotificationService? _notificationService;
 
     public PaymentService(
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
         IPaymentGatewayClient gatewayClient,
         IAuditLogService auditLogService,
-        ILogger<PaymentService> logger)
+        ILogger<PaymentService> logger,
+        INotificationService? notificationService = null)
     {
         _context = context;
         _userManager = userManager;
         _gatewayClient = gatewayClient;
         _auditLogService = auditLogService;
         _logger = logger;
+        _notificationService = notificationService;
     }
 
     /// <inheritdoc />
@@ -403,6 +406,27 @@ public class PaymentService : IPaymentService
                 _logger.LogInformation("Payment {PaymentId} (Order: {OrderId}) confirmed successfully for Registration #{RegNum}. Seat count: {Count}/{Total}",
                     request.PaymentId, request.OrderId, currentReg.RegistrationNumber, currentReg.Event.RegisteredCount, currentReg.Event.TotalCapacity);
 
+                if (_notificationService != null)
+                {
+                    try
+                    {
+                        await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+                        {
+                            UserId = studentUserId,
+                            EventId = currentReg.EventId,
+                            Title = "Payment Successful",
+                            Message = $"Payment of INR {currentPayment.Amount:F2} verified for '{currentReg.Event.Title}'. Order #{currentPayment.OrderId}.",
+                            Type = NotificationType.PaymentSuccess,
+                            ActionUrl = $"/Student/Registrations/Details/{currentReg.Id}",
+                            CorrelationId = $"PAY-SUCC-{currentPayment.Id}"
+                        }, cancellationToken);
+                    }
+                    catch (Exception nEx)
+                    {
+                        _logger.LogWarning(nEx, "Failed to dispatch payment success notification for #{PaymentId}", currentPayment.Id);
+                    }
+                }
+
                 return new PaymentVerificationResultDto
                 {
                     Success = true,
@@ -555,6 +579,28 @@ public class PaymentService : IPaymentService
                 );
 
                 _logger.LogInformation("Webhook confirmed payment {PaymentId} for Order {OrderId}", paymentId, orderId);
+
+                if (_notificationService != null)
+                {
+                    try
+                    {
+                        await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+                        {
+                            UserId = payment.Registration.UserId,
+                            EventId = payment.Registration.EventId,
+                            Title = "Payment Successful",
+                            Message = $"Payment of INR {payment.Amount:F2} confirmed via webhook for '{eventName}'. Order #{payment.OrderId}.",
+                            Type = NotificationType.PaymentSuccess,
+                            ActionUrl = $"/Student/Registrations/Details/{payment.RegistrationId}",
+                            CorrelationId = $"PAY-SUCC-{payment.Id}"
+                        }, cancellationToken);
+                    }
+                    catch (Exception nEx)
+                    {
+                        _logger.LogWarning(nEx, "Failed to dispatch webhook payment notification for #{PaymentId}", payment.Id);
+                    }
+                }
+
                 return (true, "Webhook successfully processed and payment confirmed.");
             });
         }
@@ -873,6 +919,27 @@ public class PaymentService : IPaymentService
             userId: studentUserId,
             newValues: $"Reason: {payment.FailureReason}, OrderId: {orderId}"
         );
+
+        if (_notificationService != null)
+        {
+            try
+            {
+                await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+                {
+                    UserId = studentUserId,
+                    EventId = payment.Registration.EventId,
+                    Title = "Payment Failed",
+                    Message = $"Payment failed for '{payment.Registration.Event.Title}': {payment.FailureReason}",
+                    Type = NotificationType.PaymentFailed,
+                    ActionUrl = "/Student/Registrations",
+                    CorrelationId = $"PAY-FAIL-{payment.Id}"
+                }, cancellationToken);
+            }
+            catch (Exception nEx)
+            {
+                _logger.LogWarning(nEx, "Failed to dispatch payment failure notification for #{PaymentId}", payment.Id);
+            }
+        }
 
         return true;
     }

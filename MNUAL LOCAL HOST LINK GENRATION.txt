@@ -1,0 +1,13 @@
+MNUAL LOCAL HOST LINK GENRATION :
+
+1. OPEN NEW TERMINAL
+2. cd E:\CollegeEventRegistration\src\CollegeEventRegistration.Web   
+   GO THIS LOCATION
+
+3. TYPE COMMAND = dotnet restore 
+4. TYPE COMMAND = dotnet build
+
+5. last command = dotnet run --urls "http://localhost:5000"
+
+after this process go to browser and paste this link 
+and check your site 

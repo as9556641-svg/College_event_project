@@ -62,12 +62,51 @@ public enum NotificationType
     EventReminder = 3,
     EventUpdate = 4,
     AttendanceConfirmed = 5,
-    CertificateAvailable = 6
+    CertificateAvailable = 6,
+    RegistrationCancelled = 7,
+    WaitlistPromoted = 8,
+    PaymentSuccess = 9,
+    PaymentFailed = 10,
+    TicketIssued = 11,
+    FeedbackAvailable = 12,
+    CertificateRevoked = 13,
+    Announcement = 14
 }
 
 public enum CertificateStatus
 {
     Active = 1,
     Revoked = 2
+}
+
+public enum AnnouncementPriority
+{
+    Low = 1,
+    Normal = 2,
+    High = 3,
+    Urgent = 4
+}
+
+public enum AnnouncementStatus
+{
+    Draft = 1,
+    Published = 2,
+    Archived = 3
+}
+
+public enum AnnouncementAudience
+{
+    All = 1,
+    Department = 2,
+    Role = 3,
+    EventParticipants = 4
+}
+
+public enum EmailDeliveryStatus
+{
+    Queued = 1,
+    Sent = 2,
+    Failed = 3,
+    Unavailable = 4
 }
 

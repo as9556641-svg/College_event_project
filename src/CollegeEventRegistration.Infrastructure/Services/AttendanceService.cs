@@ -25,17 +25,20 @@ public class AttendanceService : IAttendanceService
     private readonly IQrCodeGenerator _qrGenerator;
     private readonly IAuditLogService _auditLogService;
     private readonly ILogger<AttendanceService> _logger;
+    private readonly INotificationService? _notificationService;
 
     public AttendanceService(
         ApplicationDbContext context,
         IQrCodeGenerator qrGenerator,
         IAuditLogService auditLogService,
-        ILogger<AttendanceService> logger)
+        ILogger<AttendanceService> logger,
+        INotificationService? notificationService = null)
     {
         _context = context;
         _qrGenerator = qrGenerator;
         _auditLogService = auditLogService;
         _logger = logger;
+        _notificationService = notificationService;
     }
 
     /// <inheritdoc />
@@ -442,6 +445,27 @@ public class AttendanceService : IAttendanceService
 
                 _logger.LogInformation("Successfully checked in Registration #{RegNum} (Ticket {TicketCode}) for Event #{EventId} via {Method}",
                     reg.RegistrationNumber, reg.Ticket?.TicketCode ?? "N/A", reg.EventId, request.CheckInMethod);
+
+                if (_notificationService != null)
+                {
+                    try
+                    {
+                        await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+                        {
+                            UserId = reg.UserId,
+                            EventId = reg.EventId,
+                            Title = "Attendance Checked-In",
+                            Message = $"Your attendance for '{reg.Event.Title}' has been verified via {request.CheckInMethod}.",
+                            Type = NotificationType.AttendanceConfirmed,
+                            ActionUrl = "/Student/Tickets",
+                            CorrelationId = $"ATT-CONFIRM-{attendance.Id}"
+                        }, cancellationToken);
+                    }
+                    catch (Exception nEx)
+                    {
+                        _logger.LogWarning(nEx, "Failed to dispatch attendance notification for #{AttendanceId}", attendance.Id);
+                    }
+                }
 
                 // 10D. Calculate updated metrics
                 var totalCheckedIn = await _context.Attendances

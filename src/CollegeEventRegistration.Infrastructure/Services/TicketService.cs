@@ -24,17 +24,20 @@ public class TicketService : ITicketService
     private readonly IQrCodeGenerator _qrGenerator;
     private readonly IAuditLogService _auditLogService;
     private readonly ILogger<TicketService> _logger;
+    private readonly INotificationService? _notificationService;
 
     public TicketService(
         ApplicationDbContext context,
         IQrCodeGenerator qrGenerator,
         IAuditLogService auditLogService,
-        ILogger<TicketService> logger)
+        ILogger<TicketService> logger,
+        INotificationService? notificationService = null)
     {
         _context = context;
         _qrGenerator = qrGenerator;
         _auditLogService = auditLogService;
         _logger = logger;
+        _notificationService = notificationService;
     }
 
     /// <inheritdoc />
@@ -546,6 +549,27 @@ public class TicketService : ITicketService
 
                 _logger.LogInformation("Generated Ticket {TicketCode} for Registration #{RegNum} (Event #{EventId})",
                     ticket.TicketCode, reg.RegistrationNumber, reg.EventId);
+
+                if (_notificationService != null)
+                {
+                    try
+                    {
+                        await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+                        {
+                            UserId = reg.UserId,
+                            EventId = reg.EventId,
+                            Title = "Admission Ticket Ready",
+                            Message = $"Your admission ticket {ticket.TicketCode} for '{reg.Event.Title}' is ready.",
+                            Type = NotificationType.TicketIssued,
+                            ActionUrl = "/Student/Tickets",
+                            CorrelationId = $"TKT-GEN-{ticket.Id}"
+                        }, cancellationToken);
+                    }
+                    catch (Exception nEx)
+                    {
+                        _logger.LogWarning(nEx, "Failed to dispatch ticket notification for #{TicketId}", ticket.Id);
+                    }
+                }
 
                 return MapToDto(ticket, reg);
             }

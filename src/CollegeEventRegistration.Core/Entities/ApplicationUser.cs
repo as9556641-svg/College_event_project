@@ -32,5 +32,6 @@ public class ApplicationUser : IdentityUser
     public ICollection<EventFeedback> SubmittedFeedbacks { get; set; } = new List<EventFeedback>();
     public ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+    public ICollection<Announcement> AuthoredAnnouncements { get; set; } = new List<Announcement>();
     public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 }
