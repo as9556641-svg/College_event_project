@@ -152,14 +152,14 @@
                         <span>Coordinator Management</span>
                         <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
                     </span>
-                    <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
+                    <a asp-area="Admin" asp-controller="Registrations" asp-action="Index" 
+                       class="dash-nav-link @(currentArea == "Admin" && currentController == "Registrations" ? "active" : "")">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                             <circle cx="9" cy="7" r="4"></circle>
                         </svg>
                         <span>Registrations</span>
-                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
-                    </span>
+                    </a>
                     <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -191,16 +191,16 @@
                         </svg>
                         <span>My Events</span>
                     </a>
-                    <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
+                    <a asp-area="Coordinator" asp-controller="Registrations" asp-action="Index" 
+                       class="dash-nav-link @(currentArea == "Coordinator" && currentController == "Registrations" ? "active" : "")">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                             <circle cx="9" cy="7" r="4"></circle>
                             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                         </svg>
-                        <span>Participants</span>
-                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
-                    </span>
+                        <span>Registrations</span>
+                    </a>
                     <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10"></circle>
@@ -245,14 +245,14 @@
                         </svg>
                         <span>Explore Events</span>
                     </a>
-                    <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
+                    <a asp-area="Student" asp-controller="Registrations" asp-action="Index" 
+                       class="dash-nav-link @(currentArea == "Student" && currentController == "Registrations" ? "active" : "")">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                             <circle cx="9" cy="7" r="4"></circle>
                         </svg>
                         <span>My Registrations</span>
-                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
-                    </span>
+                    </a>
                     <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"></path>

@@ -162,13 +162,15 @@ public class StudentEventDetailsViewModel
     public IReadOnlyList<EventSessionItemViewModel> Sessions { get; set; } = new List<EventSessionItemViewModel>();
     public StudentEventEligibilityResult EligibilityResult { get; set; } = new();
     public ApplicationUser? CurrentUser { get; set; }
+    public EventRegistration? UserRegistration { get; set; }
+    public bool IsUserRegistered => UserRegistration != null && UserRegistration.Status != RegistrationStatus.Cancelled;
 
     public string FormattedEventStart => EventStartDate.FormatKolkata("dddd, dd MMM yyyy, hh:mm tt");
     public string FormattedEventEnd => EventEndDate.FormatKolkata("dddd, dd MMM yyyy, hh:mm tt");
     public string FormattedRegistrationStart => RegistrationStartDate.FormatKolkata("dd MMM yyyy, hh:mm tt");
     public string FormattedRegistrationEnd => RegistrationEndDate.FormatKolkata("dd MMM yyyy, hh:mm tt");
 
-    public static StudentEventDetailsViewModel FromEntity(Event evt, StudentEventEligibilityResult eligibility, ApplicationUser? user)
+    public static StudentEventDetailsViewModel FromEntity(Event evt, StudentEventEligibilityResult eligibility, ApplicationUser? user, EventRegistration? userRegistration = null)
     {
         return new StudentEventDetailsViewModel
         {
@@ -195,6 +197,7 @@ public class StudentEventDetailsViewModel
             RegisteredCount = evt.RegisteredCount,
             EligibilityResult = eligibility,
             CurrentUser = user,
+            UserRegistration = userRegistration,
             Sessions = evt.Sessions
                 .OrderBy(s => s.SessionDate)
                 .ThenBy(s => s.StartTime)

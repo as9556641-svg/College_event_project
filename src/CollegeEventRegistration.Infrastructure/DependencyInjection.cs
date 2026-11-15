@@ -70,6 +70,9 @@ public static class DependencyInjection
         // Register Phase 6 Student Event Discovery Services
         services.AddScoped<IEventDiscoveryService, EventDiscoveryService>();
 
+        // Register Phase 7 Event Registration Services
+        services.AddScoped<IEventRegistrationService, EventRegistrationService>();
+
         return services;
     }
 }

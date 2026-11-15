@@ -1,0 +1,202 @@
+@model CollegeEventRegistration.Core.DTOs.RegistrationDetailDto
+@using CollegeEventRegistration.Core.Enums
+@{
+    Layout = "_StudentPortalLayout";
+    ViewData["Title"] = $"Registration #{Model.RegistrationNumber}";
+    var canCancel = Model.Status != RegistrationStatus.Cancelled && Model.EventStartDate > DateTime.UtcNow;
+}
+
+<div class="container-xl my-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a asp-action="Index" class="text-decoration-none">&larr; Back to My Registrations</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.RegistrationNumber</li>
+        </ol>
+    </nav>
+
+    <!-- Feedback Alerts -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
+            <div class="d-flex align-items-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <span>@TempData["SuccessMessage"]</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
+            <div class="d-flex align-items-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <span>@TempData["ErrorMessage"]</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- Main Details (Left 8 Cols) -->
+        <div class="col-lg-8">
+            <!-- Registration Header Card -->
+            <div class="card border-0 shadow-sm p-4 mb-4">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                    <div>
+                        <span class="text-muted small text-uppercase fw-semibold">Official Registration</span>
+                        <h3 class="fw-bold text-dark font-monospace mb-0">@Model.RegistrationNumber</h3>
+                    </div>
+                    <div>
+                        @switch (Model.Status)
+                        {
+                            case RegistrationStatus.Confirmed:
+                                <span class="badge bg-success-subtle text-success border border-success-subtle fs-6 px-3 py-2">Confirmed Registration</span>
+                                break;
+                            case RegistrationStatus.Pending:
+                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle fs-6 px-3 py-2">Pending Faculty Review</span>
+                                break;
+                            case RegistrationStatus.Waitlisted:
+                                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle fs-6 px-3 py-2">Waitlisted</span>
+                                break;
+                            case RegistrationStatus.Cancelled:
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fs-6 px-3 py-2">Cancelled</span>
+                                break;
+                        }
+                    </div>
+                </div>
+
+                @if (Model.Status == RegistrationStatus.Cancelled)
+                {
+                    <div class="alert alert-secondary border mb-0">
+                        <div class="fw-bold mb-1">Registration Cancelled</div>
+                        <div class="small">
+                            Cancelled on: <strong>@(Model.CancelledAt?.ToString("dd MMM yyyy, hh:mm tt") ?? "N/A") UTC</strong>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(Model.CancellationReason))
+                        {
+                            <div class="small mt-1">Reason: <em>@Model.CancellationReason</em></div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex flex-wrap gap-4 text-muted small pt-2 border-top">
+                        <div>
+                            <span>Registered On:</span>
+                            <strong class="text-dark d-block">@Model.RegisteredAt.ToString("dd MMM yyyy, hh:mm tt") UTC</strong>
+                        </div>
+                        <div>
+                            <span>Admission Status:</span>
+                            <strong class="text-dark d-block">@(Model.IsAttended ? "Checked-In" : "Enrolled")</strong>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Event Information Card -->
+            <div class="card border-0 shadow-sm p-4 mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="fw-bold text-dark mb-0">Event Information</h5>
+                    <a asp-area="Student" asp-controller="Events" asp-action="Details" asp-route-id="@Model.EventId" class="btn btn-sm btn-outline-primary">
+                        View Event Page &rarr;
+                    </a>
+                </div>
+
+                <h4 class="fw-bold text-dark mb-2">@Model.EventTitle</h4>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge bg-light text-dark border">@Model.CategoryName</span>
+                    <span class="badge bg-light text-dark border">@Model.DepartmentName</span>
+                    <span class="badge bg-light text-dark border">Mode: @Model.EventMode</span>
+                    <span class="badge bg-light text-dark border">@(Model.EventType == EventType.Free ? "Free Admission" : $"Fee: \u20b9{Model.RegistrationFee:F2}")</span>
+                </div>
+
+                <div class="row g-3 small text-muted pt-2 border-top">
+                    <div class="col-sm-6">
+                        <span class="d-block text-muted">Event Start Date:</span>
+                        <strong class="text-dark">@Model.EventStartDate.ToString("dddd, dd MMM yyyy, hh:mm tt") UTC</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="d-block text-muted">Event End Date:</span>
+                        <strong class="text-dark">@Model.EventEndDate.ToString("dddd, dd MMM yyyy, hh:mm tt") UTC</strong>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.Venue))
+                    {
+                        <div class="col-sm-12">
+                            <span class="d-block text-muted">Campus Venue:</span>
+                            <strong class="text-dark">@Model.Venue</strong>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.OnlineMeetingUrl))
+                    {
+                        <div class="col-sm-12">
+                            <span class="d-block text-muted">Online Session URL:</span>
+                            <a href="@Model.OnlineMeetingUrl" target="_blank" rel="noopener noreferrer" class="text-primary text-break">@Model.OnlineMeetingUrl</a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Cancellation Section (if allowed) -->
+            @if (canCancel)
+            {
+                <div class="card border-danger-subtle bg-light p-4">
+                    <h5 class="fw-bold text-danger mb-2">Cancel Registration</h5>
+                    <p class="text-muted small mb-3">
+                        If you are unable to attend, please release your seat so waitlisted students can enroll.
+                        Once cancelled, your seat reservation is surrendered immediately.
+                    </p>
+
+                    <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Are you sure you want to cancel this event registration? This action will release your seat reservation.');">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label for="cancellationReason" class="form-label small fw-semibold text-dark">Reason for cancellation (Optional):</label>
+                            <input type="text" id="cancellationReason" name="cancellationReason" class="form-control form-control-sm" placeholder="e.g., Academic conflict, personal scheduling..." maxlength="300" />
+                        </div>
+                        <button type="submit" class="btn btn-outline-danger btn-sm fw-semibold">
+                            Confirm Cancellation
+                        </button>
+                    </form>
+                </div>
+            }
+        </div>
+
+        <!-- Right Sidebar: Student Details (4 Cols) -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm p-4">
+                <h5 class="fw-bold text-dark mb-3">Participant Details</h5>
+                <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-5" style="width: 48px; height: 48px;">
+                        @(!string.IsNullOrEmpty(Model.StudentName) ? Model.StudentName.Substring(0, 1).ToUpper() : "S")
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">@Model.StudentName</div>
+                        <div class="small text-muted">@Model.StudentEmail</div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-column gap-2 small">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Roll Number:</span>
+                        <strong class="text-dark">@(Model.StudentRollNumber ?? "N/A")</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Department:</span>
+                        <strong class="text-dark">@(Model.StudentDepartment ?? "N/A")</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Year of Study:</span>
+                        <strong class="text-dark">@(Model.StudentYearOfStudy.HasValue ? $"Year {Model.StudentYearOfStudy}" : "N/A")</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Institution:</span>
+                        <strong class="text-dark">@(Model.StudentCollegeName ?? "VAP UNIVERSITY")</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

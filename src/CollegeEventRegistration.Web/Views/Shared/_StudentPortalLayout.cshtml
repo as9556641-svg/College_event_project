@@ -46,6 +46,15 @@
                         </svg>
                         <span>Discover Events</span>
                     </a>
+                    <a asp-area="Student" asp-controller="Registrations" asp-action="Index" 
+                       class="portal-nav-link @(currentController == "Registrations" ? "active" : "")">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <polyline points="16 11 18 13 22 9"></polyline>
+                        </svg>
+                        <span>My Registrations</span>
+                    </a>
                     <a asp-area="Student" asp-controller="Dashboard" asp-action="Index" 
                        class="portal-nav-link @(currentController == "Dashboard" ? "active" : "")">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
@@ -91,6 +100,12 @@
                                     <a class="dropdown-item py-2 d-flex align-items-center gap-2" asp-area="Student" asp-controller="Events" asp-action="Index">
                                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                                         <span>Discover Events</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2 d-flex align-items-center gap-2" asp-area="Student" asp-controller="Registrations" asp-action="Index">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
+                                        <span>My Registrations</span>
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider my-1"></li>

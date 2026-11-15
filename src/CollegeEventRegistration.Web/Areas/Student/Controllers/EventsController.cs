@@ -19,6 +19,7 @@ namespace CollegeEventRegistration.Web.Areas.Student.Controllers;
 public class EventsController : Controller
 {
     private readonly IEventDiscoveryService _discoveryService;
+    private readonly IEventRegistrationService _registrationService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<EventsController> _logger;
 
@@ -26,8 +27,18 @@ public class EventsController : Controller
         IEventDiscoveryService discoveryService,
         UserManager<ApplicationUser> userManager,
         ILogger<EventsController> logger)
+        : this(discoveryService, null!, userManager, logger)
+    {
+    }
+
+    public EventsController(
+        IEventDiscoveryService discoveryService,
+        IEventRegistrationService registrationService,
+        UserManager<ApplicationUser> userManager,
+        ILogger<EventsController> logger)
     {
         _discoveryService = discoveryService;
+        _registrationService = registrationService;
         _userManager = userManager;
         _logger = logger;
     }
@@ -98,8 +109,42 @@ public class EventsController : Controller
         var currentUserId = currentUser?.Id ?? string.Empty;
 
         var eligibilityResult = await _discoveryService.EvaluateStudentEligibilityAsync(id, currentUserId);
-        var viewModel = StudentEventDetailsViewModel.FromEntity(evt, eligibilityResult, currentUser);
+        var userRegistration = (_registrationService != null && !string.IsNullOrEmpty(currentUserId))
+            ? await _registrationService.GetActiveStudentRegistrationForEventAsync(id, currentUserId)
+            : null;
+
+        var viewModel = StudentEventDetailsViewModel.FromEntity(evt, eligibilityResult, currentUser, userRegistration);
 
         return View(viewModel);
+    }
+
+    /// <summary>
+    /// POST: /Student/Events/Register/{id}
+    /// Direct registration endpoint from event details.
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Register(int id)
+    {
+        if (id <= 0)
+        {
+            return NotFound();
+        }
+
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser == null)
+        {
+            return Challenge();
+        }
+
+        var result = await _registrationService.RegisterStudentAsync(id, currentUser.Id);
+        if (result.Success)
+        {
+            TempData["SuccessMessage"] = result.Message;
+            return RedirectToAction("Details", "Registrations", new { area = "Student", id = result.RegistrationId });
+        }
+
+        TempData["ErrorMessage"] = result.Message;
+        return RedirectToAction(nameof(Details), new { id });
     }
 }

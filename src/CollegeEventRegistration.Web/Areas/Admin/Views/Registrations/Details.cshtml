@@ -1,0 +1,124 @@
+@model CollegeEventRegistration.Core.DTOs.RegistrationDetailDto
+@using CollegeEventRegistration.Core.Enums
+@{
+    Layout = "_DashboardLayout";
+    ViewData["Title"] = $"Registration - {Model.RegistrationNumber}";
+}
+
+<div class="dash-page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <a asp-action="Index" class="text-decoration-none text-muted small">&larr; Back to Registrations</a>
+        </div>
+        <h2 class="dash-page-title">Registration Inspection: @Model.RegistrationNumber</h2>
+    </div>
+    <div>
+        @switch (Model.Status)
+        {
+            case RegistrationStatus.Confirmed:
+                <span class="badge bg-success-subtle text-success border border-success-subtle fs-6 px-3 py-2">Confirmed</span>
+                break;
+            case RegistrationStatus.Pending:
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle fs-6 px-3 py-2">Pending Review</span>
+                break;
+            case RegistrationStatus.Waitlisted:
+                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle fs-6 px-3 py-2">Waitlisted</span>
+                break;
+            case RegistrationStatus.Cancelled:
+                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fs-6 px-3 py-2">Cancelled</span>
+                break;
+        }
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Registration & Event Details (8 Cols) -->
+    <div class="col-lg-8">
+        <!-- Event Overview -->
+        <div class="dash-panel mb-4">
+            <h5 class="dash-panel-title mb-3">Event Details</h5>
+            <h4 class="fw-bold text-dark mb-2">@Model.EventTitle</h4>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="badge bg-light text-dark border">@Model.CategoryName</span>
+                <span class="badge bg-light text-dark border">@Model.DepartmentName</span>
+                <span class="badge bg-light text-dark border">Mode: @Model.EventMode</span>
+                <span class="badge bg-light text-dark border">@(Model.EventType == EventType.Free ? "Free Event" : $"Fee: \u20b9{Model.RegistrationFee:F2}")</span>
+            </div>
+
+            <div class="row g-3 small text-muted pt-2 border-top">
+                <div class="col-sm-6">
+                    <span class="d-block text-muted">Event Schedule:</span>
+                    <strong class="text-dark">@Model.EventStartDate.ToString("dd MMM yyyy, hh:mm tt") - @Model.EventEndDate.ToString("dd MMM yyyy, hh:mm tt") UTC</strong>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.Venue))
+                {
+                    <div class="col-sm-6">
+                        <span class="d-block text-muted">Venue:</span>
+                        <strong class="text-dark">@Model.Venue</strong>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Registration Status History -->
+        <div class="dash-panel">
+            <h5 class="dash-panel-title mb-3">Registration Metadata</h5>
+            <div class="row g-3 small">
+                <div class="col-sm-6">
+                    <span class="text-muted d-block">Registered At:</span>
+                    <strong class="text-dark">@Model.RegisteredAt.ToString("dd MMM yyyy, hh:mm:ss") UTC</strong>
+                </div>
+                <div class="col-sm-6">
+                    <span class="text-muted d-block">Current Status:</span>
+                    <strong class="text-dark">@Model.Status</strong>
+                </div>
+                @if (Model.Status == RegistrationStatus.Cancelled)
+                {
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Cancelled At:</span>
+                        <strong class="text-danger">@Model.CancelledAt?.ToString("dd MMM yyyy, hh:mm:ss") UTC</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Cancellation Reason:</span>
+                        <strong class="text-dark">@(Model.CancellationReason ?? "None provided")</strong>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Participant Profile (4 Cols) -->
+    <div class="col-lg-4">
+        <div class="dash-panel mb-4">
+            <h5 class="dash-panel-title mb-3">Participant Profile</h5>
+            <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-5" style="width: 48px; height: 48px;">
+                    @(!string.IsNullOrEmpty(Model.StudentName) ? Model.StudentName.Substring(0, 1).ToUpper() : "S")
+                </div>
+                <div>
+                    <div class="fw-bold text-dark">@Model.StudentName</div>
+                    <div class="small text-muted">@Model.StudentEmail</div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column gap-2 small">
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Roll Number:</span>
+                    <strong class="text-dark">@(Model.StudentRollNumber ?? "N/A")</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Department:</span>
+                    <strong class="text-dark">@(Model.StudentDepartment ?? "N/A")</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Year of Study:</span>
+                    <strong class="text-dark">@(Model.StudentYearOfStudy.HasValue ? $"Year {Model.StudentYearOfStudy}" : "N/A")</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">College / Affiliation:</span>
+                    <strong class="text-dark">@(Model.StudentCollegeName ?? "VAP UNIVERSITY")</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
