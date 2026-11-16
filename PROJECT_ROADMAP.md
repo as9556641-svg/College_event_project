@@ -127,7 +127,7 @@
 - **Commit 9 (Phase 12 Automated Certificate Generation):** `0774e5c` — `feat(certificates): implement automated certificate generation, PDF engine & verification portal`
 - **Commit 10 (Phase 12 Security Audit Fix):** `9141d83` — `fix(security): move certificate PDF storage outside wwwroot and enforce authorized controller streaming`
 - **Commit 11 (Phase 13 Notifications & Announcements):** `f182e60` — `feat(phase-13): implement notifications, campus announcements, email background queue, and SignalR hub`
-- **Commit 12 (Phase 14 Analytics & Reporting):** `PENDING_COMMIT` — `feat(analytics): implement campus and coordinator analytics dashboards, CSV/PDF reports, and Chart.js visualizations`
+- **Commit 12 (Phase 14 Analytics & Reporting):** `034aa20` — `feat(analytics): implement campus and coordinator analytics dashboards, CSV/PDF reports, and Chart.js visualizations`
 
 ---
 
