@@ -13,6 +13,7 @@ namespace CollegeEventRegistration.Web.Controllers.Api;
 /// </summary>
 [ApiController]
 [Route("api/payments")]
+[IgnoreAntiforgeryToken]
 public class PaymentWebhookController : ControllerBase
 {
     private readonly IPaymentService _paymentService;

@@ -1,11 +1,14 @@
 using System.Security.Claims;
+using System.Text.Encodings.Web;
 using CollegeEventRegistration.Core.Entities;
 using CollegeEventRegistration.Core.Enums;
+using CollegeEventRegistration.Core.Interfaces;
 using CollegeEventRegistration.Infrastructure.Data;
 using CollegeEventRegistration.Web.Models.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace CollegeEventRegistration.Web.Controllers;
@@ -13,12 +16,14 @@ namespace CollegeEventRegistration.Web.Controllers;
 /// <summary>
 /// Handles authentication, user registration, role-based redirection, and session lifecycle.
 /// </summary>
+[EnableRateLimiting("AuthPolicy")]
 public class AccountController : Controller
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<ApplicationRole> _roleManager;
     private readonly ApplicationDbContext _context;
+    private readonly IEmailService _emailService;
     private readonly ILogger<AccountController> _logger;
 
     public AccountController(
@@ -26,12 +31,14 @@ public class AccountController : Controller
         UserManager<ApplicationUser> userManager,
         RoleManager<ApplicationRole> roleManager,
         ApplicationDbContext context,
+        IEmailService emailService,
         ILogger<AccountController> logger)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _roleManager = roleManager;
         _context = context;
+        _emailService = emailService;
         _logger = logger;
     }
 
@@ -395,16 +402,76 @@ public class AccountController : Controller
         }
 
         var user = await _userManager.FindByEmailAsync(model.Email);
-        if (user == null || !user.IsActive)
+        if (user != null && user.IsActive)
         {
-            // Do not reveal whether user exists
-            ViewBag.Message = "If your email is registered in our portal, a password reset link has been dispatched.";
-            return View("ForgotPasswordConfirmation");
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var callbackUrl = Url.Action("ResetPassword", "Account", new { token, email = user.Email }, Request.Scheme);
+            if (!string.IsNullOrWhiteSpace(callbackUrl))
+            {
+                await _emailService.SendEmailAsync(
+                    user.Email!,
+                    "Reset Your VAP UNIVERSITY Event Hub Password",
+                    $"<p>Dear {HtmlEncoder.Default.Encode(user.FullName)},</p><p>We received a request to reset your Campus Event Hub password. Click the link below to set a new password:</p><p><a href='{HtmlEncoder.Default.Encode(callbackUrl)}' style='display:inline-block;padding:10px 18px;background:#1e40af;color:#fff;text-decoration:none;border-radius:4px;'>Reset Password</a></p><p>If you did not request a password reset, you can safely ignore this email.</p>");
+            }
         }
 
-        // Simulation for now until SMTP is configured in subsequent phase
+        // Do not reveal whether user exists
         ViewBag.Message = "If your email is registered in our portal, a password reset link has been dispatched.";
         return View("ForgotPasswordConfirmation");
+    }
+
+    // -------------------------------------------------------------------------
+    // RESET PASSWORD (GET / POST)
+    // -------------------------------------------------------------------------
+    [HttpGet]
+    [AllowAnonymous]
+    public IActionResult ResetPassword(string? token = null, string? email = null)
+    {
+        if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(email))
+        {
+            return BadRequest("A valid password reset token and email are required.");
+        }
+
+        return View(new ResetPasswordViewModel { Token = token, Email = email });
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null || !user.IsActive)
+        {
+            // Don't reveal user existence
+            return RedirectToAction(nameof(ResetPasswordConfirmation));
+        }
+
+        var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+        if (result.Succeeded)
+        {
+            _logger.LogInformation("Password successfully reset for user {Email}", model.Email);
+            return RedirectToAction(nameof(ResetPasswordConfirmation));
+        }
+
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+
+        return View(model);
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    public IActionResult ResetPasswordConfirmation()
+    {
+        return View();
     }
 
     // -------------------------------------------------------------------------

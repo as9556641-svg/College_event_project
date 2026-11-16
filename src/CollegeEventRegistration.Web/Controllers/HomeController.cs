@@ -21,4 +21,14 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult StatusCode(int? code)
+    {
+        var statusCode = code ?? 500;
+        ViewBag.StatusCode = statusCode;
+        ViewBag.RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
+
+        return View("StatusCode", statusCode);
+    }
 }

@@ -57,6 +57,10 @@ App_Data/*
 # Temporary test logs
 *.log
 
+# Database Backups
+[Bb]ackups/
+*.bak
+
 # Operating System Files
 .DS_Store
 Thumbs.db

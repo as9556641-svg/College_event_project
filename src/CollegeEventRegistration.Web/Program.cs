@@ -1,8 +1,11 @@
+using System.Threading.RateLimiting;
 using CollegeEventRegistration.Core.Interfaces;
 using CollegeEventRegistration.Infrastructure;
 using CollegeEventRegistration.Infrastructure.Data;
 using CollegeEventRegistration.Web.Hubs;
 using CollegeEventRegistration.Web.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,8 +44,33 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
         });
 }
 
-// Add MVC Controllers and Views
-builder.Services.AddControllersWithViews();
+// Add Rate Limiting for sensitive authentication and public endpoints
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddFixedWindowLimiter("AuthPolicy", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 20;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueLimit = 0;
+    });
+    options.AddFixedWindowLimiter("GeneralPolicy", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 120;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueLimit = 0;
+    });
+});
+
+// Add Health Checks for operational monitoring
+builder.Services.AddHealthChecks()
+    .AddCheck<DatabaseHealthCheck>("Database");
+
+// Add MVC Controllers and Views with global automatic antiforgery validation
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
 
 // Real-Time SignalR Notifications
 builder.Services.AddSignalR();
@@ -71,14 +99,49 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
     app.UseHttpsRedirection();
 }
+else
+{
+    app.UseDeveloperExceptionPage();
+}
+
+// Re-execute friendly status code page on client/server status errors (404, 403, etc.)
+app.UseStatusCodePagesWithReExecute("/Home/StatusCode", "?code={0}");
+
+// Global Security Headers Middleware
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "SAMEORIGIN");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.Response.Headers.Append("Permissions-Policy", "camera=(self), microphone=(), geolocation=()");
+    context.Response.Headers.Append("Content-Security-Policy",
+        "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://checkout.razorpay.com; " +
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+        "font-src 'self' https://fonts.gstatic.com data:; " +
+        "img-src 'self' data: https://*.googleusercontent.com; " +
+        "connect-src 'self' https://api.razorpay.com wss: ws:; " +
+        "frame-src 'self' https://api.razorpay.com; " +
+        "object-src 'none'; " +
+        "base-uri 'self'; " +
+        "form-action 'self';");
+
+    await next();
+});
 
 app.UseRouting();
+
+// Built-in Rate Limiting middleware
+app.UseRateLimiter();
 
 // Authentication & Authorization middleware
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+// Health check endpoint for system uptime & database connectivity checks
+app.MapHealthChecks("/health");
 
 app.MapHub<NotificationHub>("/hubs/notifications");
 
