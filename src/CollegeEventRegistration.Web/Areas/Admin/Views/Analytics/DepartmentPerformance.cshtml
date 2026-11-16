@@ -1,0 +1,130 @@
+@model IReadOnlyList<CollegeEventRegistration.Core.DTOs.DepartmentPerformanceReportItemDto>
+@using CollegeEventRegistration.Core.DTOs
+@using CollegeEventRegistration.Core.Entities
+@{
+    ViewData["Title"] = "Department Performance Report";
+    Layout = "_DashboardLayout";
+    var filter = ViewBag.Filter as AnalyticsFilterDto ?? new AnalyticsFilterDto();
+    var departments = ViewBag.Departments as List<Department> ?? new List<Department>();
+}
+
+<div class="container-fluid px-0">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <a asp-action="Index" class="text-decoration-none text-muted small">&larr; Back to Analytics Hub</a>
+            </div>
+            <h1 class="h3 mb-0 text-dark fw-bold">Department Performance Comparison</h1>
+            <p class="text-muted small mb-0">Cross-department metrics on academic event activity, student engagement, attendance adherence, and satisfaction.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="ExportCsv" asp-route-reportType="departments" 
+               asp-route-periodPreset="@filter.PeriodPreset"
+               asp-route-departmentId="@filter.DepartmentId"
+               class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>Export CSV</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <form method="get" asp-action="DepartmentPerformance" class="row g-2 align-items-end">
+                <div class="col-md-4 col-sm-6">
+                    <label class="form-label small fw-semibold text-muted mb-1">Period Preset</label>
+                    <select name="PeriodPreset" class="form-select form-select-sm">
+                        <option value="all" selected="@(filter.PeriodPreset == "all" || string.IsNullOrEmpty(filter.PeriodPreset))">All Time</option>
+                        <option value="last7days" selected="@(filter.PeriodPreset == "last7days")">Last 7 Days</option>
+                        <option value="last30days" selected="@(filter.PeriodPreset == "last30days")">Last 30 Days</option>
+                        <option value="last90days" selected="@(filter.PeriodPreset == "last90days")">Last 90 Days</option>
+                        <option value="currentmonth" selected="@(filter.PeriodPreset == "currentmonth")">Current Month</option>
+                        <option value="currentyear" selected="@(filter.PeriodPreset == "currentyear")">Current Year</option>
+                    </select>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                    <label class="form-label small fw-semibold text-muted mb-1">Specific Department</label>
+                    <select name="DepartmentId" class="form-select form-select-sm">
+                        <option value="">All Departments</option>
+                        @foreach (var dept in departments)
+                        {
+                            <option value="@dept.Id" selected="@(filter.DepartmentId == dept.Id)">@dept.Name (@dept.Code)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4 col-sm-12 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-sm flex-fill">Apply Filter</button>
+                    <a asp-action="DepartmentPerformance" class="btn btn-outline-secondary btn-sm">Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Department Name</th>
+                            <th>Code</th>
+                            <th>Total Events</th>
+                            <th>Total Regs</th>
+                            <th>Confirmed</th>
+                            <th>Attendance</th>
+                            <th>Attendance %</th>
+                            <th>Revenue (INR)</th>
+                            <th>Avg Rating</th>
+                            <th class="pe-3">Certs</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="10" class="text-center py-5 text-muted">No department performance data found.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var dept in Model)
+                            {
+                                <tr>
+                                    <td class="ps-3 fw-bold text-dark">@dept.DepartmentName</td>
+                                    <td><span class="badge bg-secondary-subtle text-secondary">@dept.DepartmentCode</span></td>
+                                    <td class="fw-semibold">@dept.TotalEvents</td>
+                                    <td>@dept.TotalRegistrations</td>
+                                    <td class="text-success fw-bold">@dept.ConfirmedRegistrations</td>
+                                    <td>@dept.AttendanceCount</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="progress flex-fill" style="width: 60px; height: 5px;">
+                                                <div class="progress-bar bg-info" role="progressbar" style="width: @Math.Min(100, dept.AttendancePercentage)%"></div>
+                                            </div>
+                                            <span class="fw-semibold">@dept.AttendancePercentage%</span>
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold text-dark">₹@dept.VerifiedRevenue.ToString("N0")</td>
+                                    <td>
+                                        @if (dept.AverageFeedbackRating > 0)
+                                        {
+                                            <span class="fw-bold text-dark">@dept.AverageFeedbackRating.ToString("F1")</span>
+                                            <span class="text-warning">★</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">N/A</span>
+                                        }
+                                    </td>
+                                    <td class="pe-3 fw-semibold text-primary">@dept.CertificatesIssued</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

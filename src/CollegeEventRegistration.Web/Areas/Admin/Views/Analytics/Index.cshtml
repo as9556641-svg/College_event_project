@@ -1,0 +1,489 @@
+@model CollegeEventRegistration.Core.DTOs.DashboardAnalyticsSummaryDto
+@using CollegeEventRegistration.Core.DTOs
+@using CollegeEventRegistration.Core.Entities
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Campus Analytics & Reports";
+    Layout = "_DashboardLayout";
+    var filter = ViewBag.Filter as AnalyticsFilterDto ?? new AnalyticsFilterDto();
+    var departments = ViewBag.Departments as List<Department> ?? new List<Department>();
+    var categories = ViewBag.Categories as List<EventCategory> ?? new List<EventCategory>();
+}
+
+<div class="container-fluid px-0">
+    <!-- Header with Quick Exports -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h1 class="h3 mb-1 text-dark fw-bold">Campus Analytics & Reports</h1>
+            <p class="text-muted small mb-0">Institutional performance telemetry, registration trends, financial records, and operational aggregates.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-action="ExportPdf" 
+               asp-route-periodPreset="@filter.PeriodPreset"
+               asp-route-departmentId="@filter.DepartmentId"
+               asp-route-eventCategoryId="@filter.EventCategoryId"
+               asp-route-startDate="@filter.StartDate?.ToString("yyyy-MM-dd")"
+               asp-route-endDate="@filter.EndDate?.ToString("yyyy-MM-dd")"
+               class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 shadow-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <span>Executive PDF</span>
+            </a>
+            <div class="dropdown">
+                <button class="btn btn-primary btn-sm dropdown-toggle d-flex align-items-center gap-1 shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    <span>Export CSV</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li><a class="dropdown-item small" asp-action="ExportCsv" asp-route-reportType="events" asp-route-periodPreset="@filter.PeriodPreset" asp-route-departmentId="@filter.DepartmentId" asp-route-eventCategoryId="@filter.EventCategoryId">Event Performance CSV</a></li>
+                    <li><a class="dropdown-item small" asp-action="ExportCsv" asp-route-reportType="departments" asp-route-periodPreset="@filter.PeriodPreset">Department Performance CSV</a></li>
+                    <li><a class="dropdown-item small" asp-action="ExportCsv" asp-route-reportType="registrations" asp-route-periodPreset="@filter.PeriodPreset" asp-route-departmentId="@filter.DepartmentId">Registrations Ledger CSV</a></li>
+                    <li><a class="dropdown-item small" asp-action="ExportCsv" asp-route-reportType="attendance" asp-route-periodPreset="@filter.PeriodPreset" asp-route-departmentId="@filter.DepartmentId">Attendance Records CSV</a></li>
+                    <li><a class="dropdown-item small" asp-action="ExportCsv" asp-route-reportType="financials" asp-route-periodPreset="@filter.PeriodPreset" asp-route-departmentId="@filter.DepartmentId">Verified Financials CSV</a></li>
+                    <li><a class="dropdown-item small" asp-action="ExportCsv" asp-route-reportType="feedback" asp-route-periodPreset="@filter.PeriodPreset" asp-route-departmentId="@filter.DepartmentId">Feedback Evaluations CSV</a></li>
+                    <li><a class="dropdown-item small" asp-action="ExportCsv" asp-route-reportType="certificates" asp-route-periodPreset="@filter.PeriodPreset" asp-route-departmentId="@filter.DepartmentId">Certificates Registry CSV</a></li>
+                </ul>
+            </div>
+            <a asp-action="EventPerformance" class="btn btn-outline-secondary btn-sm shadow-sm">Detailed Event Table</a>
+            <a asp-action="DepartmentPerformance" class="btn btn-outline-secondary btn-sm shadow-sm">Department Overview</a>
+        </div>
+    </div>
+
+    <!-- Filter Control Card -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <form method="get" asp-action="Index" class="row g-2 align-items-end">
+                <div class="col-md-3 col-sm-6">
+                    <label class="form-label small fw-semibold text-muted mb-1">Reporting Period</label>
+                    <select name="PeriodPreset" class="form-select form-select-sm">
+                        <option value="all" selected="@(filter.PeriodPreset == "all" || string.IsNullOrEmpty(filter.PeriodPreset))">All Time</option>
+                        <option value="last7days" selected="@(filter.PeriodPreset == "last7days")">Last 7 Days</option>
+                        <option value="last30days" selected="@(filter.PeriodPreset == "last30days")">Last 30 Days</option>
+                        <option value="last90days" selected="@(filter.PeriodPreset == "last90days")">Last 90 Days</option>
+                        <option value="currentmonth" selected="@(filter.PeriodPreset == "currentmonth")">Current Month</option>
+                        <option value="currentyear" selected="@(filter.PeriodPreset == "currentyear")">Current Year</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <label class="form-label small fw-semibold text-muted mb-1">Department</label>
+                    <select name="DepartmentId" class="form-select form-select-sm">
+                        <option value="">All Departments</option>
+                        @foreach (var dept in departments)
+                        {
+                            <option value="@dept.Id" selected="@(filter.DepartmentId == dept.Id)">@dept.Name (@dept.Code)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <label class="form-label small fw-semibold text-muted mb-1">Category</label>
+                    <select name="EventCategoryId" class="form-select form-select-sm">
+                        <option value="">All Categories</option>
+                        @foreach (var cat in categories)
+                        {
+                            <option value="@cat.Id" selected="@(filter.EventCategoryId == cat.Id)">@cat.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <label class="form-label small fw-semibold text-muted mb-1">Search Keyword</label>
+                    <input type="text" name="SearchTerm" value="@filter.SearchTerm" class="form-control form-control-sm" placeholder="Title, Venue..." />
+                </div>
+                <div class="col-md-2 col-sm-12 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-sm flex-fill">Apply</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- KPI Metric Cards Grid -->
+    <div class="row g-3 mb-4">
+        <!-- Events KPI -->
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card border-0 shadow-sm h-100 border-start border-4 border-primary">
+                <div class="card-body p-3">
+                    <div class="text-uppercase text-muted small fw-bold">Events</div>
+                    <div class="h3 fw-bold my-1 text-dark">@Model.Events.TotalEvents</div>
+                    <div class="small text-muted">
+                        <span class="text-success fw-semibold">@Model.Events.PublishedEvents</span> Published &bull; 
+                        <span class="text-info fw-semibold">@Model.Events.UpcomingEvents</span> Upcoming
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registrations KPI -->
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card border-0 shadow-sm h-100 border-start border-4 border-success">
+                <div class="card-body p-3">
+                    <div class="text-uppercase text-muted small fw-bold">Registrations</div>
+                    <div class="h3 fw-bold my-1 text-dark">@Model.Registrations.TotalRegistrations</div>
+                    <div class="small text-muted">
+                        <span class="text-success fw-semibold">@Model.Registrations.ConfirmedRegistrations</span> Confirmed &bull; 
+                        <span class="text-primary fw-semibold">@Model.Registrations.ConversionRate%</span> Rate
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance KPI -->
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card border-0 shadow-sm h-100 border-start border-4 border-info">
+                <div class="card-body p-3">
+                    <div class="text-uppercase text-muted small fw-bold">Attendance</div>
+                    <div class="h3 fw-bold my-1 text-dark">@Model.Attendance.AttendancePercentage%</div>
+                    <div class="small text-muted">
+                        <span class="text-dark fw-semibold">@Model.Attendance.CheckedInCount</span> of @Model.Attendance.EligibleRegistrations attended
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financials KPI -->
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card border-0 shadow-sm h-100 border-start border-4 border-warning">
+                <div class="card-body p-3">
+                    <div class="text-uppercase text-muted small fw-bold">Net Revenue</div>
+                    <div class="h3 fw-bold my-1 text-dark">₹@Model.Financials.NetCollectedRevenue.ToString("N0")</div>
+                    <div class="small text-muted">
+                        <span class="text-success fw-semibold">@Model.Financials.SuccessfulTransactionsCount</span> Verified Payments
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback KPI -->
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card border-0 shadow-sm h-100 border-start border-4 border-secondary">
+                <div class="card-body p-3">
+                    <div class="text-uppercase text-muted small fw-bold">Satisfaction</div>
+                    <div class="h3 fw-bold my-1 text-dark">@Model.Feedback.AverageOverallRating <span class="text-warning small fs-6">★</span></div>
+                    <div class="small text-muted">
+                        <span class="text-dark fw-semibold">@Model.Feedback.TotalSubmissions</span> Submissions
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Certificates KPI -->
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card border-0 shadow-sm h-100 border-start border-4 border-danger">
+                <div class="card-body p-3">
+                    <div class="text-uppercase text-muted small fw-bold">Certificates</div>
+                    <div class="h3 fw-bold my-1 text-dark">@Model.Certificates.ActiveCount</div>
+                    <div class="small text-muted">
+                        <span class="text-muted">@Model.Certificates.TotalIssued Total Issued</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row g-4 mb-4">
+        <!-- Line Chart: Monthly Registrations Trend -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 pt-3 px-3 d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0 text-dark">Monthly Registration Trajectory</h6>
+                    <span class="badge bg-primary-subtle text-primary">Student Demand</span>
+                </div>
+                <div class="card-body p-3">
+                    <canvas id="chartMonthlyRegs" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Line Chart: Monthly Revenue Trend -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 pt-3 px-3 d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0 text-dark">Verified Revenue Stream (INR)</h6>
+                    <span class="badge bg-warning-subtle text-warning">Financials</span>
+                </div>
+                <div class="card-body p-3">
+                    <canvas id="chartMonthlyRev" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bar Chart: Department-wise Registrations -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 pt-3 px-3 d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0 text-dark">Registrations by Department</h6>
+                    <span class="badge bg-info-subtle text-info">Campus Units</span>
+                </div>
+                <div class="card-body p-3">
+                    <canvas id="chartDeptRegs" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doughnut Charts: Attendance & Feedback Distributions -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 pt-3 px-3">
+                    <h6 class="fw-bold mb-0 text-dark">Attendance Ratio</h6>
+                </div>
+                <div class="card-body p-3 d-flex flex-column justify-content-center align-items-center">
+                    <div style="width: 190px; height: 190px;">
+                        <canvas id="chartAttendance"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 pt-3 px-3">
+                    <h6 class="fw-bold mb-0 text-dark">Feedback Rating Spread</h6>
+                </div>
+                <div class="card-body p-3 d-flex flex-column justify-content-center align-items-center">
+                    <div style="width: 190px; height: 190px;">
+                        <canvas id="chartFeedback"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Tables: Top Events & Department Performance Preview -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 pt-3 px-3 d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0 text-dark">Top Events by Participation</h6>
+                    <a asp-action="EventPerformance" class="btn btn-link btn-sm text-decoration-none p-0">View All &rarr;</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 small">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">Event Title</th>
+                                    <th>Department</th>
+                                    <th>Confirmed</th>
+                                    <th>Capacity</th>
+                                    <th class="pe-3">Utilization</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.TopEventsByRegistrations.Any())
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">No event registrations found matching criteria.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var ev in Model.TopEventsByRegistrations)
+                                    {
+                                        <tr>
+                                            <td class="ps-3 fw-semibold text-dark">@ev.Title</td>
+                                            <td><span class="badge bg-secondary-subtle text-secondary">@ev.DepartmentName</span></td>
+                                            <td class="fw-bold text-success">@ev.ConfirmedCount</td>
+                                            <td>@ev.TotalCapacity</td>
+                                            <td class="pe-3">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="progress flex-fill" style="height: 6px;">
+                                                        <div class="progress-bar bg-primary" role="progressbar" style="width: @Math.Min(100, ev.CapacityUtilization)%"></div>
+                                                    </div>
+                                                    <span class="small fw-semibold text-muted">@ev.CapacityUtilization%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 pt-3 px-3 d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0 text-dark">Department Performance Highlights</h6>
+                    <a asp-action="DepartmentPerformance" class="btn btn-link btn-sm text-decoration-none p-0">Full Report &rarr;</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 small">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">Department</th>
+                                    <th>Events</th>
+                                    <th>Registrations</th>
+                                    <th class="pe-3">Att. %</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.DepartmentPerformance.Any())
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">No department activity recorded.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var dept in Model.DepartmentPerformance.Take(5))
+                                    {
+                                        <tr>
+                                            <td class="ps-3 fw-semibold">@dept.DepartmentName</td>
+                                            <td>@dept.TotalEvents</td>
+                                            <td class="fw-bold text-primary">@dept.ConfirmedRegistrations</td>
+                                            <td class="pe-3 text-info fw-semibold">@dept.AttendancePercentage%</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Data serialized from model
+            const regLabels = @Html.Raw(JsonSerializer.Serialize(Model.MonthlyRegistrationTrend.Select(x => x.Label)));
+            const regCounts = @Html.Raw(JsonSerializer.Serialize(Model.MonthlyRegistrationTrend.Select(x => x.Count)));
+
+            const revLabels = @Html.Raw(JsonSerializer.Serialize(Model.MonthlyRevenueTrend.Select(x => x.Label)));
+            const revValues = @Html.Raw(JsonSerializer.Serialize(Model.MonthlyRevenueTrend.Select(x => x.Value)));
+
+            const deptLabels = @Html.Raw(JsonSerializer.Serialize(Model.DepartmentRegistrationDistribution.Select(x => x.Category)));
+            const deptCounts = @Html.Raw(JsonSerializer.Serialize(Model.DepartmentRegistrationDistribution.Select(x => x.Count)));
+
+            const attLabels = @Html.Raw(JsonSerializer.Serialize(Model.AttendanceDistribution.Select(x => x.Category)));
+            const attCounts = @Html.Raw(JsonSerializer.Serialize(Model.AttendanceDistribution.Select(x => x.Count)));
+
+            const feedLabels = @Html.Raw(JsonSerializer.Serialize(Model.FeedbackRatingDistribution.Select(x => x.Category)));
+            const feedCounts = @Html.Raw(JsonSerializer.Serialize(Model.FeedbackRatingDistribution.Select(x => x.Count)));
+
+            // 1. Monthly Registrations Line Chart
+            const ctxReg = document.getElementById('chartMonthlyRegs');
+            if (ctxReg) {
+                new Chart(ctxReg, {
+                    type: 'line',
+                    data: {
+                        labels: regLabels.length ? regLabels : ['No Data'],
+                        datasets: [{
+                            label: 'Registrations',
+                            data: regCounts.length ? regCounts : [0],
+                            borderColor: '#712dfc',
+                            backgroundColor: 'rgba(113, 45, 252, 0.1)',
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#712dfc'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                    }
+                });
+            }
+
+            // 2. Monthly Revenue Line Chart
+            const ctxRev = document.getElementById('chartMonthlyRev');
+            if (ctxRev) {
+                new Chart(ctxRev, {
+                    type: 'line',
+                    data: {
+                        labels: revLabels.length ? revLabels : ['No Data'],
+                        datasets: [{
+                            label: 'Collected Revenue (INR)',
+                            data: revValues.length ? revValues : [0],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#f59e0b'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+            }
+
+            // 3. Department Registrations Bar Chart
+            const ctxDept = document.getElementById('chartDeptRegs');
+            if (ctxDept) {
+                new Chart(ctxDept, {
+                    type: 'bar',
+                    data: {
+                        labels: deptLabels.length ? deptLabels : ['No Data'],
+                        datasets: [{
+                            label: 'Confirmed Registrations',
+                            data: deptCounts.length ? deptCounts : [0],
+                            backgroundColor: '#0ea5e9',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                    }
+                });
+            }
+
+            // 4. Attendance Doughnut
+            const ctxAtt = document.getElementById('chartAttendance');
+            if (ctxAtt) {
+                new Chart(ctxAtt, {
+                    type: 'doughnut',
+                    data: {
+                        labels: attLabels.length ? attLabels : ['No Data'],
+                        datasets: [{
+                            data: attCounts.length ? attCounts : [1],
+                            backgroundColor: ['#10b981', '#cbd5e1']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+
+            // 5. Feedback Rating Distribution
+            const ctxFeed = document.getElementById('chartFeedback');
+            if (ctxFeed) {
+                new Chart(ctxFeed, {
+                    type: 'doughnut',
+                    data: {
+                        labels: feedLabels.length ? feedLabels : ['No Data'],
+                        datasets: [{
+                            data: feedCounts.length ? feedCounts : [1],
+                            backgroundColor: ['#ef4444', '#f97316', '#facc15', '#38bdf8', '#22c55e']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+        });
+    </script>
+}

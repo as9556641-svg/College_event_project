@@ -99,6 +99,10 @@ public static class DependencyInjection
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IAnnouncementService, AnnouncementService>();
 
+        // Register Phase 14 Analytics & Reporting Services
+        services.AddScoped<IAnalyticsService, AnalyticsService>();
+        services.AddScoped<IReportExportService, ReportExportService>();
+
         return services;
     }
 }

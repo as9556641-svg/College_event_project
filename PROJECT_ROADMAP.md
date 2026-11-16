@@ -28,7 +28,7 @@
 | **11** | **Feedback & Ratings** | Post-event student feedback form, 5-star rating, quantitative and qualitative questions, feedback aggregation, coordinator feedback report. | `EventFeedback` entity and table exist in database with unique constraint `IX_EventFeedbacks_RegistrationId`. | Entity mapping and database schema verified. | `FeedbackService`, `IFeedbackService`, `FeedbackDtos`, student submission workflow, coordinator rating analytics, admin campus ledger, 47/47 automated tests passed. | **COMPLETED (47/47 TESTS PASSED)** |
 | **12** | **Automated Certificate Generation** | Certificate template designer, dynamic student name/event replacement, PDF certificate generation, certificate verification portal. | `CertificateTemplate` and `Certificate` entities exist in database with unique indexes on `RegistrationId`, `CertificateNumber`, and `VerificationToken`. | Entity mapping and database schema verified via EF Core migration `AddCertificateEntity`. | QuestPDF server-side A4 landscape rendering engine, `CertificateService`, public verification portal, student portal, coordinator/admin ledgers, 21/21 automated tests passed (commit `0774e5c`). | **COMPLETED (21/21 TESTS PASSED)** |
 | **13** | **Notifications & Announcements** | Email notification service (SMTP/Channel queue), in-app notification center, event announcement broadcasts, registration confirmation triggers, real-time SignalR notifications. | `Notification` and `Announcement` entities, `NotificationService`, `AnnouncementService`, `EmailService`, `QueuedEmailBackgroundService`, `NotificationHub`, controllers & Razor views across Student, Coordinator, and Admin areas. | Verified in-app notification center, tenant isolation, unread counters, mark as read, mark all as read, CorrelationId deduplication, event triggers (registration, payment, waitlist promotion, attendance, certificate, event cancellation), campus & targeted announcements, coordinator event-scoping, Stored XSS defense, background email channel queue, and SignalR real-time push. 22/22 test scenarios (30/30 checks) passed cleanly. | None. All Phase 13 objectives fully implemented and verified. | **COMPLETED (22/22 TESTS PASSED)** |
-| **14** | **Analytics & Reporting** | Administrative reports, participation trends, revenue summaries, department engagement charts, export to Excel/CSV/PDF. | Metric queries exist in Admin and SuperAdmin controllers; schema tracks historical registrations and payments. | Database queries for department and event metrics verified. | Chart.js interactive visualizations, CSV/Excel export service, executive PDF attendance and revenue summary reports. | **PENDING** |
+| **14** | **Analytics & Reporting** | Campus-wide analytics dashboard, event-scoped coordinator analytics, department performance comparison, RFC 4180 CSV export with DDE formula injection escaping & UTF-8 BOM, executive PDF analytics reports via QuestPDF, Chart.js visualizations. | `AnalyticsService`, `ReportExportService`, `AnalyticsDtos`, Admin & Coordinator controllers and Razor views, interactive Chart.js visualizations. | Verified campus-wide & event-scoped metrics, department performance, confirmed-only attendance denominators, verified-only financial aggregations, DDE defense (`=`, `+`, `-`, `@`, `\t`, `\r`, `%`), UTF-8 BOM, student feedback anonymity, and strict coordinator authorization. 26/26 test scenarios (58/58 checks) passed. | None. All Phase 14 analytics and reporting objectives fully implemented and verified. | **COMPLETED (26/26 TESTS PASSED | 58/58 CHECKS)** |
 | **15** | **System Hardening & Launch** | Security audit, rate limiting, SQL injection defense, security headers (CSP, HSTS), Redis distributed cache (optional), performance benchmarking. | Antiforgery tokens enforced across all POST forms, magic byte file validation, soft-delete query filters, parameterized EF Core queries. | Verified CSRF protection, file upload guards, and role-based authorization policies. | Security header middleware, response compression, output caching, production deployment manifests. | **PENDING** |
 
 ---
@@ -123,6 +123,11 @@
 - **Commit 5 (Phase 8 Payment Integration):** `abcf878` — `feat(payment): implement Phase 8 payment gateway integration and financial ledger`
 - **Commit 6 (Phase 9 QR Ticket Generation):** `ed2b967` — `feat(tickets): implement Phase 9 secure QR ticket generation and validation`
 - **Commit 7 (Phase 10 Attendance Management):** `e0e58f7` — `feat(attendance): implement Phase 10 attendance management, live QR scanner, and duplicate check-in protection`
+- **Commit 8 (Phase 11 Feedback & Ratings):** `73869f2` — `feat(feedback): implement Phase 11 post-event feedback, rating aggregation, and coordinator analytics`
+- **Commit 9 (Phase 12 Automated Certificate Generation):** `0774e5c` — `feat(certificates): implement automated certificate generation, PDF engine & verification portal`
+- **Commit 10 (Phase 12 Security Audit Fix):** `9141d83` — `fix(security): move certificate PDF storage outside wwwroot and enforce authorized controller streaming`
+- **Commit 11 (Phase 13 Notifications & Announcements):** `f182e60` — `feat(phase-13): implement notifications, campus announcements, email background queue, and SignalR hub`
+- **Commit 12 (Phase 14 Analytics & Reporting):** `PENDING_COMMIT` — `feat(analytics): implement campus and coordinator analytics dashboards, CSV/PDF reports, and Chart.js visualizations`
 
 ---
 
@@ -346,8 +351,61 @@
 
 ---
 
-## 11. Strict Boundary Rules for Next Phase
+## 12. Phase 14 Completion Summary — Analytics & Reporting
 
-- **Current Status:** Phase 13 is **COMPLETED & VERIFIED (22/22 SCENARIOS PASSED | 479/479 FULL REGRESSION SUITE PASSED)**.
-- **Strict Boundary:** No reports/analytics (Phase 14) or system hardening (Phase 15) was implemented in Phase 13.
-- **Rule:** Phase 14 (Reports & Analytics) will only be commenced upon explicit user instruction, maintaining step-by-step verified architectural integrity.
+1. **Architecture & Service Layer (`IAnalyticsService`, `AnalyticsService`):**
+   - Implemented high-performance server-side EF Core aggregations, projections, and grouping queries (`AsNoTracking()`).
+   - Standardized `AnalyticsFilterDto` supporting predefined date ranges (`today`, `this_week`, `this_month`, `this_quarter`, `this_year`, `all_time`) and custom date intervals, department, category, and event filtering.
+   - Comprehensive multi-domain KPIs:
+     - **Events:** Total, Published, Ongoing, Completed, Cancelled, and Free vs Paid breakdown.
+     - **Registrations:** Total, Confirmed, Pending, Waitlisted, Cancelled, and Attendance/Conversion rates.
+     - **Attendance:** Total check-ins, show-up rate with strict denominator precision (confirmed registrations only, excluding cancelled and waitlisted).
+     - **Financials:** Gross revenue, total refunds, and net revenue strictly aggregated from verified successful payments (`PaymentStatus.Success`), deducting verified refunds (`RefundedAmount`), completely excluding pending and failed transactions.
+     - **Feedback:** Total reviews, average rating, rating distribution (1 to 5 stars), and percentage of satisfied attendees (&ge; 4 stars).
+     - **Certificates:** Total issued certificates, total verified, and issuance rate against checked-in attendees.
+   - Department performance comparison matrix analyzing event volume, registrations, attendance show-up percentage, total revenue, and average feedback score.
+   - Event-scoped analytics for Coordinators: strictly scoped to assigned events, rejecting unassigned event access with `UnauthorizedAccessException`.
+
+2. **Reporting & Secure Export Service (`IReportExportService`, `ReportExportService`):**
+   - **RFC 4180 CSV Generator:**
+     - Formula Injection (DDE) Defense: Neutralizes cells starting with `=`, `+`, `-`, `@`, `\t`, `\r`, or `%` by prepending a single quote `'` to prevent malicious macro execution in Excel/Calc.
+     - Excel UTF-8 Compatibility: Explicitly prepends 3-byte UTF-8 BOM (`0xEF, 0xBB, 0xBF`) to ensure clean rendering of international characters and currency symbols.
+     - Student Privacy Protection: Feedback exports strictly mask student name and roll number to preserve anonymous evaluation integrity.
+     - Supported tabular datasets: Event Performance, Department Comparison, Registrations, Attendance Check-Ins, Financial Transactions, Feedback Ratings, and Issued Certificates.
+   - **Executive Analytics Summary PDF Generator:**
+     - High-resolution, professional A4 landscape document rendered server-side via QuestPDF.
+     - Styled with institutional VAP University header, generation timestamp, active filter scope, executive summary KPI grid, department performance table, financial breakdown, and student satisfaction metrics.
+     - Immutable audit logging: Persists audit entry in `AuditLogs` for every CSV and PDF export with user ID, report type, filter parameters, and timestamp.
+
+3. **Controllers & Authorization:**
+   - `CollegeEventRegistration.Web.Areas.Admin.Controllers.AnalyticsController`:
+     - Secured with `[Authorize(Roles = "Admin,SuperAdmin")]`.
+     - Endpoints for Campus Dashboard (`Index`), Tabular Event Performance (`EventPerformance`), Department Comparison (`DepartmentPerformance`), CSV Export (`ExportCsv`), and PDF Export (`ExportPdf`).
+   - `CollegeEventRegistration.Web.Areas.Coordinator.Controllers.AnalyticsController`:
+     - Secured with `[Authorize(Roles = "Coordinator,Admin,SuperAdmin")]`.
+     - Scoped strictly to coordinator's assigned events; unassigned event requests return 403 Forbidden.
+     - Endpoints for Event Dashboard (`Index`), Tabular Performance (`EventPerformance`), CSV Export (`ExportCsv`), and Scoped PDF Export (`ExportPdf`).
+
+4. **User Interface & Visualizations:**
+   - Dedicated Admin & Coordinator Analytics views with responsive metric cards, date-range selectors, filter dropdowns, and export triggers.
+   - Integrated Chart.js visualizations:
+     - Monthly Registration & Attendance Trends (Line / Bar)
+     - Revenue Stream Breakdown (Bar / Area)
+     - Department Participation Share (Doughnut / Pie)
+     - Attendance Show-up vs No-Show Ratio (Doughnut)
+     - Student Feedback Rating Distribution (Horizontal Bar)
+   - Activated "Analytics & Reports" navigation item in `_DashboardLayout.cshtml` with active tab highlights.
+
+5. **Automated Verification & Regression:**
+   - 26/26 test scenarios (58/58 assertion checks) in `Phase14Verifier` passed with 100% compliance.
+   - 479 regression tests passed across Phases 1–13.
+   - Total: 537 / 537 passing automated tests across the entire project with 0 failures and 0 warnings.
+   - Release build confirmed clean with 0 warnings and 0 errors.
+
+---
+
+## 13. Strict Boundary Rules for Next Phase
+
+- **Current Status:** Phase 14 is **COMPLETED & VERIFIED (26/26 SCENARIOS PASSED | 58/58 CHECKS | 537/537 FULL REGRESSION SUITE PASSED)**.
+- **Strict Boundary:** No Phase 15 features (System Hardening, CSP/HSTS Security Headers, Rate Limiting, Redis Caching, Production Deployment Manifests) were implemented in Phase 14.
+- **Rule:** Phase 15 (System Hardening & Launch) will only be commenced upon explicit user instruction, maintaining step-by-step verified architectural integrity.

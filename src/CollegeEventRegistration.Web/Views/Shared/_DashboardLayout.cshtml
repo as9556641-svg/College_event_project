@@ -215,15 +215,15 @@
                         </svg>
                         <span>Notifications</span>
                     </a>
-                    <span class="dash-nav-link dash-nav-link-disabled" aria-disabled="true">
+                    <a asp-area="Admin" asp-controller="Analytics" asp-action="Index" 
+                       class="dash-nav-link @(currentArea == "Admin" && currentController == "Analytics" ? "active" : "")">
                         <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="18" y1="20" x2="18" y2="10"></line>
                             <line x1="12" y1="20" x2="12" y2="4"></line>
                             <line x1="6" y1="20" x2="6" y2="14"></line>
                         </svg>
-                        <span>Reports</span>
-                        <span class="badge bg-secondary-subtle text-secondary small ms-auto">Planned</span>
-                    </span>
+                        <span>Analytics & Reports</span>
+                    </a>
                 }
                 else if (User.IsInRole(nameof(UserRole.Coordinator)))
                 {
@@ -318,6 +318,15 @@
                             <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
                         </svg>
                         <span>Notifications</span>
+                    </a>
+                    <a asp-area="Coordinator" asp-controller="Analytics" asp-action="Index" 
+                       class="dash-nav-link @(currentArea == "Coordinator" && currentController == "Analytics" ? "active" : "")">
+                        <svg class="dash-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                        <span>Analytics & Reports</span>
                     </a>
                 }
                 else
