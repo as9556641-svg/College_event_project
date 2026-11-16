@@ -13,50 +13,48 @@
     };
 }
 
-<div class="container-xl my-4">
-    <div class="mb-4">
-        <a asp-area="Student" asp-controller="Announcements" asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3">
-            <i class="bi bi-arrow-left me-1"></i> Back to Announcements
-        </a>
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-4 p-md-5">
-                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                    <span class="badge @priorityBadge fs-6">@Model.Priority Priority</span>
-                    @if (Model.AudienceType == AnnouncementAudience.Department && !string.IsNullOrEmpty(Model.DepartmentName))
-                    {
-                        <span class="badge bg-secondary-subtle text-secondary border">@Model.DepartmentName</span>
-                    }
-                    else if (Model.AudienceType == AnnouncementAudience.EventParticipants && !string.IsNullOrEmpty(Model.EventTitle))
-                    {
-                        <span class="badge bg-info-subtle text-info border">Event: @Model.EventTitle</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-light text-muted border">Campus Wide</span>
-                    }
-                    <span class="text-muted small ms-auto">
-                        Published: @(Model.PublishedAt.HasValue ? Model.PublishedAt.Value.ToString("f") : Model.CreatedAt.ToString("f"))
-                    </span>
-                </div>
-
-                <h2 class="fw-bold text-dark mb-4" style="letter-spacing: -0.02em;">@Model.Title</h2>
-
-                <div class="p-3 bg-light rounded-3 mb-4 text-secondary small">
-                    <div class="row g-2">
-                        <div class="col-sm-6">
-                            <strong>Announced By:</strong> @(Model.AuthorName ?? "University Administration")
-                        </div>
-                        @if (Model.ExpiresAt.HasValue)
-                        {
-                            <div class="col-sm-6">
-                                <strong>Valid Until:</strong> @Model.ExpiresAt.Value.ToString("d")
-                            </div>
-                        }
-                    </div>
-                </div>
-
-                <div class="announcement-content text-dark fs-6" style="line-height: 1.7; white-space: pre-wrap;">@Model.Content</div>
+<div class="mb-4">
+    <a asp-area="Student" asp-controller="Announcements" asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3">
+        &larr; Back to Announcements
+    </a>
+    <div class="sp-panel">
+        <div class="sp-panel-body p-4 p-md-5">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                <span class="badge @priorityBadge fs-6">@Model.Priority Priority</span>
+                @if (Model.AudienceType == AnnouncementAudience.Department && !string.IsNullOrEmpty(Model.DepartmentName))
+                {
+                    <span class="badge bg-secondary-subtle text-secondary border">@Model.DepartmentName</span>
+                }
+                else if (Model.AudienceType == AnnouncementAudience.EventParticipants && !string.IsNullOrEmpty(Model.EventTitle))
+                {
+                    <span class="badge bg-info-subtle text-info border">Event: @Model.EventTitle</span>
+                }
+                else
+                {
+                    <span class="badge bg-light text-muted border">Campus Wide</span>
+                }
+                <span class="text-muted small ms-auto">
+                    Published: @(Model.PublishedAt.HasValue ? Model.PublishedAt.Value.ToString("f") : Model.CreatedAt.ToString("f"))
+                </span>
             </div>
+
+            <h2 class="fw-bold text-dark mb-4" style="letter-spacing: -0.02em;">@Model.Title</h2>
+
+            <div class="p-3 bg-light rounded mb-4 text-secondary small border">
+                <div class="row g-2">
+                    <div class="col-sm-6">
+                        <strong>Announced By:</strong> @(Model.AuthorName ?? "University Administration")
+                    </div>
+                    @if (Model.ExpiresAt.HasValue)
+                    {
+                        <div class="col-sm-6">
+                            <strong>Valid Until:</strong> @Model.ExpiresAt.Value.ToString("d")
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="text-dark fs-6" style="line-height: 1.7; white-space: pre-wrap;">@Model.Content</div>
         </div>
     </div>
 </div>

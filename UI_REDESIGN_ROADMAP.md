@@ -396,8 +396,56 @@ During each phase of redesign, the following critical functional baselines must 
 
 ---
 
-## 9. Next Action & Confirmation
+## 9. Phase 16.1 — Student Portal Complete UI Redesign: **COMPLETED & VERIFIED**
 
-Phase 2 is completed and verified.
+### Executed Actions
+1. **Dedicated Institutional Student Layout (`Views/Shared/_StudentPortalLayout.cshtml`):**
+   - Left-hand navigation sidebar (collapsible for mobile, fixed for desktop) with sections:
+     - *Student Portal*: Dashboard, Discover Events, My Registrations, My Tickets, My Payments
+     - *Academics & Records*: My Feedback, My Certificates
+     - *Communications*: Announcements, Notifications
+     - *Campus Overview*: Campus Portal Link
+   - Institutional Topbar: University branding, active breadcrumb, quick notice indicator, notification bell with dynamic unread counter badge, and user profile pill with secure POST logout.
+   - Right-side slide-out **Notification Drawer**: Filter tabs (All, Announcements, Registrations, Approvals), dynamic unread badge, "Mark all read" action, per-notification "Mark read" action, direct link navigation, and SignalR live update hook.
+   - Embedded local official SignalR client library at `wwwroot/lib/signalr/signalr.min.js` (47,647 bytes), eliminating external CDN dependencies and adhering strictly to CSP headers.
+2. **Design Tokens & Stylesheets (`wwwroot/css/student-portal.css` & `wwwroot/js/student-portal.js`):**
+   - Custom CSS variables matching the university palette: `#1E3A8A` (Institutional Navy), `#0D9488` (Accent Teal), `#F8FAFC` (Slate Canvas), `#FFFFFF` (Surface).
+   - High-contrast accessible badges, digital ticket pass cards, financial ledger table wrappers, KPI cards, and empty state containers.
+   - Mobile-responsive navigation toggles, backdrop management, keyboard ESC drawer dismissal, and tab filtering.
+3. **Redesigned All 20 Student Portal Razor Views (`Areas/Student/Views/`):**
+   - `_ViewStart.cshtml`: Set `Layout = "_StudentPortalLayout";`.
+   - `Dashboard/Index.cshtml`: Hero student banner, 4 KPI cards, active enrolled events, attendance log, open events, credentials card.
+   - `Events/Index.cshtml`: Hero search bar, quick category pills, multi-parameter filter drawer/card, responsive card grid, pagination.
+   - `Events/Details.cshtml`: Event hero banner, session schedule timeline, personalized eligibility indicator, registration card with capacity progress, POST registration form.
+   - `Registrations/Index.cshtml`: Filter toolbar, registration table with status pills, and pagination.
+   - `Registrations/Details.cshtml`: Header card, admission ticket callout, verified attendance callout, feedback prompt, certificate link, payment status, event details, cancellation form.
+   - `Payments/Index.cshtml`: Financial transaction ledger, status badges, receipt/retry action triggers, pagination.
+   - `Payments/Checkout.cshtml`: Payment terminal with fee breakdown table, gateway details, secure POST payment submission.
+   - `Payments/Receipt.cshtml`: Printable academic ledger receipt with transaction metadata and print action.
+   - `Tickets/Index.cshtml`: Digital admission pass wallet grid, QR previews, status tags, pagination.
+   - `Tickets/Details.cshtml`: Institutional admission pass, QR code, schedule, and HMAC signature notice.
+   - `Tickets/Print.cshtml`: Clean printable perforated ticket sheet with `@media print` styling.
+   - `Feedback/Index.cshtml`: KPI cards, events ready for evaluation table, submitted feedback table with stars, ineligible guidance.
+   - `Feedback/Submit.cshtml`: Attendance verification callout, overall 5-star selector, dimensional ratings, qualitative comments with character counter, anonymous switch.
+   - `Feedback/Details.cshtml`: Evaluation dossier, rating stars, criteria breakdown, comments.
+   - `Certificates/Index.cshtml`: Credentials table, status badges, view/download PDF triggers, claim certificate POST form, verification portal link.
+   - `Notifications/Index.cshtml`: Filter tabs (All vs Unread), notification cards with type icons, Mark Read forms, Mark All Read header action.
+   - `Notifications/Details.cshtml`: Notification detail dossier, event reference, action link.
+   - `Announcements/Index.cshtml`: Priority badges, audience scopes, published dates, card grid, pagination.
+   - `Announcements/Details.cshtml`: Full announcement reader, priority tag, author, validity, formatted content.
+4. **Strict Scope Boundaries Upheld:**
+   - Zero changes to backend business logic, controllers, database schema, migrations, routes, or authorization rules.
+   - Non-student portals (Coordinator, Admin, Public Homepage) left completely untouched.
 
-**In strict compliance with the scope rules, development is paused. Awaiting explicit user approval before beginning Phase 3 (Global Top Navigation & Notification Drawer).**
+### Verification Results
+- **Full Solution Compilation:** Succeeded with `0 Warning(s), 0 Error(s)`.
+- **Phase 6 Verifier (Student Event Discovery):** 25 / 25 PASSED.
+- **Full 15-Suite Regression Runner:** 595 / 595 tests PASSED (100% passing).
+
+---
+
+## 10. Next Subphase
+
+Subphase 16.1 (Student Portal Complete UI Redesign) is completed and verified.
+
+**Awaiting user instructions for the next subphase (e.g. Phase 16.2 Coordinator Portal UI Redesign or other subphase).**

@@ -6,187 +6,186 @@
     var criteria = (TicketFilterCriteria)(ViewBag.Criteria ?? new TicketFilterCriteria());
 }
 
-<div class="container-xl my-4">
-    <!-- Header & Breadcrumb -->
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
-        <div>
-            <div class="d-flex align-items-center gap-2 mb-1">
-                <span class="badge bg-primary-subtle text-primary border">Admission Passes</span>
-                <span class="text-muted small">Campus Event Hub</span>
-            </div>
-            <h2 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">My Event Tickets</h2>
+<!-- Header -->
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge bg-primary-subtle text-primary border">Admission Passes</span>
+            <span class="text-muted small">Campus Event Hub</span>
         </div>
-        <div class="d-flex gap-2">
-            <a asp-area="Student" asp-controller="Registrations" asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 shadow-sm">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
-                <span>My Registrations</span>
-            </a>
-            <a asp-area="Student" asp-controller="Events" asp-action="Index" class="btn btn-primary d-inline-flex align-items-center gap-2 shadow-sm">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <span>Explore Events</span>
-            </a>
-        </div>
+        <h2 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">My Digital Admission Tickets</h2>
     </div>
-
-    <!-- Feedback Alerts -->
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
-            <div class="d-flex align-items-center gap-2">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                <span>@TempData["SuccessMessage"]</span>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
-            <div class="d-flex align-items-center gap-2">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                <span>@TempData["ErrorMessage"]</span>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    <!-- Search & Filter Bar -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-3">
-            <form method="get" class="row g-2 align-items-center">
-                <div class="col-md-6">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        </span>
-                        <input type="text" name="SearchTerm" class="form-control border-start-0" placeholder="Search by event title, ticket code or registration #..." value="@criteria.SearchTerm" />
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <select name="IsUsed" class="form-select">
-                        <option value="">All Statuses</option>
-                        <option value="false" selected="@(criteria.IsUsed == false)">Unused / Active</option>
-                        <option value="true" selected="@(criteria.IsUsed == true)">Used / Admitted</option>
-                    </select>
-                </div>
-                <div class="col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-dark w-100">Filter</button>
-                    @if (!string.IsNullOrEmpty(criteria.SearchTerm) || criteria.IsUsed.HasValue)
-                    {
-                        <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
-                    }
-                </div>
-            </form>
-        </div>
+    <div class="d-flex gap-2">
+        <a asp-area="Student" asp-controller="Registrations" asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 shadow-sm">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
+            <span>My Registrations</span>
+        </a>
+        <a asp-area="Student" asp-controller="Events" asp-action="Index" class="btn-sp-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Explore Events</span>
+        </a>
     </div>
+</div>
 
-    <!-- Ticket Cards List -->
-    @if (Model == null || !Model.Items.Any())
-    {
-        <div class="card border-0 shadow-sm p-5 text-center">
-            <div class="mb-3">
-                <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle text-muted" style="width: 72px; height: 72px;">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M7 7h10v10H7z"></path></svg>
+<!-- Feedback Alerts -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <span>@TempData["SuccessMessage"]</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>@TempData["ErrorMessage"]</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Search & Filter Bar -->
+<div class="sp-panel mb-4">
+    <div class="p-3">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </span>
+                    <input type="text" name="SearchTerm" class="form-control border-start-0" placeholder="Search by event title, ticket code or registration #..." value="@criteria.SearchTerm" />
                 </div>
             </div>
-            <h5 class="fw-bold text-dark mb-1">No Admission Tickets Found</h5>
-            <p class="text-muted small mb-3">Admission tickets with cryptographic QR codes are automatically issued for confirmed registrations.</p>
-            <div>
-                <a asp-area="Student" asp-controller="Registrations" asp-action="Index" class="btn btn-primary btn-sm px-3">View My Registrations</a>
+            <div class="col-md-3">
+                <select name="IsUsed" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="false" selected="@(criteria.IsUsed == false)">Unused / Active</option>
+                    <option value="true" selected="@(criteria.IsUsed == true)">Used / Admitted</option>
+                </select>
             </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn-sp-primary w-100 justify-content-center">Filter</button>
+                @if (!string.IsNullOrEmpty(criteria.SearchTerm) || criteria.IsUsed.HasValue)
+                {
+                    <a asp-action="Index" class="btn-sp-outline">Reset</a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Ticket Cards List -->
+@if (Model == null || !Model.Items.Any())
+{
+    <div class="sp-panel text-center py-5">
+        <div class="sp-empty-icon" style="width: 56px; height: 56px;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+                <path d="M7 7h10v10H7z"></path>
+            </svg>
         </div>
-    }
-    else
-    {
-        <div class="row g-3">
-            @foreach (var ticket in Model.Items)
-            {
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 border-0 shadow-sm position-relative overflow-hidden" style="border-radius: 0.85rem;">
-                        <div class="card-body p-4 d-flex flex-column">
-                            <!-- Top Status & Event Tag -->
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <span class="badge bg-primary-subtle text-primary border" style="font-size: 0.72rem;">@ticket.EventDepartmentCode</span>
-                                @if (ticket.Status == TicketStatus.Valid)
-                                {
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Valid Pass</span>
-                                }
-                                else if (ticket.Status == TicketStatus.Used)
-                                {
-                                    <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1">Used / Admitted</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Cancelled</span>
-                                }
+        <h5 class="fw-bold text-dark mb-1">No Admission Tickets Found</h5>
+        <p class="text-muted small mb-3">Admission tickets with cryptographic QR codes are automatically issued for confirmed registrations.</p>
+        <a asp-area="Student" asp-controller="Registrations" asp-action="Index" class="btn-sp-primary">
+            View My Registrations
+        </a>
+    </div>
+}
+else
+{
+    <div class="row g-4 mb-4">
+        @foreach (var ticket in Model.Items)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius: 14px;">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <!-- Top Status & Event Tag -->
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="badge bg-primary-subtle text-primary border" style="font-size: 0.72rem;">@ticket.EventDepartmentCode</span>
+                            @if (ticket.Status == TicketStatus.Valid)
+                            {
+                                <span class="sp-badge sp-badge-confirmed">Valid Pass</span>
+                            }
+                            else if (ticket.Status == TicketStatus.Used)
+                            {
+                                <span class="sp-badge sp-badge-attended">Used / Admitted</span>
+                            }
+                            else
+                            {
+                                <span class="sp-badge sp-badge-cancelled">Cancelled</span>
+                            }
+                        </div>
+
+                        <!-- Event Title -->
+                        <h5 class="fw-bold text-dark mb-2" style="font-size: 1.1rem; line-height: 1.35;">
+                            <a asp-action="Details" asp-route-id="@ticket.Id" class="text-decoration-none text-dark">
+                                @ticket.EventTitle
+                            </a>
+                        </h5>
+
+                        <!-- Ticket Code & Registration # -->
+                        <div class="mb-3 text-muted small">
+                            <div><strong class="text-dark">Ticket:</strong> <span class="font-monospace text-primary fw-semibold">@ticket.TicketCode</span></div>
+                            <div><strong class="text-dark">Reg #:</strong> <span class="font-monospace">@ticket.RegistrationNumber</span></div>
+                        </div>
+
+                        <!-- Venue & Schedule -->
+                        <div class="bg-light rounded p-2 mb-3 text-muted small">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                <span>@ticket.EventStartDate.ToString("MMM dd, yyyy HH:mm") UTC</span>
                             </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                <span class="text-truncate">@(ticket.EventVenue ?? "Campus Venue")</span>
+                            </div>
+                        </div>
 
-                            <!-- Event Title -->
-                            <h5 class="fw-bold text-dark mb-2" style="font-size: 1.05rem; line-height: 1.35;">
-                                <a asp-action="Details" asp-route-id="@ticket.Id" class="text-decoration-none text-dark stretched-link">
-                                    @ticket.EventTitle
+                        <!-- QR Code Preview Thumbnail -->
+                        <div class="mt-auto pt-2 text-center border-top">
+                            <img src="@ticket.QrCodeBase64" alt="QR Code" class="img-fluid rounded border p-1 bg-white mb-2" style="max-height: 120px;" />
+                            <div class="d-flex gap-2 justify-content-center">
+                                <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-sm btn-primary px-3 fw-semibold">
+                                    View Pass
                                 </a>
-                            </h5>
-
-                            <!-- Ticket Code & Registration # -->
-                            <div class="mb-3 text-muted small">
-                                <div><strong class="text-dark">Ticket:</strong> <span class="font-monospace">@ticket.TicketCode</span></div>
-                                <div><strong class="text-dark">Reg #:</strong> <span class="font-monospace">@ticket.RegistrationNumber</span></div>
-                            </div>
-
-                            <!-- Venue & Schedule -->
-                            <div class="bg-light rounded p-2 mb-3 text-muted small">
-                                <div class="d-flex align-items-center gap-2 mb-1">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                    <span>@ticket.EventStartDate.ToString("MMM dd, yyyy HH:mm") UTC</span>
-                                </div>
-                                <div class="d-flex align-items-center gap-2">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                                    <span class="text-truncate">@(ticket.EventVenue ?? "Campus Venue")</span>
-                                </div>
-                            </div>
-
-                            <!-- QR Code Preview Thumbnail -->
-                            <div class="mt-auto pt-2 text-center border-top">
-                                <img src="@ticket.QrCodeBase64" alt="QR Code" class="img-fluid rounded border p-1 bg-white mb-2" style="max-height: 110px;" />
-                                <div class="d-flex gap-2 justify-content-center position-relative" style="z-index: 2;">
-                                    <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-sm btn-primary px-3">
-                                        View Pass
-                                    </a>
-                                    <a asp-action="Print" asp-route-id="@ticket.Id" target="_blank" class="btn btn-sm btn-outline-secondary">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect width="12" height="8" x="6" y="14"></rect></svg>
-                                        Print
-                                    </a>
-                                </div>
+                                <a asp-action="Print" asp-route-id="@ticket.Id" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect width="12" height="8" x="6" y="14"></rect></svg>
+                                    Print
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
-            }
-        </div>
-
-        <!-- Pagination -->
-        @if (Model.TotalPages > 1)
-        {
-            <div class="d-flex justify-content-center mt-4">
-                <nav aria-label="Ticket pages">
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
-                            <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-searchTerm="@criteria.SearchTerm" asp-route-isUsed="@criteria.IsUsed">Previous</a>
-                        </li>
-                        @for (int p = 1; p <= Model.TotalPages; p++)
-                        {
-                            <li class="page-item @(p == Model.PageNumber ? "active" : "")">
-                                <a class="page-link" asp-action="Index" asp-route-pageNumber="@p" asp-route-searchTerm="@criteria.SearchTerm" asp-route-isUsed="@criteria.IsUsed">@p</a>
-                            </li>
-                        }
-                        <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
-                            <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-searchTerm="@criteria.SearchTerm" asp-route-isUsed="@criteria.IsUsed">Next</a>
-                        </li>
-                    </ul>
-                </nav>
             </div>
         }
+    </div>
+
+    <!-- Pagination -->
+    @if (Model.TotalPages > 1)
+    {
+        <div class="d-flex justify-content-center mt-4">
+            <nav aria-label="Ticket pages">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-searchTerm="@criteria.SearchTerm" asp-route-isUsed="@criteria.IsUsed">Previous</a>
+                    </li>
+                    @for (int p = 1; p <= Model.TotalPages; p++)
+                    {
+                        <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-pageNumber="@p" asp-route-searchTerm="@criteria.SearchTerm" asp-route-isUsed="@criteria.IsUsed">@p</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-searchTerm="@criteria.SearchTerm" asp-route-isUsed="@criteria.IsUsed">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     }
-</div>
+}

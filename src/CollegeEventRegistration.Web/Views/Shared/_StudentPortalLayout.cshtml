@@ -1,12 +1,32 @@
 @using Microsoft.AspNetCore.Identity
 @using CollegeEventRegistration.Core.Entities
+@using CollegeEventRegistration.Core.Enums
+@using CollegeEventRegistration.Core.DTOs
+@using CollegeEventRegistration.Core.Interfaces
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
+@inject INotificationService NotificationService
 @{
     var currentUser = SignInManager.IsSignedIn(User) ? await UserManager.GetUserAsync(User) : null;
     var currentArea = ViewContext.RouteData.Values["area"]?.ToString() ?? "";
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    var unreadCount = 0;
+    PagedResult<NotificationDto>? initialNotifs = null;
+
+    if (currentUser != null)
+    {
+        try
+        {
+            unreadCount = await NotificationService.GetUnreadCountAsync(currentUser.Id);
+            initialNotifs = await NotificationService.GetUserNotificationsAsync(currentUser.Id, 1, 20);
+        }
+        catch
+        {
+            // Fallback for detached or testing environments
+        }
+    }
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -17,136 +37,263 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/discovery.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/student-portal.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="portal-body">
-    <!-- Student Discovery Portal Header (Section 3.A) -->
-    <header class="portal-navbar">
-        <div class="container-xl">
-            <div class="d-flex align-items-center justify-content-between">
-                <!-- Branding -->
-                <a asp-area="Student" asp-controller="Events" asp-action="Index" class="portal-brand">
+<body class="sp-body">
+    <!-- Backdrop for Mobile Sidebar -->
+    <div class="sp-sidebar-backdrop" id="spSidebarBackdrop"></div>
+
+    <div class="sp-layout">
+        <!-- ==================================================================
+             RESPONSIVE SIDEBAR NAVIGATION
+             ================================================================== -->
+        <aside class="sp-sidebar" id="spSidebar">
+            <!-- Sidebar Header / Branding -->
+            <div class="sp-sidebar-header">
+                <a asp-area="Student" asp-controller="Dashboard" asp-action="Index" class="d-flex align-items-center gap-2 text-decoration-none">
                     <img src="~/images/branding/vap-university-logo.png" 
                          alt="VAP UNIVERSITY Logo" 
-                         class="portal-brand-logo" 
+                         class="sp-sidebar-logo" 
                          asp-append-version="true" />
                     <div>
-                        <div class="portal-brand-title">Campus Event Hub</div>
-                        <div class="portal-brand-sub">VAP UNIVERSITY</div>
+                        <div class="sp-sidebar-title">Campus Hub</div>
+                        <div class="sp-sidebar-sub">VAP UNIVERSITY</div>
                     </div>
                 </a>
+            </div>
 
-                <!-- Navigation Links -->
-                <nav class="d-none d-md-flex align-items-center gap-2">
-                    <a asp-area="Student" asp-controller="Events" asp-action="Index" 
-                       class="portal-nav-link @(currentController == "Events" ? "active" : "")">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <!-- Scrollable Navigation Items -->
+            <div class="sp-sidebar-scroll">
+                <!-- Group 1: Core Portal -->
+                <div>
+                    <div class="sp-nav-group-label">Student Portal</div>
+                    <ul class="sp-nav-list">
+                        <li>
+                            <a asp-area="Student" asp-controller="Dashboard" asp-action="Index" 
+                               class="sp-nav-link @(currentController == "Dashboard" ? "active" : "")">
+                                <svg class="sp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <rect width="7" height="9" x="3" y="3" rx="1"></rect>
+                                    <rect width="7" height="5" x="14" y="3" rx="1"></rect>
+                                    <rect width="7" height="9" x="14" y="12" rx="1"></rect>
+                                    <rect width="7" height="5" x="3" y="16" rx="1"></rect>
+                                </svg>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Student" asp-controller="Events" asp-action="Index" 
+                               class="sp-nav-link @(currentController == "Events" ? "active" : "")">
+                                <svg class="sp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                <span>Discover Events</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Student" asp-controller="Registrations" asp-action="Index" 
+                               class="sp-nav-link @(currentController == "Registrations" ? "active" : "")">
+                                <svg class="sp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <polyline points="16 11 18 13 22 9"></polyline>
+                                </svg>
+                                <span>My Registrations</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Student" asp-controller="Tickets" asp-action="Index" 
+                               class="sp-nav-link @(currentController == "Tickets" ? "active" : "")">
+                                <svg class="sp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+                                    <path d="M7 7h10v10H7z"></path>
+                                </svg>
+                                <span>My Tickets</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Student" asp-controller="Payments" asp-action="Index" 
+                               class="sp-nav-link @(currentController == "Payments" ? "active" : "")">
+                                <svg class="sp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+                                    <line x1="2" y1="10" x2="22" y2="10"></line>
+                                </svg>
+                                <span>My Payments</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Group 2: Credentials & Academics -->
+                <div>
+                    <div class="sp-nav-group-label">Academics &amp; Records</div>
+                    <ul class="sp-nav-list">
+                        <li>
+                            <a asp-area="Student" asp-controller="Feedback" asp-action="Index" 
+                               class="sp-nav-link @(currentController == "Feedback" ? "active" : "")">
+                                <svg class="sp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                </svg>
+                                <span>My Feedback</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Student" asp-controller="Certificates" asp-action="Index" 
+                               class="sp-nav-link @(currentController == "Certificates" ? "active" : "")">
+                                <svg class="sp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <circle cx="12" cy="8" r="6"></circle>
+                                    <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
+                                </svg>
+                                <span>My Certificates</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Group 3: Communications -->
+                <div>
+                    <div class="sp-nav-group-label">Communications</div>
+                    <ul class="sp-nav-list">
+                        <li>
+                            <a asp-area="Student" asp-controller="Announcements" asp-action="Index" 
+                               class="sp-nav-link @(currentController == "Announcements" ? "active" : "")">
+                                <svg class="sp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="m3 11 18-5v12L3 14v-3z"></path>
+                                    <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path>
+                                </svg>
+                                <span>Announcements</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Student" asp-controller="Notifications" asp-action="Index" 
+                               class="sp-nav-link @(currentController == "Notifications" ? "active" : "")">
+                                <svg class="sp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+                                </svg>
+                                <span>Notifications</span>
+                                <span class="badge bg-danger sp-nav-badge sp-unread-counter" style="@(unreadCount > 0 ? "" : "display:none;")">
+                                    @(unreadCount > 99 ? "99+" : unreadCount)
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Group 4: Campus Links -->
+                <div>
+                    <div class="sp-nav-group-label">Campus Overview</div>
+                    <ul class="sp-nav-list">
+                        <li>
+                            <a asp-area="" asp-controller="Home" asp-action="Index" class="sp-nav-link">
+                                <svg class="sp-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                                <span>Public Catalog</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Sidebar User Card -->
+            <div class="sp-sidebar-footer">
+                @if (currentUser != null)
+                {
+                    <div class="sp-sidebar-user">
+                        <div class="sp-user-avatar">
+                            @(!string.IsNullOrEmpty(currentUser.FirstName) ? currentUser.FirstName.Substring(0, 1).ToUpper() : "S")
+                        </div>
+                        <div class="sp-user-info">
+                            <div class="sp-user-name">@currentUser.FullName</div>
+                            <div class="sp-user-role">@(currentUser.RollNumber ?? currentUser.Department ?? "Student")</div>
+                        </div>
+                        <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-link text-white-50 p-1 hover-white" title="Sign Out">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </aside>
+
+        <!-- ==================================================================
+             MAIN APPLICATION WRAPPER
+             ================================================================== -->
+        <div class="sp-main-wrapper">
+            <!-- Topbar Header -->
+            <header class="sp-topbar">
+                <div class="sp-topbar-left">
+                    <button class="sp-menu-toggle" id="spMenuToggle" aria-label="Toggle navigation">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
                         </svg>
-                        <span>Discover Events</span>
-                    </a>
-                    <a asp-area="Student" asp-controller="Registrations" asp-action="Index" 
-                       class="portal-nav-link @(currentController == "Registrations" ? "active" : "")">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <polyline points="16 11 18 13 22 9"></polyline>
-                        </svg>
-                        <span>My Registrations</span>
-                    </a>
-                    <a asp-area="Student" asp-controller="Payments" asp-action="Index" 
-                       class="portal-nav-link @(currentController == "Payments" ? "active" : "")">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
-                            <rect width="20" height="14" x="2" y="5" rx="2"></rect>
-                            <line x1="2" y1="10" x2="22" y2="10"></line>
-                        </svg>
-                        <span>My Payments</span>
-                    </a>
-                    <a asp-area="Student" asp-controller="Tickets" asp-action="Index" 
-                       class="portal-nav-link @(currentController == "Tickets" ? "active" : "")">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
-                            <rect width="18" height="18" x="3" y="3" rx="2"></rect>
-                            <path d="M7 7h10v10H7z"></path>
-                        </svg>
-                        <span>My Tickets</span>
-                    </a>
-                    <a asp-area="Student" asp-controller="Feedback" asp-action="Index" 
-                       class="portal-nav-link @(currentController == "Feedback" ? "active" : "")">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
-                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                        </svg>
-                        <span>My Feedback</span>
-                    </a>
-                    <a asp-area="Student" asp-controller="Certificates" asp-action="Index" 
-                       class="portal-nav-link @(currentController == "Certificates" ? "active" : "")">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
-                            <circle cx="12" cy="8" r="6"></circle>
-                            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
-                        </svg>
-                        <span>My Certificates</span>
-                    </a>
+                    </button>
+
+                    <div class="sp-breadcrumb-ctx">
+                        <span class="sp-portal-badge">Student Portal</span>
+                        <span class="text-muted small">&bull;</span>
+                        <span class="sp-page-title">@ViewData["Title"]</span>
+                    </div>
+                </div>
+
+                <div class="sp-topbar-right">
+                    <!-- Announcements Quick Link -->
                     <a asp-area="Student" asp-controller="Announcements" asp-action="Index" 
-                       class="portal-nav-link @(currentController == "Announcements" ? "active" : "")">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                       class="btn btn-sm btn-light border d-none d-md-inline-flex align-items-center gap-2 text-decoration-none">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="m3 11 18-5v12L3 14v-3z"></path>
                             <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path>
                         </svg>
-                        <span>Announcements</span>
+                        <span>Notices</span>
                     </a>
-                    <a asp-area="Student" asp-controller="Notifications" asp-action="Index" 
-                       class="portal-nav-link @(currentController == "Notifications" ? "active" : "")">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+
+                    <!-- Notification Drawer Trigger Bell -->
+                    <button type="button" class="sp-notify-btn" id="spDrawerOpenBtn" aria-label="Notifications Drawer" title="Open Notifications">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
                             <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
                         </svg>
-                        <span>Notifications</span>
-                    </a>
-                    <a asp-area="Student" asp-controller="Dashboard" asp-action="Index" 
-                       class="portal-nav-link @(currentController == "Dashboard" ? "active" : "")">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
-                            <rect width="7" height="9" x="3" y="3" rx="1"></rect>
-                            <rect width="7" height="5" x="14" y="3" rx="1"></rect>
-                            <rect width="7" height="9" x="14" y="12" rx="1"></rect>
-                            <rect width="7" height="5" x="3" y="16" rx="1"></rect>
-                        </svg>
-                        <span>My Dashboard</span>
-                    </a>
-                </nav>
+                        <span class="sp-notify-badge sp-unread-counter" style="@(unreadCount > 0 ? "" : "display:none;")">
+                            @(unreadCount > 99 ? "99+" : unreadCount)
+                        </span>
+                    </button>
 
-                <!-- Student Profile & Secure Logout -->
-                <div class="d-flex align-items-center gap-3">
+                    <!-- Student Profile Dropdown -->
                     @if (currentUser != null)
                     {
                         <div class="dropdown">
-                            <button class="btn p-0 border-0 d-flex align-items-center gap-2 text-decoration-none dropdown-toggle" 
-                                    type="button" id="studentMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                <div class="student-profile-pill">
-                                    <div class="student-avatar">
+                            <button class="btn p-0 border-0 dropdown-toggle" type="button" id="studentMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="sp-profile-pill">
+                                    <div class="sp-pill-avatar">
                                         @(!string.IsNullOrEmpty(currentUser.FirstName) ? currentUser.FirstName.Substring(0, 1).ToUpper() : "S")
                                     </div>
-                                    <div class="d-none d-sm-block text-start">
-                                        <div class="fw-semibold lh-1" style="font-size: 0.85rem;">@currentUser.FullName</div>
-                                        <div class="text-muted" style="font-size: 0.72rem;">@(currentUser.RollNumber ?? currentUser.Department ?? "Student")</div>
-                                    </div>
+                                    <span class="sp-pill-name d-none d-sm-inline">@currentUser.FullName</span>
                                 </div>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-2" aria-labelledby="studentMenuDropdown" style="border-radius: 0.75rem; min-width: 220px;">
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2 mt-2" aria-labelledby="studentMenuDropdown" style="border-radius: 12px; min-width: 240px;">
                                 <li class="px-3 py-2 border-bottom">
                                     <div class="fw-bold text-dark" style="font-size: 0.9rem;">@currentUser.FullName</div>
                                     <div class="text-muted small">@currentUser.Email</div>
-                                    <div class="badge bg-primary-subtle text-primary border mt-1" style="font-size: 0.7rem;">@currentUser.CollegeName</div>
+                                    <div class="badge bg-primary-subtle text-primary border mt-1" style="font-size: 0.7rem;">
+                                        @(currentUser.Department ?? "Student") &bull; @(currentUser.RollNumber ?? "Enrolled")
+                                    </div>
                                 </li>
                                 <li>
                                     <a class="dropdown-item py-2 d-flex align-items-center gap-2" asp-area="Student" asp-controller="Dashboard" asp-action="Index">
                                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>
-                                        <span>Student Dashboard</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item py-2 d-flex align-items-center gap-2" asp-area="Student" asp-controller="Events" asp-action="Index">
-                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                        <span>Discover Events</span>
+                                        <span>Dashboard</span>
                                     </a>
                                 </li>
                                 <li>
@@ -156,21 +303,9 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item py-2 d-flex align-items-center gap-2" asp-area="Student" asp-controller="Payments" asp-action="Index">
-                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-                                        <span>My Payments</span>
-                                    </a>
-                                </li>
-                                <li>
                                     <a class="dropdown-item py-2 d-flex align-items-center gap-2" asp-area="Student" asp-controller="Tickets" asp-action="Index">
                                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M7 7h10v10H7z"></path></svg>
                                         <span>My Tickets</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item py-2 d-flex align-items-center gap-2" asp-area="Student" asp-controller="Feedback" asp-action="Index">
-                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                                        <span>My Feedback</span>
                                     </a>
                                 </li>
                                 <li>
@@ -181,7 +316,7 @@
                                 </li>
                                 <li><hr class="dropdown-divider my-1"></li>
                                 <li>
-                                    <!-- Existing Secure POST Logout -->
+                                    <!-- Secure POST Logout -->
                                     <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="px-2">
                                         @Html.AntiForgeryToken()
                                         <button type="submit" class="dropdown-item text-danger rounded py-2 d-flex align-items-center gap-2">
@@ -198,48 +333,165 @@
                         <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-primary btn-sm px-3">Log In</a>
                     }
                 </div>
-            </div>
-        </div>
-    </header>
+            </header>
 
-    <!-- Main Content Shell -->
-    <main class="flex-grow-1">
-        @RenderBody()
-    </main>
+            <!-- Main Page Content -->
+            <main class="sp-content">
+                @RenderBody()
+            </main>
 
-    <!-- Institutional Footer -->
-    <footer class="bg-white border-top py-4 mt-5">
-        <div class="container-xl">
-            <div class="row align-items-center gy-3">
-                <div class="col-md-6 text-center text-md-start">
-                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mb-1">
+            <!-- Institutional Footer -->
+            <footer class="sp-footer">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div class="d-flex align-items-center gap-2">
                         <img src="~/images/branding/vap-university-logo.png" 
                              alt="VAP UNIVERSITY" 
-                             style="height: 24px; width: auto; object-fit: contain;" 
+                             style="height: 22px; width: auto; object-fit: contain;" 
                              asp-append-version="true" />
-                        <span class="fw-bold text-dark small">VAP UNIVERSITY</span>
-                        <span class="text-muted small">&bull; Campus Event Hub</span>
+                        <span class="fw-bold text-dark">VAP UNIVERSITY</span>
+                        <span class="text-muted">&bull; Campus Event Hub</span>
                     </div>
-                    <div class="text-muted small">
-                        Official event management, discovery, and verified credential platform for VAP UNIVERSITY.
-                    </div>
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <div class="d-flex align-items-center justify-content-center justify-content-md-end gap-3 text-muted small">
+                    <div class="d-flex align-items-center gap-3 text-muted">
                         <a asp-area="Student" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none text-muted">Dashboard</a>
                         <a asp-area="Student" asp-controller="Events" asp-action="Index" class="text-decoration-none text-muted">Events</a>
                         <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-decoration-none text-muted">Privacy Policy</a>
-                    </div>
-                    <div class="text-muted small mt-1">
-                        &copy; @DateTime.UtcNow.Year VAP UNIVERSITY. All rights reserved.
+                        <span>&copy; @DateTime.UtcNow.Year VAP UNIVERSITY</span>
                     </div>
                 </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ==================================================================
+         SLIDE-OUT NOTIFICATION DRAWER (Right Edge)
+         ================================================================== -->
+    <div class="sp-drawer-backdrop" id="spDrawerBackdrop"></div>
+
+    <aside class="sp-drawer" id="spNotificationDrawer" aria-labelledby="spDrawerTitle">
+        <!-- Drawer Header -->
+        <div class="sp-drawer-header">
+            <div class="sp-drawer-title-group">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+                </svg>
+                <h5 class="sp-drawer-title" id="spDrawerTitle">Notifications</h5>
+                <span class="badge bg-danger rounded-pill sp-unread-counter" style="@(unreadCount > 0 ? "" : "display:none;")">
+                    @(unreadCount > 99 ? "99+" : unreadCount)
+                </span>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                @if (unreadCount > 0)
+                {
+                    <form asp-area="Student" asp-controller="Notifications" asp-action="MarkAllAsRead" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-link text-primary text-decoration-none p-0 fw-semibold" style="font-size: 0.78rem;" title="Mark all notifications as read">
+                            Mark all read
+                        </button>
+                    </form>
+                }
+                <button type="button" class="btn-close" id="spDrawerCloseBtn" aria-label="Close notifications drawer"></button>
             </div>
         </div>
-    </footer>
 
+        <!-- Drawer Category Tabs -->
+        <div class="sp-drawer-tabs-wrapper">
+            <div class="sp-drawer-tabs">
+                <button type="button" class="sp-drawer-tab-btn active" data-tab="all">All</button>
+                <button type="button" class="sp-drawer-tab-btn" data-tab="announcements">Announcements</button>
+                <button type="button" class="sp-drawer-tab-btn" data-tab="registrations">Registrations</button>
+                <button type="button" class="sp-drawer-tab-btn" data-tab="approvals">Approvals</button>
+            </div>
+        </div>
+
+        <!-- Drawer Scrollable Body -->
+        <div class="sp-drawer-body" id="spDrawerList">
+            @if (initialNotifs != null && initialNotifs.Items.Any())
+            {
+                foreach (var item in initialNotifs.Items)
+                {
+                    var catKey = "all";
+                    if (item.Type == NotificationType.Announcement)
+                    {
+                        catKey = "announcements";
+                    }
+                    else if (item.Type == NotificationType.RegistrationConfirmation || 
+                             item.Type == NotificationType.RegistrationCancelled ||
+                             item.Type == NotificationType.WaitlistPromoted ||
+                             item.Type == NotificationType.PaymentSuccess ||
+                             item.Type == NotificationType.PaymentFailed ||
+                             item.Type == NotificationType.TicketIssued)
+                    {
+                        catKey = "registrations";
+                    }
+                    else if (item.Type == NotificationType.AttendanceConfirmed ||
+                             item.Type == NotificationType.CertificateAvailable ||
+                             item.Type == NotificationType.CertificateRevoked)
+                    {
+                        catKey = "approvals";
+                    }
+
+                    <div class="sp-drawer-item @(!item.IsRead ? "unread" : "")" data-category="@catKey">
+                        <div class="sp-drawer-item-top">
+                            <h6 class="sp-drawer-item-title">@item.Title</h6>
+                            <span class="sp-drawer-item-time">@item.TimeAgo</span>
+                        </div>
+                        <p class="sp-drawer-item-msg">@item.Message</p>
+                        <div class="sp-drawer-item-bottom">
+                            @if (!string.IsNullOrEmpty(item.ActionUrl))
+                            {
+                                <a href="@item.ActionUrl" class="small text-primary text-decoration-none fw-semibold">
+                                    View Details &rarr;
+                                </a>
+                            }
+                            else
+                            {
+                                <span></span>
+                            }
+
+                            @if (!item.IsRead)
+                            {
+                                <form asp-area="Student" asp-controller="Notifications" asp-action="MarkAsRead" asp-route-id="@item.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-link text-muted p-0 text-decoration-none" style="font-size: 0.72rem;">
+                                        Mark read
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+
+            <!-- Empty State Container (shown when tab or list has no items) -->
+            <div class="sp-empty-state py-4" id="spDrawerEmptyState" style="@(initialNotifs != null && initialNotifs.Items.Any() ? "display:none;" : "")">
+                <div class="sp-empty-icon" style="width: 48px; height: 48px;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+                    </svg>
+                </div>
+                <h6 class="sp-empty-title" style="font-size: 0.95rem;">All Caught Up!</h6>
+                <p class="sp-empty-desc mb-0" id="spDrawerEmptyStateText" style="font-size: 0.8rem;">
+                    No new notifications in this category.
+                </p>
+            </div>
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="sp-drawer-footer">
+            <a asp-area="Student" asp-controller="Notifications" asp-action="Index" class="btn btn-sm btn-outline-primary w-100">
+                View Full Notification Center &rarr;
+            </a>
+        </div>
+    </aside>
+
+    <!-- Global JavaScript Assets -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/signalr/signalr.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/student-portal.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -1,135 +1,135 @@
 @model CollegeEventRegistration.Web.Areas.Student.Models.StudentDashboardViewModel
 @{
-    ViewData["Title"] = "Student Portal";
+    ViewData["Title"] = "Student Dashboard";
 }
 
-<!-- Welcome & Participation Header -->
-<div class="row align-items-center mb-4">
-    <div class="col-lg-8">
-        <div class="d-flex align-items-center gap-2 mb-1">
-            <span class="badge badge-role badge-role-student">Student Portal</span>
-            <span class="text-muted small">Event Passes, Registrations &amp; Certificates</span>
-        </div>
-        <h2 class="fw-bold mb-1" style="color: #0F172A; letter-spacing: -0.02em;">
-            Welcome, @(Model?.CurrentUser?.FullName ?? "Student")
-        </h2>
-        <p class="text-muted small mb-0">
-            Track your workshop enrollments, access digital admission passes, and download verified certificates.
-        </p>
-    </div>
-    <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-        <a asp-area="Student" asp-controller="Events" asp-action="Index" class="btn btn-3d-primary btn-sm d-inline-flex align-items-center gap-2">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <span>Browse Event Catalog</span>
-        </a>
-    </div>
-</div>
-
-<!-- Primary Metric Cards Grid (4 Cards) -->
-<div class="row g-3 g-xl-4 mb-4">
-    <!-- Upcoming Registered Events -->
-    <div class="col-sm-6 col-xl-3">
-        <div class="dash-metric-card">
-            <div>
-                <div class="dash-metric-header">
-                    <span class="dash-metric-label">Upcoming Events</span>
-                    <div class="dash-metric-icon-wrap icon-wrap-blue">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                        </svg>
-                    </div>
-                </div>
-                <div class="dash-metric-value text-primary">@Model?.UpcomingRegisteredEventsCount</div>
+<!-- Welcome Hero Banner -->
+<div class="sp-hero-card">
+    <div class="row align-items-center position-relative" style="z-index: 2;">
+        <div class="col-lg-8">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-white text-primary fw-bold px-3 py-1" style="font-size: 0.75rem; letter-spacing: 0.04em;">STUDENT PORTAL</span>
+                <span class="text-white-50 small">&bull;</span>
+                <span class="text-white-50 small">@(Model?.CurrentUser?.Department ?? "VAP UNIVERSITY") &bull; @(Model?.CurrentUser?.RollNumber ?? "Academic Enrolled")</span>
             </div>
-            <p class="dash-metric-subtext">Events scheduled in the future</p>
+            <h2 class="fw-bold mb-2 text-white" style="font-size: 1.85rem; letter-spacing: -0.02em;">
+                Welcome back, @(Model?.CurrentUser?.FullName ?? "Student")!
+            </h2>
+            <p class="text-white-50 mb-0" style="font-size: 0.95rem; max-width: 620px; line-height: 1.5;">
+                Track your active workshop enrollments, access cryptographically signed digital admission QR passes, and download verified university completion certificates.
+            </p>
         </div>
-    </div>
-
-    <!-- Total Registrations -->
-    <div class="col-sm-6 col-xl-3">
-        <div class="dash-metric-card">
-            <div>
-                <div class="dash-metric-header">
-                    <span class="dash-metric-label">Total Enrolled</span>
-                    <div class="dash-metric-icon-wrap icon-wrap-green">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                        </svg>
-                    </div>
-                </div>
-                <div class="dash-metric-value" style="color: #059669;">@Model?.TotalRegistrationsCount</div>
-            </div>
-            <p class="dash-metric-subtext">Lifetime campus workshop registrations</p>
-        </div>
-    </div>
-
-    <!-- Completed Events -->
-    <div class="col-sm-6 col-xl-3">
-        <div class="dash-metric-card">
-            <div>
-                <div class="dash-metric-header">
-                    <span class="dash-metric-label">Completed</span>
-                    <div class="dash-metric-icon-wrap icon-wrap-purple">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                    </div>
-                </div>
-                <div class="dash-metric-value" style="color: #7C3AED;">@Model?.CompletedEventsCount</div>
-            </div>
-            <p class="dash-metric-subtext">Past sessions and completed events</p>
-        </div>
-    </div>
-
-    <!-- Available Certificates -->
-    <div class="col-sm-6 col-xl-3">
-        <div class="dash-metric-card">
-            <div>
-                <div class="dash-metric-header">
-                    <span class="dash-metric-label">Certificates</span>
-                    <div class="dash-metric-icon-wrap icon-wrap-amber">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="8" r="7"></circle>
-                            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                        </svg>
-                    </div>
-                </div>
-                <div class="dash-metric-value text-warning">@Model?.AvailableCertificatesCount</div>
-            </div>
-            <p class="dash-metric-subtext">Verified completion credentials</p>
+        <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+            <a asp-area="Student" asp-controller="Events" asp-action="Index" class="btn btn-light text-primary fw-bold px-4 py-2 shadow-sm d-inline-flex align-items-center gap-2" style="border-radius: 10px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span>Browse Event Catalog</span>
+            </a>
         </div>
     </div>
 </div>
 
-<!-- Secondary Activity & Management Section -->
+<!-- Primary Metric Cards Grid (4 KPIs) -->
 <div class="row g-3 g-xl-4 mb-4">
-    <!-- Left Column: My Registrations & Attendance History -->
+    <!-- 1. Upcoming Registered Events -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="sp-kpi-card">
+            <div class="sp-kpi-icon-wrap sp-kpi-icon-blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+            </div>
+            <div>
+                <div class="sp-kpi-label">Upcoming Events</div>
+                <div class="sp-kpi-val text-primary">@Model?.UpcomingRegisteredEventsCount</div>
+                <p class="sp-kpi-sub">Scheduled future sessions</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Total Enrolled -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="sp-kpi-card">
+            <div class="sp-kpi-icon-wrap sp-kpi-icon-green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <polyline points="16 11 18 13 22 9"></polyline>
+                </svg>
+            </div>
+            <div>
+                <div class="sp-kpi-label">Total Enrolled</div>
+                <div class="sp-kpi-val" style="color: #059669;">@Model?.TotalRegistrationsCount</div>
+                <p class="sp-kpi-sub">Lifetime workshop registrations</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Completed Events -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="sp-kpi-card">
+            <div class="sp-kpi-icon-wrap sp-kpi-icon-purple">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <div>
+                <div class="sp-kpi-label">Completed</div>
+                <div class="sp-kpi-val" style="color: #7C3AED;">@Model?.CompletedEventsCount</div>
+                <p class="sp-kpi-sub">Past sessions attended</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Available Certificates -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="sp-kpi-card">
+            <div class="sp-kpi-icon-wrap sp-kpi-icon-amber">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="8" r="6"></circle>
+                    <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
+                </svg>
+            </div>
+            <div>
+                <div class="sp-kpi-label">Certificates</div>
+                <div class="sp-kpi-val text-warning">@Model?.AvailableCertificatesCount</div>
+                <p class="sp-kpi-sub">Verified completion credentials</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Activity & Management Section -->
+<div class="row g-4 mb-4">
+    <!-- Left Column (8 cols): Registrations & Attendance -->
     <div class="col-lg-8">
         <div class="d-flex flex-column gap-4">
-            <!-- My Recent Registrations Panel -->
-            <div class="dash-panel">
-                <div class="dash-panel-header">
-                    <h5 class="dash-panel-title d-flex align-items-center gap-2">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
-                            <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"></path>
+            <!-- 1. My Registrations Panel -->
+            <div class="sp-panel">
+                <div class="sp-panel-header">
+                    <h5 class="sp-panel-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <polyline points="16 11 18 13 22 9"></polyline>
                         </svg>
-                        <span>My Registrations &amp; Admission Passes</span>
+                        <span>My Enrolled Events &amp; Admission Passes</span>
                     </h5>
-                    <span class="badge badge-role badge-role-student">My Tickets</span>
+                    <a asp-area="Student" asp-controller="Registrations" asp-action="Index" class="btn btn-sm btn-link text-decoration-none fw-semibold">
+                        View All &rarr;
+                    </a>
                 </div>
-                <div class="dash-panel-body p-0">
+                <div class="p-0">
                     @if (Model?.MyRegistrations != null && Model.MyRegistrations.Any())
                     {
-                        <div class="table-responsive">
-                            <table class="dash-table">
+                        <div class="sp-table-wrap">
+                            <table class="sp-table">
                                 <thead>
                                     <tr>
                                         <th>Event Title</th>
@@ -138,6 +138,7 @@
                                         <th>Registration #</th>
                                         <th>Pass Code</th>
                                         <th>Status</th>
+                                        <th class="text-end">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -145,18 +146,25 @@
                                     {
                                         <tr>
                                             <td class="fw-semibold text-dark">@reg.Event?.Title</td>
-                                            <td class="small text-muted">@reg.Event?.Department?.Code</td>
-                                            <td class="small text-muted text-nowrap">@reg.Event?.EventStartDate.ToString("MMM dd, yyyy")</td>
-                                            <td class="font-monospace small">@reg.RegistrationNumber</td>
                                             <td>
-                                                <span class="badge bg-light text-primary border font-monospace">
+                                                <span class="badge bg-light text-muted border">@reg.Event?.Department?.Code</span>
+                                            </td>
+                                            <td class="small text-muted text-nowrap">@reg.Event?.EventStartDate.ToString("MMM dd, yyyy")</td>
+                                            <td class="font-monospace small text-primary fw-semibold">@reg.RegistrationNumber</td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border font-monospace">
                                                     @(reg.Ticket?.TicketCode ?? "Pending")
                                                 </span>
                                             </td>
                                             <td>
-                                                <span class="badge-status badge-status-confirmed">
+                                                <span class="sp-badge sp-badge-confirmed">
                                                     @reg.Status
                                                 </span>
+                                            </td>
+                                            <td class="text-end">
+                                                <a asp-area="Student" asp-controller="Registrations" asp-action="Details" asp-route-id="@reg.Id" class="btn btn-sm btn-outline-primary py-1 px-2">
+                                                    Details
+                                                </a>
                                             </td>
                                         </tr>
                                     }
@@ -166,46 +174,47 @@
                     }
                     else
                     {
-                        <div class="dash-empty-state">
-                            <div class="dash-empty-state-icon">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <div class="sp-empty-state">
+                            <div class="sp-empty-icon">
+                                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                                     <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"></path>
                                 </svg>
                             </div>
-                            <h6 class="dash-empty-state-title">No Event Registrations Yet</h6>
-                            <p class="dash-empty-state-desc mb-3">
-                                You haven't registered for any campus events yet. Explore upcoming technical workshops, hackathons, and guest lectures in the event catalog.
+                            <h6 class="sp-empty-title">No Event Registrations Yet</h6>
+                            <p class="sp-empty-desc">
+                                You haven't enrolled in any university workshops yet. Explore technical symposiums, hackathons, and guest seminars in the event catalog.
                             </p>
-                            <a asp-area="Student" asp-controller="Events" asp-action="Index" class="btn btn-3d-primary btn-sm">
-                                Explore Event Catalog
+                            <a asp-area="Student" asp-controller="Events" asp-action="Index" class="btn-sp-primary">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                <span>Explore Event Catalog</span>
                             </a>
                         </div>
                     }
                 </div>
             </div>
 
-            <!-- Participation & Attendance History Panel -->
-            <div class="dash-panel">
-                <div class="dash-panel-header">
-                    <h5 class="dash-panel-title d-flex align-items-center gap-2">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+            <!-- 2. Participation & Attendance History Panel -->
+            <div class="sp-panel">
+                <div class="sp-panel-header">
+                    <h5 class="sp-panel-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary">
                             <path d="M9 11l3 3L22 4"></path>
                             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                         </svg>
-                        <span>My Participation &amp; Attendance History</span>
+                        <span>Verified Attendance &amp; Check-In Records</span>
                     </h5>
-                    <span class="badge bg-light text-muted border">Verified Records</span>
+                    <span class="badge bg-light text-muted border">Verified Log</span>
                 </div>
-                <div class="dash-panel-body p-0">
+                <div class="p-0">
                     @if (Model?.AttendanceHistory != null && Model.AttendanceHistory.Any())
                     {
-                        <div class="table-responsive">
-                            <table class="dash-table">
+                        <div class="sp-table-wrap">
+                            <table class="sp-table">
                                 <thead>
                                     <tr>
                                         <th>Event Title</th>
-                                        <th>Check-In Time</th>
-                                        <th>Method</th>
+                                        <th>Check-In Timestamp</th>
+                                        <th>Verification Method</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
@@ -221,7 +230,7 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <span class="badge-status badge-status-confirmed">
+                                                <span class="sp-badge sp-badge-attended">
                                                     @att.Status
                                                 </span>
                                             </td>
@@ -233,16 +242,16 @@
                     }
                     else
                     {
-                        <div class="dash-empty-state" style="min-height: 160px; padding: 1.5rem 1rem;">
-                            <div class="dash-empty-state-icon" style="width: 38px; height: 38px; margin-bottom: 0.5rem;">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <div class="sp-empty-state py-4">
+                            <div class="sp-empty-icon" style="width: 44px; height: 44px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                                     <path d="M9 11l3 3L22 4"></path>
                                     <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                                 </svg>
                             </div>
-                            <h6 class="dash-empty-state-title" style="font-size: 0.88rem;">No Check-In Records Yet</h6>
-                            <p class="dash-empty-state-desc" style="font-size: 0.78rem;">
-                                When you attend events and present your digital QR pass, verified attendance records will appear here.
+                            <h6 class="sp-empty-title" style="font-size: 0.95rem;">No Check-In Records Yet</h6>
+                            <p class="sp-empty-desc mb-0" style="font-size: 0.8rem;">
+                                When you attend events and scan your digital QR pass at venue admission desks, verified attendance records will appear here.
                             </p>
                         </div>
                     }
@@ -251,33 +260,36 @@
         </div>
     </div>
 
-    <!-- Right Column: Discover Events & Certificate Credentials -->
+    <!-- Right Column (4 cols): Discovery Highlights & Certificate Status -->
     <div class="col-lg-4">
-        <div class="d-flex flex-column gap-3 h-100">
-            <!-- Discover Campus Events Panel -->
-            <div class="dash-panel">
-                <div class="dash-panel-header">
-                    <h5 class="dash-panel-title d-flex align-items-center gap-2">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+        <div class="d-flex flex-column gap-4">
+            <!-- Discover Campus Events -->
+            <div class="sp-panel">
+                <div class="sp-panel-header">
+                    <h5 class="sp-panel-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary">
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
-                        <span>Discover Campus Events</span>
+                        <span>Open Registrations</span>
                     </h5>
-                    <a asp-area="Student" asp-controller="Events" asp-action="Index" class="small text-decoration-none fw-semibold">View All &rarr;</a>
+                    <a asp-area="Student" asp-controller="Events" asp-action="Index" class="small text-decoration-none fw-semibold">
+                        View All &rarr;
+                    </a>
                 </div>
-                <div class="dash-panel-body p-3">
+                <div class="p-3">
                     @if (Model?.DiscoverEvents != null && Model.DiscoverEvents.Any())
                     {
                         <div class="d-flex flex-column gap-2">
                             @foreach (var ev in Model.DiscoverEvents)
                             {
-                                <a asp-area="Student" asp-controller="Events" asp-action="Details" asp-route-id="@ev.Id" class="dash-list-item text-decoration-none">
+                                <a asp-area="Student" asp-controller="Events" asp-action="Details" asp-route-id="@ev.Id" 
+                                   class="p-2 rounded border bg-white text-decoration-none d-flex align-items-center justify-content-between hover-shadow transition">
                                     <div class="overflow-hidden me-2">
-                                        <div class="fw-semibold small text-truncate text-dark">@ev.Title</div>
+                                        <div class="fw-semibold text-dark small text-truncate">@ev.Title</div>
                                         <div class="text-muted" style="font-size: 0.72rem;">@ev.Department?.Name &bull; @ev.EventStartDate.ToString("MMM dd")</div>
                                     </div>
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 text-nowrap" style="font-size: 0.72rem;">
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle text-nowrap" style="font-size: 0.7rem;">
                                         @ev.EventType
                                     </span>
                                 </a>
@@ -286,55 +298,47 @@
                     }
                     else
                     {
-                        <div class="dash-empty-state" style="min-height: 160px; padding: 1.5rem 1rem;">
-                            <div class="dash-empty-state-icon" style="width: 38px; height: 38px; margin-bottom: 0.5rem;">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
-                                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                                </svg>
-                            </div>
-                            <h6 class="dash-empty-state-title" style="font-size: 0.88rem;">No Events Open Currently</h6>
-                            <p class="dash-empty-state-desc" style="font-size: 0.78rem;">
-                                Upcoming workshops and hackathons will be listed here as soon as departments publish them.
-                            </p>
+                        <div class="text-center py-4 text-muted small">
+                            No events currently open for registration.
                         </div>
                     }
                 </div>
             </div>
 
-            <!-- Digital Certificates Overview Panel -->
-            <div class="dash-panel flex-grow-1">
-                <div class="dash-panel-header">
-                    <h5 class="dash-panel-title d-flex align-items-center gap-2">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warning">
-                            <circle cx="12" cy="8" r="7"></circle>
-                            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+            <!-- Digital Certificates Credential Card -->
+            <div class="sp-panel">
+                <div class="sp-panel-header">
+                    <h5 class="sp-panel-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-warning">
+                            <circle cx="12" cy="8" r="6"></circle>
+                            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
                         </svg>
-                        <span>Certificates &amp; Badges</span>
+                        <span>Credentials &amp; Awards</span>
                     </h5>
-                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Credentials</span>
+                    <span class="badge bg-warning-subtle text-warning-emphasis border">Verified</span>
                 </div>
-                <div class="dash-panel-body p-3">
+                <div class="sp-panel-body">
                     <div class="p-3 rounded bg-light border text-center mb-3">
-                        <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle p-2 shadow-sm mb-2 text-warning">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="8" r="7"></circle>
-                                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                        <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle p-2 shadow-sm mb-2 text-warning" style="width: 44px; height: 44px;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="8" r="6"></circle>
+                                <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
                             </svg>
                         </div>
-                        <div class="fw-semibold small text-dark">Official Institutional Credentials</div>
-                        <div class="text-muted" style="font-size: 0.76rem;">Cryptographically verifiable PDF certificates</div>
+                        <div class="fw-bold small text-dark">University Verified Credentials</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">Cryptographically verifiable PDF certificates</div>
                     </div>
-                    <div class="small text-muted">
-                        <strong>Certification Criteria:</strong>
-                        <ul class="ps-3 mb-0 mt-1" style="font-size: 0.78rem;">
+                    <div class="small text-muted mb-3">
+                        <strong>Earning Requirements:</strong>
+                        <ul class="ps-3 mb-0 mt-1" style="font-size: 0.76rem;">
                             <li>Confirmed event registration.</li>
-                            <li>QR verified check-in attendance.</li>
-                            <li>Immediate certificate release upon event completion.</li>
+                            <li>QR verified venue check-in.</li>
+                            <li>Immediate certificate release upon event conclusion.</li>
                         </ul>
                     </div>
+                    <a asp-area="Student" asp-controller="Certificates" asp-action="Index" class="btn btn-outline-warning w-100 btn-sm fw-semibold">
+                        View My Certificates &rarr;
+                    </a>
                 </div>
             </div>
         </div>

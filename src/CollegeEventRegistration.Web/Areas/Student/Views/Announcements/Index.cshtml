@@ -6,105 +6,107 @@
     ViewData["Title"] = "Campus Announcements";
 }
 
-<div class="container-xl my-4">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
-        <div>
-            <div class="d-flex align-items-center gap-2 mb-1">
-                <span class="badge bg-info-subtle text-info-emphasis border">Campus News</span>
-                <span class="text-muted small">Official University Notices</span>
-            </div>
-            <h2 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">Announcements</h2>
+<!-- Header -->
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge bg-info-subtle text-info-emphasis border">Campus News</span>
+            <span class="text-muted small">Official University Notices</span>
         </div>
-        <div>
-            <a asp-area="Student" asp-controller="Notifications" asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 shadow-sm">
-                <i class="bi bi-bell"></i>
-                <span>Notifications</span>
-            </a>
-        </div>
+        <h2 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">Announcements</h2>
     </div>
+    <div>
+        <a asp-area="Student" asp-controller="Notifications" asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 shadow-sm">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+            <span>Notifications</span>
+        </a>
+    </div>
+</div>
 
-    @if (!Model.Items.Any())
-    {
-        <div class="card border-0 shadow-sm text-center py-5">
-            <div class="card-body">
-                <div class="display-6 text-muted mb-3"><i class="bi bi-megaphone"></i></div>
-                <h5 class="fw-bold text-dark">No Announcements</h5>
-                <p class="text-muted mb-0">There are currently no announcements for your department or enrolled events.</p>
-            </div>
+@if (!Model.Items.Any())
+{
+    <div class="sp-panel text-center py-5">
+        <div class="sp-empty-icon" style="width: 56px; height: 56px;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="m3 11 18-5v12L3 14v-3z"></path>
+                <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path>
+            </svg>
         </div>
-    }
-    else
-    {
-        <div class="row g-4 mb-4">
-            @foreach (var item in Model.Items)
+        <h5 class="fw-bold text-dark mb-1">No Announcements</h5>
+        <p class="text-muted small mb-0">There are currently no announcements for your department or enrolled events.</p>
+    </div>
+}
+else
+{
+    <div class="row g-4 mb-4">
+        @foreach (var item in Model.Items)
+        {
+            var priorityBadge = item.Priority switch
             {
-                var priorityBadge = item.Priority switch
-                {
-                    AnnouncementPriority.Urgent => "bg-danger text-white",
-                    AnnouncementPriority.High => "bg-warning text-dark",
-                    AnnouncementPriority.Low => "bg-light text-muted border",
-                    _ => "bg-primary-subtle text-primary border"
-                };
+                AnnouncementPriority.Urgent => "bg-danger text-white",
+                AnnouncementPriority.High => "bg-warning text-dark",
+                AnnouncementPriority.Low => "bg-light text-muted border",
+                _ => "bg-primary-subtle text-primary border"
+            };
 
-                <div class="col-12 col-lg-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body p-4 d-flex flex-column justify-content-between">
-                            <div>
-                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="badge @priorityBadge">@item.Priority</span>
-                                        @if (item.AudienceType == AnnouncementAudience.Department && !string.IsNullOrEmpty(item.DepartmentName))
-                                        {
-                                            <span class="badge bg-secondary-subtle text-secondary border">@item.DepartmentName</span>
-                                        }
-                                        else if (item.AudienceType == AnnouncementAudience.EventParticipants && !string.IsNullOrEmpty(item.EventTitle))
-                                        {
-                                            <span class="badge bg-info-subtle text-info border">@item.EventTitle</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-light text-muted border">All Students</span>
-                                        }
-                                    </div>
-                                    <small class="text-muted">
-                                        @(item.PublishedAt.HasValue ? item.PublishedAt.Value.ToString("MMM dd, yyyy") : item.CreatedAt.ToString("MMM dd, yyyy"))
-                                    </small>
+            <div class="col-12 col-lg-6">
+                <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius: 14px;">
+                    <div class="card-body p-4 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge @priorityBadge">@item.Priority</span>
+                                    @if (item.AudienceType == AnnouncementAudience.Department && !string.IsNullOrEmpty(item.DepartmentName))
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary border">@item.DepartmentName</span>
+                                    }
+                                    else if (item.AudienceType == AnnouncementAudience.EventParticipants && !string.IsNullOrEmpty(item.EventTitle))
+                                    {
+                                        <span class="badge bg-info-subtle text-info border">@item.EventTitle</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-muted border">All Students</span>
+                                    }
                                 </div>
-                                <h5 class="fw-bold text-dark mb-2">@item.Title</h5>
-                                <p class="text-secondary small mb-3">
-                                    @(item.Content.Length > 220 ? item.Content[..217] + "..." : item.Content)
-                                </p>
+                                <small class="text-muted">
+                                    @(item.PublishedAt.HasValue ? item.PublishedAt.Value.ToString("MMM dd, yyyy") : item.CreatedAt.ToString("MMM dd, yyyy"))
+                                </small>
                             </div>
-                            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
-                                <small class="text-muted">By @(item.AuthorName ?? "Administration")</small>
-                                <a asp-area="Student" asp-controller="Announcements" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
-                                    Read Full Notice <i class="bi bi-arrow-right ms-1"></i>
-                                </a>
-                            </div>
+                            <h5 class="fw-bold text-dark mb-2">@item.Title</h5>
+                            <p class="text-secondary small mb-3" style="line-height: 1.5;">
+                                @(item.Content.Length > 220 ? item.Content[..217] + "..." : item.Content)
+                            </p>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between pt-3 border-top">
+                            <small class="text-muted">By @(item.AuthorName ?? "Administration")</small>
+                            <a asp-area="Student" asp-controller="Announcements" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary py-1 px-3">
+                                Read Notice &rarr;
+                            </a>
                         </div>
                     </div>
                 </div>
-            }
-        </div>
-
-        @if (Model.TotalPages > 1)
-        {
-            <nav aria-label="Announcement pagination">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
-                        <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber - 1)">Previous</a>
-                    </li>
-                    @for (int p = 1; p <= Model.TotalPages; p++)
-                    {
-                        <li class="page-item @(p == Model.PageNumber ? "active" : "")">
-                            <a class="page-link" asp-action="Index" asp-route-page="@p">@p</a>
-                        </li>
-                    }
-                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
-                        <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber + 1)">Next</a>
-                    </li>
-                </ul>
-            </nav>
+            </div>
         }
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label="Announcement pagination">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber - 1)">Previous</a>
+                </li>
+                @for (int p = 1; p <= Model.TotalPages; p++)
+                {
+                    <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@p">@p</a>
+                    </li>
+                }
+                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber + 1)">Next</a>
+                </li>
+            </ul>
+        </nav>
     }
-</div>
+}

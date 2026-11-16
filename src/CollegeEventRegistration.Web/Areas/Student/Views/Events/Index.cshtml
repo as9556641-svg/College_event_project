@@ -2,342 +2,344 @@
 @using CollegeEventRegistration.Core.Enums
 @{
     Layout = "_StudentPortalLayout";
-    ViewData["Title"] = "Discover University Events";
+    ViewData["Title"] = "Discover Events";
     var activeCategory = Model.Categories.FirstOrDefault(c => c.Id == Model.Criteria.CategoryId);
 }
 
-<!-- Hero Section (Section 3.B) -->
-<section class="discovery-hero">
-    <div class="container-xl position-relative" style="z-index: 2;">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <div class="hero-badge">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                    </svg>
-                    <span>VAP University Campus Event Hub</span>
-                </div>
-                <h1 class="hero-title">Discover University Events</h1>
-                <p class="hero-subtitle">
-                    Explore high-impact technical workshops, hackathons, national symposiums, and cultural festivals hosted by VAP UNIVERSITY departments.
-                </p>
+<!-- Discovery Hero Header -->
+<div class="sp-hero-card mb-4">
+    <div class="row align-items-center position-relative" style="z-index: 2;">
+        <div class="col-lg-8">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-white text-primary fw-bold px-3 py-1" style="font-size: 0.72rem; letter-spacing: 0.04em;">CAMPUS EVENT CATALOG</span>
+                <span class="text-white-50 small">&bull;</span>
+                <span class="text-white-50 small">VAP UNIVERSITY</span>
+            </div>
+            <h1 class="fw-bold mb-2 text-white" style="font-size: 1.85rem; letter-spacing: -0.02em;">
+                Discover Campus Workshops &amp; Events
+            </h1>
+            <p class="text-white-50 mb-4" style="font-size: 0.95rem; max-width: 640px; line-height: 1.5;">
+                Explore high-impact technical symposiums, hackathons, academic conferences, and cultural festivals hosted across university departments.
+            </p>
 
-                <!-- Search Input Form -->
-                <form method="get" asp-area="Student" asp-controller="Events" asp-action="Index" class="hero-search-box">
-                    @if (Model.Criteria.CategoryId.HasValue)
-                    {
-                        <input type="hidden" name="CategoryId" value="@Model.Criteria.CategoryId" />
-                    }
-                    @if (Model.Criteria.DepartmentId.HasValue)
-                    {
-                        <input type="hidden" name="DepartmentId" value="@Model.Criteria.DepartmentId" />
-                    }
-                    @if (Model.Criteria.EventMode.HasValue)
-                    {
-                        <input type="hidden" name="EventMode" value="@Model.Criteria.EventMode" />
-                    }
-                    @if (Model.Criteria.EventType.HasValue)
-                    {
-                        <input type="hidden" name="EventType" value="@Model.Criteria.EventType" />
-                    }
-                    @if (!string.IsNullOrWhiteSpace(Model.Criteria.SortBy))
-                    {
-                        <input type="hidden" name="SortBy" value="@Model.Criteria.SortBy" />
-                    }
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <input type="text" name="SearchTerm" value="@Model.Criteria.SearchTerm" 
-                           class="hero-search-input" 
-                           placeholder="Search by event title, topic, workshop, or venue..." 
-                           aria-label="Search events" />
-                    <button type="submit" class="hero-search-btn">
-                        <span>Search</span>
-                    </button>
-                </form>
-
-                <!-- Quick Category Pills (Section 3.C) -->
-                @if (Model.Categories != null && Model.Categories.Any())
+            <!-- Search Bar Input Form -->
+            <form method="get" asp-area="Student" asp-controller="Events" asp-action="Index" class="d-flex flex-wrap gap-2 mb-3">
+                @if (Model.Criteria.CategoryId.HasValue)
                 {
-                    <div class="category-pills-row">
+                    <input type="hidden" name="CategoryId" value="@Model.Criteria.CategoryId" />
+                }
+                @if (Model.Criteria.DepartmentId.HasValue)
+                {
+                    <input type="hidden" name="DepartmentId" value="@Model.Criteria.DepartmentId" />
+                }
+                @if (Model.Criteria.EventMode.HasValue)
+                {
+                    <input type="hidden" name="EventMode" value="@Model.Criteria.EventMode" />
+                }
+                @if (Model.Criteria.EventType.HasValue)
+                {
+                    <input type="hidden" name="EventType" value="@Model.Criteria.EventType" />
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.Criteria.SortBy))
+                {
+                    <input type="hidden" name="SortBy" value="@Model.Criteria.SortBy" />
+                }
+
+                <div class="input-group shadow-sm" style="max-width: 600px; border-radius: 12px; overflow: hidden; background: #FFFFFF;">
+                    <span class="input-group-text bg-white border-0 ps-3">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="text" name="SearchTerm" value="@Model.Criteria.SearchTerm" 
+                           class="form-control border-0 py-2" 
+                           placeholder="Search by event title, topic, workshop, or venue..." 
+                           aria-label="Search events" style="box-shadow: none;" />
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                        Search
+                    </button>
+                </div>
+            </form>
+
+            <!-- Quick Category Filter Chips -->
+            @if (Model.Categories != null && Model.Categories.Any())
+            {
+                <div class="d-flex flex-wrap gap-2 pt-1">
+                    <a asp-area="Student" asp-controller="Events" asp-action="Index" 
+                       asp-route-SearchTerm="@Model.Criteria.SearchTerm"
+                       asp-route-DepartmentId="@Model.Criteria.DepartmentId"
+                       asp-route-EventMode="@Model.Criteria.EventMode"
+                       asp-route-EventType="@Model.Criteria.EventType"
+                       asp-route-SortBy="@Model.Criteria.SortBy"
+                       class="btn btn-sm @(!Model.Criteria.CategoryId.HasValue ? "btn-light text-primary fw-bold" : "btn-outline-light text-white") rounded-pill px-3 py-1">
+                        All Categories
+                    </a>
+                    @foreach (var cat in Model.Categories)
+                    {
+                        var isSelected = Model.Criteria.CategoryId == cat.Id;
                         <a asp-area="Student" asp-controller="Events" asp-action="Index" 
+                           asp-route-CategoryId="@cat.Id"
                            asp-route-SearchTerm="@Model.Criteria.SearchTerm"
                            asp-route-DepartmentId="@Model.Criteria.DepartmentId"
                            asp-route-EventMode="@Model.Criteria.EventMode"
                            asp-route-EventType="@Model.Criteria.EventType"
                            asp-route-SortBy="@Model.Criteria.SortBy"
-                           class="cat-pill @(!Model.Criteria.CategoryId.HasValue ? "active" : "")">
-                            All Categories
+                           class="btn btn-sm @(isSelected ? "btn-light text-primary fw-bold" : "btn-outline-light text-white") rounded-pill px-3 py-1">
+                            <span>@cat.Name</span>
+                            @if (cat.PublishedCount > 0)
+                            {
+                                <span class="badge rounded-pill bg-white text-dark ms-1" style="font-size: 0.68rem;">@cat.PublishedCount</span>
+                            }
                         </a>
-                        @foreach (var cat in Model.Categories)
+                    }
+                </div>
+            }
+        </div>
+        <div class="col-lg-4 d-none d-lg-block text-end">
+            <img src="~/images/branding/vap-university-campus.jpg" 
+                 alt="VAP University Campus" 
+                 class="img-fluid rounded-4 shadow-lg border border-white border-2" 
+                 style="max-height: 250px; width: 100%; object-fit: cover;" 
+                 asp-append-version="true" />
+        </div>
+    </div>
+</div>
+
+<!-- Main Catalog Container -->
+<div class="mb-5">
+    <!-- Filter & Sort Toolbar -->
+    <div class="sp-panel mb-4">
+        <div class="p-3 p-md-4">
+            <form method="get" asp-area="Student" asp-controller="Events" asp-action="Index" id="filterForm">
+                @if (!string.IsNullOrWhiteSpace(Model.Criteria.SearchTerm))
+                {
+                    <input type="hidden" name="SearchTerm" value="@Model.Criteria.SearchTerm" />
+                }
+                <div class="row g-3 align-items-end">
+                    <!-- Department Filter -->
+                    <div class="col-sm-6 col-md-3">
+                        <label class="form-label small fw-semibold text-muted mb-1" for="deptSelect">Department</label>
+                        <select name="DepartmentId" id="deptSelect" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">All Departments</option>
+                            @foreach (var dept in Model.Departments)
+                            {
+                                <option value="@dept.Id" selected="@(Model.Criteria.DepartmentId == dept.Id)">
+                                    @dept.Name (@dept.Code)
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Event Mode Filter -->
+                    <div class="col-sm-6 col-md-2">
+                        <label class="form-label small fw-semibold text-muted mb-1" for="modeSelect">Mode</label>
+                        <select name="EventMode" id="modeSelect" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">All Modes</option>
+                            <option value="@((int)EventMode.Offline)" selected="@(Model.Criteria.EventMode == EventMode.Offline)">In-Person (Offline)</option>
+                            <option value="@((int)EventMode.Online)" selected="@(Model.Criteria.EventMode == EventMode.Online)">Virtual (Online)</option>
+                            <option value="@((int)EventMode.Hybrid)" selected="@(Model.Criteria.EventMode == EventMode.Hybrid)">Hybrid</option>
+                        </select>
+                    </div>
+
+                    <!-- Fee Type -->
+                    <div class="col-sm-6 col-md-2">
+                        <label class="form-label small fw-semibold text-muted mb-1" for="typeSelect">Admission Fee</label>
+                        <select name="EventType" id="typeSelect" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">All Events</option>
+                            <option value="@((int)EventType.Free)" selected="@(Model.Criteria.EventType == EventType.Free)">Free Events</option>
+                            <option value="@((int)EventType.Paid)" selected="@(Model.Criteria.EventType == EventType.Paid)">Paid Workshops</option>
+                        </select>
+                    </div>
+
+                    <!-- Timeline Filter -->
+                    <div class="col-sm-6 col-md-2">
+                        <label class="form-label small fw-semibold text-muted mb-1" for="dateFilterSelect">Timeline</label>
+                        <select name="DateFilter" id="dateFilterSelect" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="all" selected="@(Model.Criteria.DateFilter == "all")">All Dates</option>
+                            <option value="today" selected="@(Model.Criteria.DateFilter == "today")">Happening Today</option>
+                            <option value="this_week" selected="@(Model.Criteria.DateFilter == "this_week")">This Week</option>
+                            <option value="this_month" selected="@(Model.Criteria.DateFilter == "this_month")">This Month</option>
+                        </select>
+                    </div>
+
+                    <!-- Sort Order -->
+                    <div class="col-sm-12 col-md-3">
+                        <label class="form-label small fw-semibold text-muted mb-1" for="sortSelect">Sort By</label>
+                        <select name="SortBy" id="sortSelect" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="upcoming" selected="@(Model.Criteria.SortBy == "upcoming")">Upcoming First</option>
+                            <option value="latest" selected="@(Model.Criteria.SortBy == "latest")">Recently Published</option>
+                            <option value="date_asc" selected="@(Model.Criteria.SortBy == "date_asc")">Date (Earliest First)</option>
+                            <option value="date_desc" selected="@(Model.Criteria.SortBy == "date_desc")">Date (Furthest First)</option>
+                            <option value="title_asc" selected="@(Model.Criteria.SortBy == "title_asc")">Title (A - Z)</option>
+                            <option value="title_desc" selected="@(Model.Criteria.SortBy == "title_desc")">Title (Z - A)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Registration Open Checkbox & Reset -->
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-3 pt-3 border-top">
+                    <div class="form-check mb-0">
+                        <input class="form-check-input" type="checkbox" name="OnlyRegistrationOpen" value="true" 
+                               id="regOpenCheck" @(Model.Criteria.OnlyRegistrationOpen ? "checked" : "") 
+                               onchange="this.form.submit()">
+                        <label class="form-check-label small fw-semibold text-dark" for="regOpenCheck">
+                            Show only events with registration currently open
+                        </label>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small">
+                            Showing <strong>@Model.Events.Items.Count</strong> of <strong>@Model.TotalEventsCount</strong> events
+                        </span>
+                        @if (Model.HasActiveFilters)
                         {
-                            var isSelected = Model.Criteria.CategoryId == cat.Id;
-                            <a asp-area="Student" asp-controller="Events" asp-action="Index" 
-                               asp-route-CategoryId="@cat.Id"
-                               asp-route-SearchTerm="@Model.Criteria.SearchTerm"
-                               asp-route-DepartmentId="@Model.Criteria.DepartmentId"
-                               asp-route-EventMode="@Model.Criteria.EventMode"
-                               asp-route-EventType="@Model.Criteria.EventType"
-                               asp-route-SortBy="@Model.Criteria.SortBy"
-                               class="cat-pill @(isSelected ? "active" : "")">
-                                <span>@cat.Name</span>
-                                @if (cat.PublishedCount > 0)
-                                {
-                                    <span class="badge rounded-pill bg-white text-dark ms-1" style="font-size: 0.7rem;">@cat.PublishedCount</span>
-                                }
+                            <a asp-area="Student" asp-controller="Events" asp-action="Index" class="btn btn-outline-secondary btn-sm px-3 ms-2">
+                                Reset Filters
                             </a>
                         }
                     </div>
+                </div>
+
+                <!-- Active Filter Badges Bar -->
+                @if (Model.HasActiveFilters)
+                {
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-3 pt-2 border-top">
+                        <span class="small fw-semibold text-muted me-1">Active:</span>
+                        @if (!string.IsNullOrWhiteSpace(Model.Criteria.SearchTerm))
+                        {
+                            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 py-1 px-2">
+                                Search: "@Model.Criteria.SearchTerm"
+                                <a asp-area="Student" asp-controller="Events" asp-action="Index" 
+                                   asp-route-CategoryId="@Model.Criteria.CategoryId"
+                                   asp-route-DepartmentId="@Model.Criteria.DepartmentId"
+                                   asp-route-EventMode="@Model.Criteria.EventMode"
+                                   asp-route-EventType="@Model.Criteria.EventType"
+                                   asp-route-DateFilter="@Model.Criteria.DateFilter"
+                                   asp-route-OnlyRegistrationOpen="@Model.Criteria.OnlyRegistrationOpen"
+                                   asp-route-SortBy="@Model.Criteria.SortBy"
+                                   class="text-muted text-decoration-none ms-1">&times;</a>
+                            </span>
+                        }
+                        @if (activeCategory != null)
+                        {
+                            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 py-1 px-2">
+                                Category: @activeCategory.Name
+                                <a asp-area="Student" asp-controller="Events" asp-action="Index" 
+                                   asp-route-SearchTerm="@Model.Criteria.SearchTerm"
+                                   asp-route-DepartmentId="@Model.Criteria.DepartmentId"
+                                   asp-route-EventMode="@Model.Criteria.EventMode"
+                                   asp-route-EventType="@Model.Criteria.EventType"
+                                   asp-route-DateFilter="@Model.Criteria.DateFilter"
+                                   asp-route-OnlyRegistrationOpen="@Model.Criteria.OnlyRegistrationOpen"
+                                   asp-route-SortBy="@Model.Criteria.SortBy"
+                                   class="text-muted text-decoration-none ms-1">&times;</a>
+                            </span>
+                        }
+                        @if (Model.Criteria.DepartmentId.HasValue)
+                        {
+                            var activeDept = Model.Departments.FirstOrDefault(d => d.Id == Model.Criteria.DepartmentId.Value);
+                            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 py-1 px-2">
+                                Dept: @(activeDept?.Name ?? Model.Criteria.DepartmentId.ToString())
+                                <a asp-area="Student" asp-controller="Events" asp-action="Index" 
+                                   asp-route-SearchTerm="@Model.Criteria.SearchTerm"
+                                   asp-route-CategoryId="@Model.Criteria.CategoryId"
+                                   asp-route-EventMode="@Model.Criteria.EventMode"
+                                   asp-route-EventType="@Model.Criteria.EventType"
+                                   asp-route-DateFilter="@Model.Criteria.DateFilter"
+                                   asp-route-OnlyRegistrationOpen="@Model.Criteria.OnlyRegistrationOpen"
+                                   asp-route-SortBy="@Model.Criteria.SortBy"
+                                   class="text-muted text-decoration-none ms-1">&times;</a>
+                            </span>
+                        }
+                        @if (Model.Criteria.EventMode.HasValue)
+                        {
+                            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 py-1 px-2">
+                                Mode: @Model.Criteria.EventMode
+                                <a asp-area="Student" asp-controller="Events" asp-action="Index" 
+                                   asp-route-SearchTerm="@Model.Criteria.SearchTerm"
+                                   asp-route-CategoryId="@Model.Criteria.CategoryId"
+                                   asp-route-DepartmentId="@Model.Criteria.DepartmentId"
+                                   asp-route-EventType="@Model.Criteria.EventType"
+                                   asp-route-DateFilter="@Model.Criteria.DateFilter"
+                                   asp-route-OnlyRegistrationOpen="@Model.Criteria.OnlyRegistrationOpen"
+                                   asp-route-SortBy="@Model.Criteria.SortBy"
+                                   class="text-muted text-decoration-none ms-1">&times;</a>
+                            </span>
+                        }
+                        @if (Model.Criteria.OnlyRegistrationOpen)
+                        {
+                            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1 py-1 px-2">
+                                Open Registrations Only
+                                <a asp-area="Student" asp-controller="Events" asp-action="Index" 
+                                   asp-route-SearchTerm="@Model.Criteria.SearchTerm"
+                                   asp-route-CategoryId="@Model.Criteria.CategoryId"
+                                   asp-route-DepartmentId="@Model.Criteria.DepartmentId"
+                                   asp-route-EventMode="@Model.Criteria.EventMode"
+                                   asp-route-EventType="@Model.Criteria.EventType"
+                                   asp-route-DateFilter="@Model.Criteria.DateFilter"
+                                   asp-route-SortBy="@Model.Criteria.SortBy"
+                                   class="text-muted text-decoration-none ms-1">&times;</a>
+                            </span>
+                        }
+                    </div>
                 }
-            </div>
-            <div class="col-lg-4 d-none d-lg-block text-end">
-                <img src="~/images/branding/vap-university-campus.jpg" 
-                     alt="VAP University Campus" 
-                     class="img-fluid rounded-4 shadow-lg border border-white border-2" 
-                     style="max-height: 280px; width: 100%; object-fit: cover;" 
-                     asp-append-version="true" />
-            </div>
+            </form>
         </div>
     </div>
-</section>
 
-<!-- Main Catalog Container -->
-<div class="container-xl mb-5">
-    <!-- Filter & Sort Toolbar (Section 4) -->
-    <div class="filter-card">
-        <form method="get" asp-area="Student" asp-controller="Events" asp-action="Index" id="filterForm">
-            @if (!string.IsNullOrWhiteSpace(Model.Criteria.SearchTerm))
-            {
-                <input type="hidden" name="SearchTerm" value="@Model.Criteria.SearchTerm" />
-            }
-            <div class="row g-3 align-items-end">
-                <!-- Department Filter -->
-                <div class="col-sm-6 col-md-3">
-                    <label class="filter-label" for="deptSelect">Department</label>
-                    <select name="DepartmentId" id="deptSelect" class="filter-select" onchange="this.form.submit()">
-                        <option value="">All Departments</option>
-                        @foreach (var dept in Model.Departments)
-                        {
-                            <option value="@dept.Id" selected="@(Model.Criteria.DepartmentId == dept.Id)">
-                                @dept.Name (@dept.Code)
-                            </option>
-                        }
-                    </select>
-                </div>
-
-                <!-- Event Mode Filter -->
-                <div class="col-sm-6 col-md-2">
-                    <label class="filter-label" for="modeSelect">Mode</label>
-                    <select name="EventMode" id="modeSelect" class="filter-select" onchange="this.form.submit()">
-                        <option value="">All Modes</option>
-                        <option value="@((int)EventMode.Offline)" selected="@(Model.Criteria.EventMode == EventMode.Offline)">In-Person (Offline)</option>
-                        <option value="@((int)EventMode.Online)" selected="@(Model.Criteria.EventMode == EventMode.Online)">Virtual (Online)</option>
-                        <option value="@((int)EventMode.Hybrid)" selected="@(Model.Criteria.EventMode == EventMode.Hybrid)">Hybrid</option>
-                    </select>
-                </div>
-
-                <!-- Event Type (Free / Paid) -->
-                <div class="col-sm-6 col-md-2">
-                    <label class="filter-label" for="typeSelect">Fee</label>
-                    <select name="EventType" id="typeSelect" class="filter-select" onchange="this.form.submit()">
-                        <option value="">All Types</option>
-                        <option value="@((int)EventType.Free)" selected="@(Model.Criteria.EventType == EventType.Free)">Free Events</option>
-                        <option value="@((int)EventType.Paid)" selected="@(Model.Criteria.EventType == EventType.Paid)">Paid Workshops</option>
-                    </select>
-                </div>
-
-                <!-- Date Range Filter -->
-                <div class="col-sm-6 col-md-2">
-                    <label class="filter-label" for="dateFilterSelect">Timeline</label>
-                    <select name="DateFilter" id="dateFilterSelect" class="filter-select" onchange="this.form.submit()">
-                        <option value="all" selected="@(Model.Criteria.DateFilter == "all")">All Dates</option>
-                        <option value="today" selected="@(Model.Criteria.DateFilter == "today")">Happening Today</option>
-                        <option value="this_week" selected="@(Model.Criteria.DateFilter == "this_week")">This Week</option>
-                        <option value="this_month" selected="@(Model.Criteria.DateFilter == "this_month")">This Month</option>
-                    </select>
-                </div>
-
-                <!-- Sort Order -->
-                <div class="col-sm-12 col-md-3">
-                    <label class="filter-label" for="sortSelect">Sort By</label>
-                    <select name="SortBy" id="sortSelect" class="filter-select" onchange="this.form.submit()">
-                        <option value="upcoming" selected="@(Model.Criteria.SortBy == "upcoming")">Upcoming First</option>
-                        <option value="latest" selected="@(Model.Criteria.SortBy == "latest")">Recently Published</option>
-                        <option value="date_asc" selected="@(Model.Criteria.SortBy == "date_asc")">Date (Earliest First)</option>
-                        <option value="date_desc" selected="@(Model.Criteria.SortBy == "date_desc")">Date (Furthest First)</option>
-                        <option value="title_asc" selected="@(Model.Criteria.SortBy == "title_asc")">Title (A - Z)</option>
-                        <option value="title_desc" selected="@(Model.Criteria.SortBy == "title_desc")">Title (Z - A)</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Registration Open Checkbox & Reset Option -->
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-3 pt-3 border-top">
-                <div class="form-check mb-0">
-                    <input class="form-check-input" type="checkbox" name="OnlyRegistrationOpen" value="true" 
-                           id="regOpenCheck" @(Model.Criteria.OnlyRegistrationOpen ? "checked" : "") 
-                           onchange="this.form.submit()">
-                    <label class="form-check-label small fw-semibold text-dark" for="regOpenCheck">
-                        Show only events with registration currently open
-                    </label>
-                </div>
-
-                <div class="d-flex align-items-center gap-2">
-                    <span class="text-muted small">
-                        Showing <strong>@Model.Events.Items.Count</strong> of <strong>@Model.TotalEventsCount</strong> published events
-                    </span>
-                    @if (Model.HasActiveFilters)
-                    {
-                        <a asp-area="Student" asp-controller="Events" asp-action="Index" class="btn btn-outline-secondary btn-sm px-3 ms-2">
-                            Reset All Filters
-                        </a>
-                    }
-                </div>
-            </div>
-
-            <!-- Active Filter Badges Bar -->
-            @if (Model.HasActiveFilters)
-            {
-                <div class="active-filters-bar">
-                    <span class="small fw-semibold text-muted me-1">Active Filters:</span>
-                    @if (!string.IsNullOrWhiteSpace(Model.Criteria.SearchTerm))
-                    {
-                        <span class="active-filter-badge">
-                            Search: "@Model.Criteria.SearchTerm"
-                            <a asp-area="Student" asp-controller="Events" asp-action="Index" 
-                               asp-route-CategoryId="@Model.Criteria.CategoryId"
-                               asp-route-DepartmentId="@Model.Criteria.DepartmentId"
-                               asp-route-EventMode="@Model.Criteria.EventMode"
-                               asp-route-EventType="@Model.Criteria.EventType"
-                               asp-route-DateFilter="@Model.Criteria.DateFilter"
-                               asp-route-OnlyRegistrationOpen="@Model.Criteria.OnlyRegistrationOpen"
-                               asp-route-SortBy="@Model.Criteria.SortBy"
-                               class="active-filter-remove">&times;</a>
-                        </span>
-                    }
-                    @if (activeCategory != null)
-                    {
-                        <span class="active-filter-badge">
-                            Category: @activeCategory.Name
-                            <a asp-area="Student" asp-controller="Events" asp-action="Index" 
-                               asp-route-SearchTerm="@Model.Criteria.SearchTerm"
-                               asp-route-DepartmentId="@Model.Criteria.DepartmentId"
-                               asp-route-EventMode="@Model.Criteria.EventMode"
-                               asp-route-EventType="@Model.Criteria.EventType"
-                               asp-route-DateFilter="@Model.Criteria.DateFilter"
-                               asp-route-OnlyRegistrationOpen="@Model.Criteria.OnlyRegistrationOpen"
-                               asp-route-SortBy="@Model.Criteria.SortBy"
-                               class="active-filter-remove">&times;</a>
-                        </span>
-                    }
-                    @if (Model.Criteria.DepartmentId.HasValue)
-                    {
-                        var activeDept = Model.Departments.FirstOrDefault(d => d.Id == Model.Criteria.DepartmentId.Value);
-                        <span class="active-filter-badge">
-                            Dept: @(activeDept?.Name ?? Model.Criteria.DepartmentId.ToString())
-                            <a asp-area="Student" asp-controller="Events" asp-action="Index" 
-                               asp-route-SearchTerm="@Model.Criteria.SearchTerm"
-                               asp-route-CategoryId="@Model.Criteria.CategoryId"
-                               asp-route-EventMode="@Model.Criteria.EventMode"
-                               asp-route-EventType="@Model.Criteria.EventType"
-                               asp-route-DateFilter="@Model.Criteria.DateFilter"
-                               asp-route-OnlyRegistrationOpen="@Model.Criteria.OnlyRegistrationOpen"
-                               asp-route-SortBy="@Model.Criteria.SortBy"
-                               class="active-filter-remove">&times;</a>
-                        </span>
-                    }
-                    @if (Model.Criteria.EventMode.HasValue)
-                    {
-                        <span class="active-filter-badge">
-                            Mode: @Model.Criteria.EventMode
-                            <a asp-area="Student" asp-controller="Events" asp-action="Index" 
-                               asp-route-SearchTerm="@Model.Criteria.SearchTerm"
-                               asp-route-CategoryId="@Model.Criteria.CategoryId"
-                               asp-route-DepartmentId="@Model.Criteria.DepartmentId"
-                               asp-route-EventType="@Model.Criteria.EventType"
-                               asp-route-DateFilter="@Model.Criteria.DateFilter"
-                               asp-route-OnlyRegistrationOpen="@Model.Criteria.OnlyRegistrationOpen"
-                               asp-route-SortBy="@Model.Criteria.SortBy"
-                               class="active-filter-remove">&times;</a>
-                        </span>
-                    }
-                    @if (Model.Criteria.OnlyRegistrationOpen)
-                    {
-                        <span class="active-filter-badge">
-                            Open Registrations Only
-                            <a asp-area="Student" asp-controller="Events" asp-action="Index" 
-                               asp-route-SearchTerm="@Model.Criteria.SearchTerm"
-                               asp-route-CategoryId="@Model.Criteria.CategoryId"
-                               asp-route-DepartmentId="@Model.Criteria.DepartmentId"
-                               asp-route-EventMode="@Model.Criteria.EventMode"
-                               asp-route-EventType="@Model.Criteria.EventType"
-                               asp-route-DateFilter="@Model.Criteria.DateFilter"
-                               asp-route-SortBy="@Model.Criteria.SortBy"
-                               class="active-filter-remove">&times;</a>
-                        </span>
-                    }
-                </div>
-            }
-        </form>
-    </div>
-
-    <!-- Event Cards Grid (Section 3.E & 4) -->
+    <!-- Event Cards Grid -->
     @if (Model.Events.Items != null && Model.Events.Items.Any())
     {
         <div class="row g-4 mb-4">
             @foreach (var ev in Model.Events.Items)
             {
                 <div class="col-md-6 col-lg-4">
-                    <div class="event-card">
-                        <!-- Banner Media -->
-                        <div class="event-card-media">
+                    <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius: 14px; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                        <!-- Banner Media Container -->
+                        <div class="position-relative" style="height: 180px; overflow: hidden; background: #0F172A;">
                             @if (!string.IsNullOrWhiteSpace(ev.BannerImageUrl))
                             {
-                                <img src="@ev.BannerImageUrl" alt="@ev.Title" class="event-card-img" loading="lazy" />
+                                <img src="@ev.BannerImageUrl" alt="@ev.Title" class="w-100 h-100" style="object-fit: cover;" loading="lazy" />
                             }
                             else
                             {
-                                <img src="~/images/branding/vap-university-campus.jpg" alt="@ev.Title" class="event-card-img" loading="lazy" />
+                                <img src="~/images/branding/vap-university-campus.jpg" alt="@ev.Title" class="w-100 h-100" style="object-fit: cover;" loading="lazy" />
                             }
 
-                            <!-- Badges -->
-                            <div class="event-card-badge-top">
-                                <span class="badge bg-dark bg-opacity-75 text-white border border-light border-opacity-25 py-1 px-2" style="font-size: 0.75rem;">
+                            <!-- Badges Overlay -->
+                            <div class="position-absolute top-0 start-0 p-3">
+                                <span class="badge bg-dark bg-opacity-75 text-white border border-light border-opacity-25 py-1 px-2" style="font-size: 0.72rem;">
                                     @ev.CategoryName
                                 </span>
                             </div>
 
-                            <div class="event-card-badge-top-right">
-                                <span class="badge @ev.RegistrationBadgeCssClass py-1 px-2" style="font-size: 0.75rem;">
+                            <div class="position-absolute top-0 end-0 p-3">
+                                <span class="badge @ev.RegistrationBadgeCssClass py-1 px-2 shadow-sm" style="font-size: 0.72rem;">
                                     @ev.RegistrationBadgeText
                                 </span>
                             </div>
                         </div>
 
                         <!-- Card Body -->
-                        <div class="event-card-body">
-                            <!-- Meta Tags -->
-                            <div class="event-card-meta">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex align-items-center gap-2 mb-2 text-muted small">
                                 <span class="text-primary fw-semibold">@ev.DepartmentName</span>
                                 <span>&bull;</span>
                                 <span>@ev.EventMode</span>
                             </div>
 
-                            <!-- Title -->
-                            <h3 class="event-card-title" title="@ev.Title">
+                            <h5 class="fw-bold text-dark mb-2" style="font-size: 1.1rem; line-height: 1.35;" title="@ev.Title">
                                 @ev.Title
-                            </h3>
+                            </h5>
 
-                            <!-- Short Description -->
-                            <p class="event-card-desc">
+                            <p class="text-muted small mb-3 flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5;">
                                 @ev.ShortDescription
                             </p>
 
-                            <!-- Specifications -->
-                            <div class="event-card-specs">
-                                <!-- Date & Time -->
-                                <div class="event-spec-item">
+                            <!-- Specifications Grid -->
+                            <div class="d-flex flex-column gap-2 small text-muted pt-3 border-top mb-3">
+                                <div class="d-flex align-items-center gap-2">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary flex-shrink-0">
                                         <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
                                         <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -347,8 +349,7 @@
                                     <span>@ev.FormattedEventDate, @ev.FormattedEventTime</span>
                                 </div>
 
-                                <!-- Venue / Mode -->
-                                <div class="event-spec-item">
+                                <div class="d-flex align-items-center gap-2">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-secondary flex-shrink-0">
                                         <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
                                         <circle cx="12" cy="10" r="3"></circle>
@@ -356,53 +357,38 @@
                                     <span class="text-truncate">@(string.IsNullOrWhiteSpace(ev.Venue) ? ev.EventMode.ToString() : ev.Venue)</span>
                                 </div>
 
-                                <!-- Deadline -->
-                                <div class="event-spec-item">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-warning flex-shrink-0">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <polyline points="12 6 12 12 16 14"></polyline>
-                                    </svg>
-                                    <span>Closes: @ev.FormattedRegistrationDeadline</span>
-                                </div>
-
-                                <!-- Seats Available -->
-                                <div class="event-spec-item">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-success flex-shrink-0">
-                                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="9" cy="7" r="4"></circle>
-                                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                                    </svg>
-                                    <span>@(ev.RemainingSeats > 0 ? $"{ev.RemainingSeats} seats left" : "Capacity Full") (of @ev.TotalCapacity)</span>
+                                <div class="d-flex align-items-center justify-content-between pt-1">
+                                    <span class="text-success fw-medium">
+                                        @(ev.RemainingSeats > 0 ? $"{ev.RemainingSeats} seats left" : "Capacity Full")
+                                    </span>
+                                    <span class="text-muted" style="font-size: 0.72rem;">Deadline: @ev.FormattedRegistrationDeadline</span>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Card Footer -->
-                        <div class="event-card-footer">
-                            <div>
-                                @if (ev.EventType == EventType.Free || ev.RegistrationFee <= 0)
-                                {
-                                    <span class="event-card-price free">FREE</span>
-                                }
-                                else
-                                {
-                                    <span class="event-card-price">₹@ev.RegistrationFee.ToString("F2")</span>
-                                }
+                            <!-- Card Footer -->
+                            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+                                <div>
+                                    @if (ev.EventType == EventType.Free || ev.RegistrationFee <= 0)
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle fs-6 px-2 py-1">FREE</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-bold text-dark fs-5">&#8377;@ev.RegistrationFee.ToString("F2")</span>
+                                    }
+                                </div>
+                                <a asp-area="Student" asp-controller="Events" asp-action="Details" asp-route-id="@ev.Id" class="btn btn-primary btn-sm px-3 fw-semibold shadow-sm d-inline-flex align-items-center gap-1">
+                                    <span>Details</span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                </a>
                             </div>
-                            <a asp-area="Student" asp-controller="Events" asp-action="Details" asp-route-id="@ev.Id" class="btn-view-details">
-                                <span>View Details</span>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                    <polyline points="12 5 19 12 12 19"></polyline>
-                                </svg>
-                            </a>
                         </div>
                     </div>
                 </div>
             }
         </div>
 
-        <!-- Server-side Pagination Bar (Section 4) -->
+        <!-- Server-side Pagination -->
         @if (Model.Events.TotalPages > 1)
         {
             <nav aria-label="Event catalog pagination" class="mt-4">
@@ -464,19 +450,18 @@
     }
     else
     {
-        <!-- Empty State (Section 4) -->
-        <div class="discovery-empty-state">
-            <div class="empty-state-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <div class="sp-panel text-center py-5">
+            <div class="sp-empty-icon" style="width: 56px; height: 56px;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
             </div>
-            <h4 class="empty-state-title">No University Events Match Your Criteria</h4>
-            <p class="empty-state-desc">
-                We couldn't find any published events matching your search or filters. Try adjusting your query or resetting all filters to see all upcoming events.
+            <h5 class="fw-bold text-dark mb-1">No University Events Match Your Criteria</h5>
+            <p class="text-muted small mb-3">
+                We couldn't find any published events matching your search or filters. Try adjusting your query or resetting all filters.
             </p>
-            <a asp-area="Student" asp-controller="Events" asp-action="Index" class="btn btn-primary px-4 py-2">
+            <a asp-area="Student" asp-controller="Events" asp-action="Index" class="btn btn-primary btn-sm px-4">
                 Reset All Filters
             </a>
         </div>

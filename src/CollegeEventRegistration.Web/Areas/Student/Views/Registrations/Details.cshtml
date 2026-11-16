@@ -4,47 +4,48 @@
     Layout = "_StudentPortalLayout";
     ViewData["Title"] = $"Registration #{Model.RegistrationNumber}";
     var canCancel = Model.Status != RegistrationStatus.Cancelled && Model.EventStartDate > DateTime.UtcNow;
+    var hasEventEnded = Model.EventEndDate <= DateTime.UtcNow;
 }
 
-<div class="container-xl my-4">
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item">
-                <a asp-action="Index" class="text-decoration-none">&larr; Back to My Registrations</a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">@Model.RegistrationNumber</li>
-        </ol>
-    </nav>
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <a asp-action="Index" class="text-decoration-none">&larr; Back to My Registrations</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.RegistrationNumber</li>
+    </ol>
+</nav>
 
-    <!-- Feedback Alerts -->
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
-            <div class="d-flex align-items-center gap-2">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                <span>@TempData["SuccessMessage"]</span>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<!-- Feedback Alerts -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <span>@TempData["SuccessMessage"]</span>
         </div>
-    }
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
-            <div class="d-flex align-items-center gap-2">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                <span>@TempData["ErrorMessage"]</span>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>@TempData["ErrorMessage"]</span>
         </div>
-    }
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
-    <div class="row g-4">
-        <!-- Main Details (Left 8 Cols) -->
-        <div class="col-lg-8">
-            <!-- Registration Header Card -->
-            <div class="card border-0 shadow-sm p-4 mb-4">
+<div class="row g-4">
+    <!-- Main Details (Left 8 Cols) -->
+    <div class="col-lg-8">
+        <!-- Registration Header Card -->
+        <div class="sp-panel mb-4">
+            <div class="sp-panel-body">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
                     <div>
                         <span class="text-muted small text-uppercase fw-semibold">Official Registration</span>
@@ -54,16 +55,16 @@
                         @switch (Model.Status)
                         {
                             case RegistrationStatus.Confirmed:
-                                <span class="badge bg-success-subtle text-success border border-success-subtle fs-6 px-3 py-2">Confirmed Registration</span>
+                                <span class="sp-badge sp-badge-confirmed fs-6 px-3 py-2">Confirmed Registration</span>
                                 break;
                             case RegistrationStatus.Pending:
-                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle fs-6 px-3 py-2">Pending Faculty Review</span>
+                                <span class="sp-badge sp-badge-pending fs-6 px-3 py-2">Pending Faculty Review</span>
                                 break;
                             case RegistrationStatus.Waitlisted:
-                                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle fs-6 px-3 py-2">Waitlisted</span>
+                                <span class="sp-badge sp-badge-waitlisted fs-6 px-3 py-2">Waitlisted</span>
                                 break;
                             case RegistrationStatus.Cancelled:
-                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fs-6 px-3 py-2">Cancelled</span>
+                                <span class="sp-badge sp-badge-cancelled fs-6 px-3 py-2">Cancelled</span>
                                 break;
                         }
                     </div>
@@ -96,11 +97,13 @@
                     </div>
                 }
             </div>
+        </div>
 
-            <!-- Admission Ticket Card (Phase 9) -->
-            @if (Model.Status == RegistrationStatus.Confirmed)
-            {
-                <div class="card border-0 shadow-sm p-4 mb-4 bg-white border-start border-4 border-success">
+        <!-- Admission Ticket Card (Phase 9) -->
+        @if (Model.Status == RegistrationStatus.Confirmed)
+        {
+            <div class="sp-panel mb-4" style="border-left: 4px solid #059669;">
+                <div class="sp-panel-body">
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                         <div class="d-flex align-items-center gap-3">
                             <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
@@ -123,26 +126,29 @@
                         </div>
                     </div>
                 </div>
-            }
+            </div>
+        }
 
-            <!-- Attendance Verified Callout (Phase 10) -->
-            @if (Model.IsAttended)
-            {
-                <div class="card border-0 shadow-sm p-4 mb-4 bg-white border-start border-4 border-primary">
+        <!-- Attendance Verified Callout (Phase 10) -->
+        @if (Model.IsAttended)
+        {
+            <div class="sp-panel mb-4" style="border-left: 4px solid #2563EB;">
+                <div class="sp-panel-body">
                     <div class="d-flex align-items-center gap-3">
                         <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                         </div>
                         <div>
-                            <h5 class="fw-bold text-dark mb-1">Attendance Verified & Recorded</h5>
+                            <h5 class="fw-bold text-dark mb-1">Attendance Verified &amp; Recorded</h5>
                             <div class="text-muted small">Your attendance was verified at the venue. Your event participation is officially recorded.</div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Post-Event Feedback & Ratings (Phase 11) -->
-                var hasEventEnded = Model.EventEndDate <= DateTime.UtcNow;
-                <div class="card border-0 shadow-sm p-4 mb-4 bg-white border-start border-4 border-warning">
+            <!-- Post-Event Feedback & Ratings (Phase 11) -->
+            <div class="sp-panel mb-4" style="border-left: 4px solid #D97706;">
+                <div class="sp-panel-body">
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                         <div class="d-flex align-items-center gap-3">
                             <div class="rounded-circle bg-warning-subtle text-warning-emphasis d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
@@ -177,13 +183,18 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Certificate of Completion (Phase 12) -->
-                <div class="card border-0 shadow-sm p-4 mb-4 bg-white border-start border-4 border-success">
+            <!-- Certificate of Completion (Phase 12) -->
+            <div class="sp-panel mb-4" style="border-left: 4px solid #059669;">
+                <div class="sp-panel-body">
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                         <div class="d-flex align-items-center gap-3">
                             <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                                <i class="bi bi-patch-check-fill fs-4"></i>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="8" r="6"></circle>
+                                    <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
+                                </svg>
                             </div>
                             <div>
                                 <h5 class="fw-bold text-dark mb-1">Certificate of Completion</h5>
@@ -203,7 +214,7 @@
                             @if (hasEventEnded)
                             {
                                 <a asp-area="Student" asp-controller="Certificates" asp-action="Index" class="btn btn-success fw-bold px-3 py-2 shadow-sm d-inline-flex align-items-center gap-2">
-                                    <i class="bi bi-award"></i>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>
                                     <span>Claim / View Certificate &rarr;</span>
                                 </a>
                             }
@@ -214,56 +225,55 @@
                         </div>
                     </div>
                 </div>
-            }
+            </div>
+        }
 
-            <!-- Payment Prompt / Confirmation Callout (Phase 8) -->
-            @if (Model.EventType == EventType.Paid)
+        <!-- Payment Prompt / Confirmation Callout (Phase 8) -->
+        @if (Model.EventType == EventType.Paid)
+        {
+            @if (Model.Status == RegistrationStatus.Confirmed)
             {
-                @if (Model.Status == RegistrationStatus.Confirmed)
-                {
-                    <div class="card border-success bg-success-subtle p-3 mb-4">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center gap-2">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-success"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                                <div>
-                                    <div class="fw-bold text-success">Registration Fee Paid (&#8377;@Model.RegistrationFee.ToString("F2"))</div>
-                                    <div class="small text-muted">Your seat is confirmed and your payment has been verified.</div>
-                                </div>
-                            </div>
+                <div class="card border-success bg-success-subtle p-3 mb-4">
+                    <div class="d-flex align-items-center gap-2">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-success"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <div>
+                            <div class="fw-bold text-success">Registration Fee Paid (&#8377;@Model.RegistrationFee.ToString("F2"))</div>
+                            <div class="small text-muted">Your seat is confirmed and your payment has been verified.</div>
                         </div>
                     </div>
-                }
-                else if (Model.Status == RegistrationStatus.Pending)
-                {
-                    <div class="card border-warning bg-warning-subtle p-3 mb-4">
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                            <div class="d-flex align-items-center gap-2">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-warning-emphasis"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                                <div>
-                                    <div class="fw-bold text-dark">Payment Required: &#8377;@Model.RegistrationFee.ToString("F2")</div>
-                                    <div class="small text-muted">Complete payment to finalize your registration and reserve your seat.</div>
-                                </div>
-                            </div>
-                            <div>
-                                <a asp-area="Student" asp-controller="Payments" asp-action="Checkout" asp-route-registrationId="@Model.Id" class="btn btn-primary fw-bold px-3 py-2 shadow-sm d-inline-flex align-items-center gap-2">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-                                    <span>Pay Now &rarr;</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                }
-            }
-
-            <!-- Event Information Card -->
-            <div class="card border-0 shadow-sm p-4 mb-4">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h5 class="fw-bold text-dark mb-0">Event Information</h5>
-                    <a asp-area="Student" asp-controller="Events" asp-action="Details" asp-route-id="@Model.EventId" class="btn btn-sm btn-outline-primary">
-                        View Event Page &rarr;
-                    </a>
                 </div>
+            }
+            else if (Model.Status == RegistrationStatus.Pending)
+            {
+                <div class="card border-warning bg-warning-subtle p-3 mb-4">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-warning-emphasis"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                            <div>
+                                <div class="fw-bold text-dark">Payment Required: &#8377;@Model.RegistrationFee.ToString("F2")</div>
+                                <div class="small text-muted">Complete payment to finalize your registration and reserve your seat.</div>
+                            </div>
+                        </div>
+                        <div>
+                            <a asp-area="Student" asp-controller="Payments" asp-action="Checkout" asp-route-registrationId="@Model.Id" class="btn btn-primary fw-bold px-3 py-2 shadow-sm d-inline-flex align-items-center gap-2">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                                <span>Pay Now &rarr;</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
 
+        <!-- Event Information Card -->
+        <div class="sp-panel mb-4">
+            <div class="sp-panel-header">
+                <h5 class="sp-panel-title">Event Information</h5>
+                <a asp-area="Student" asp-controller="Events" asp-action="Details" asp-route-id="@Model.EventId" class="btn btn-sm btn-outline-primary">
+                    View Event Page &rarr;
+                </a>
+            </div>
+            <div class="sp-panel-body">
                 <h4 class="fw-bold text-dark mb-2">@Model.EventTitle</h4>
                 <div class="d-flex flex-wrap gap-2 mb-3">
                     <span class="badge bg-light text-dark border">@Model.CategoryName</span>
@@ -297,14 +307,16 @@
                     }
                 </div>
             </div>
+        </div>
 
-            <!-- Cancellation Section (if allowed) -->
-            @if (canCancel)
-            {
-                <div class="card border-danger-subtle bg-light p-4">
+        <!-- Cancellation Section -->
+        @if (canCancel)
+        {
+            <div class="sp-panel" style="border-color: #FECDD3;">
+                <div class="sp-panel-body bg-light">
                     <h5 class="fw-bold text-danger mb-2">Cancel Registration</h5>
                     <p class="text-muted small mb-3">
-                        If you are unable to attend, please release your seat so waitlisted students can enroll.
+                        If you are unable to attend, please release your seat so other students can enroll.
                         Once cancelled, your seat reservation is surrendered immediately.
                     </p>
 
@@ -319,15 +331,19 @@
                         </button>
                     </form>
                 </div>
-            }
-        </div>
+            </div>
+        }
+    </div>
 
-        <!-- Right Sidebar: Student Details (4 Cols) -->
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm p-4">
-                <h5 class="fw-bold text-dark mb-3">Participant Details</h5>
+    <!-- Right Sidebar (4 cols): Student Info -->
+    <div class="col-lg-4">
+        <div class="sp-panel">
+            <div class="sp-panel-header">
+                <h5 class="sp-panel-title">Participant Details</h5>
+            </div>
+            <div class="sp-panel-body">
                 <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
-                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-5" style="width: 48px; height: 48px;">
+                    <div class="sp-user-avatar" style="width: 44px; height: 44px; font-size: 1.1rem;">
                         @(!string.IsNullOrEmpty(Model.StudentName) ? Model.StudentName.Substring(0, 1).ToUpper() : "S")
                     </div>
                     <div>

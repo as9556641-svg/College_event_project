@@ -5,23 +5,22 @@
     var eligibility = ViewBag.Eligibility as CollegeEventRegistration.Core.DTOs.StudentFeedbackEligibilityDto;
 }
 
-<div class="container-xl my-4">
-    <!-- Breadcrumb & Back -->
-    <div class="mb-3">
-        <a asp-action="Index" class="btn btn-sm btn-link text-decoration-none text-muted ps-0 d-inline-flex align-items-center gap-1">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-            <span>Back to My Feedback</span>
-        </a>
-    </div>
+<!-- Breadcrumb -->
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-sm btn-link text-decoration-none text-muted ps-0 d-inline-flex align-items-center gap-1">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        <span>Back to My Feedback</span>
+    </a>
+</div>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <!-- Header Card -->
-            <div class="card border-0 shadow-sm p-4 mb-4 bg-white">
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Header Card -->
+        <div class="sp-panel mb-4">
+            <div class="sp-panel-body">
                 <div class="d-flex align-items-center gap-2 mb-2">
-                    <span class="badge bg-success-subtle text-success border border-success-subtle">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-1"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        Attendance Verified
+                    <span class="sp-badge sp-badge-confirmed">
+                        Verified Attendance
                     </span>
                     <span class="text-muted small">Pass: @(eligibility?.RegistrationNumber ?? $"Reg #{Model.RegistrationId}")</span>
                 </div>
@@ -30,9 +29,11 @@
                     Share your experience to help us improve campus workshops and academic symposiums. Your constructive feedback is deeply appreciated.
                 </p>
             </div>
+        </div>
 
-            <!-- Feedback Submission Form -->
-            <div class="card border-0 shadow-sm p-4 mb-4 bg-white">
+        <!-- Feedback Submission Form -->
+        <div class="sp-panel mb-4">
+            <div class="sp-panel-body">
                 <form asp-action="Submit" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="RegistrationId" />
@@ -150,7 +151,7 @@
                     <!-- 5. Actions -->
                     <div class="d-flex align-items-center justify-content-between pt-2">
                         <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-primary fw-bold px-4 shadow-sm d-inline-flex align-items-center gap-2">
+                        <button type="submit" class="btn-sp-primary px-4">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
                             <span>Submit Feedback</span>
                         </button>
