@@ -11,10 +11,12 @@
 *.swp
 *.ipch
 
-# Visual Studio Code / Antigravity IDE
+# Visual Studio Code / Antigravity IDE / JetBrains Rider
 .vscode/
 .antigravity/
 .vs/
+.idea/
+*.sln.iml
 
 # User-specific files
 *.rsuser
@@ -38,11 +40,29 @@ bld/
 [Ll]og/
 [Ll]ogs/
 
-# ASP.NET Core
+# ASP.NET Core & Environment Secrets
 appsettings.Production.json
 appsettings.*.local.json
-*.pfx
+appsettings.Development.local.json
 *.publishsettings
+.env
+.env.*
+*.env
+!.env.example
+
+# Certificates & Private Keys
+*.pfx
+*.cer
+*.crt
+*.key
+*.pem
+
+# Local Database Files & Backups
+*.mdf
+*.ldf
+*.ndf
+[Bb]ackups/
+*.bak
 
 # Static uploads
 src/CollegeEventRegistration.Web/wwwroot/uploads/*
@@ -54,16 +74,15 @@ src/CollegeEventRegistration.Web/App_Data/*
 App_Data/*
 !App_Data/.gitkeep
 
-# Temporary test logs
+# Temporary test logs & test artifacts
 *.log
-
-# Database Backups
-[Bb]ackups/
-*.bak
+TestResults/
+[Tt]est[Rr]esult*/
+*.coverage
+*.coveragexml
 
 # Operating System Files
 .DS_Store
 Thumbs.db
 ehthumbs.db
 [Dd]esktop.ini
-
