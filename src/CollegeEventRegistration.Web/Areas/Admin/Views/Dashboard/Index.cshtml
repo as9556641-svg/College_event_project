@@ -166,7 +166,9 @@
                     </svg>
                     <span>Events Awaiting Approval</span>
                 </h5>
-                <span class="badge badge-role badge-role-admin">Review Queue</span>
+                <a asp-area="Admin" asp-controller="Events" asp-action="Approvals" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm">
+                    Open Review Queue (@(Model?.PendingApprovals ?? 0))
+                </a>
             </div>
             <div class="dash-panel-body p-0">
                 @if (Model?.EventsAwaitingApproval != null && Model.EventsAwaitingApproval.Any())

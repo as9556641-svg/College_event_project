@@ -1,0 +1,56 @@
+@*
+    Shared public navigation bar.
+    Rendered inside the cinematic hero on the homepage (site-nav--overlay) and as a
+    sticky solid bar on every other public page (site-nav--solid).
+*@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    var isHome = string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase)
+                 && (string.IsNullOrEmpty(currentAction) || string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase));
+    var isAbout = string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase)
+                  && string.Equals(currentAction, "Privacy", StringComparison.OrdinalIgnoreCase);
+}
+
+<div class="site-nav__inner">
+    <a class="site-brand" asp-area="" asp-controller="Home" asp-action="Index" aria-label="VAP UNIVERSITY Campus Event Hub, home">
+        <span class="site-brand__chip">
+            <img src="~/images/branding/vap-university-logo.png" alt="VAP UNIVERSITY" asp-append-version="true" />
+        </span>
+        <span class="site-brand__words">
+            <b>Campus Event Hub</b>
+            <span>VAP University</span>
+        </span>
+    </a>
+
+    <button class="site-nav__toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Open menu" data-nav-toggle>
+        <partial name="_Icon" model="@("menu")" />
+    </button>
+
+    <div class="site-nav__main" id="primary-nav" data-nav-panel>
+        <ul class="site-nav__links">
+            <li>
+                <a class="site-nav__link @(isHome ? "is-active" : null)" aria-current="@(isHome ? "page" : null)"
+                   asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+            </li>
+            <li>
+                <a class="site-nav__link" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="categories">Categories</a>
+            </li>
+            <li>
+                <a class="site-nav__link" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="accredited-schedule">Accredited schedule</a>
+            </li>
+            <li>
+                <a class="site-nav__link" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="upcoming-events">Events</a>
+            </li>
+            <li>
+                <a class="site-nav__link @(isAbout ? "is-active" : null)" aria-current="@(isAbout ? "page" : null)"
+                   asp-area="" asp-controller="Home" asp-action="Privacy">About</a>
+            </li>
+        </ul>
+
+        <div class="site-nav__auth">
+            <partial name="_LoginPartial" />
+        </div>
+    </div>
+</div>

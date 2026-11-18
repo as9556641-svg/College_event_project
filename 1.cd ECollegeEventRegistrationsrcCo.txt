@@ -1,0 +1,7 @@
+1.cd E:\CollegeEventRegistration\src\CollegeEventRegistration.Web
+
+2.dotnet restore
+
+3.dotnet build
+
+4.dotnet run --urls "http://localhost:5000"

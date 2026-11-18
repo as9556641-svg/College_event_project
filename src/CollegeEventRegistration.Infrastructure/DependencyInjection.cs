@@ -58,6 +58,7 @@ public static class DependencyInjection
 
         // Register Phase 2.1 Domain & Protection Services
         services.AddScoped<ISuperAdminProtectionService, SuperAdminProtectionService>();
+        services.AddScoped<IUserManagementService, UserManagementService>();
         services.AddScoped<IEventCapacityService, EventCapacityService>();
 
         // Register Phase 5 Event & Workshop Management Services

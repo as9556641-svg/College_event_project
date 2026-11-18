@@ -30,10 +30,10 @@ public class DashboardController : Controller
             return Challenge();
         }
 
-        // Query assigned events for the current coordinator ONLY
-        var assignedEventIds = await _context.EventCoordinators
-            .Where(ec => ec.UserId == currentUser.Id)
-            .Select(ec => ec.EventId)
+        // Query assigned OR created events for the current coordinator
+        var assignedEventIds = await _context.Events
+            .Where(e => !e.IsDeleted && (e.CreatedByUserId == currentUser.Id || e.Coordinators.Any(c => c.UserId == currentUser.Id)))
+            .Select(e => e.Id)
             .ToListAsync();
 
         var viewModel = new CoordinatorDashboardViewModel

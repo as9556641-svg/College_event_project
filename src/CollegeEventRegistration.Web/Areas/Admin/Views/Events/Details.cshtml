@@ -63,6 +63,27 @@
         </div>
     }
 
+    <!-- Self-Approval Conflict Warning If Applicable -->
+    @if (Model.IsSelfApprovalRestricted)
+    {
+        <div class="alert alert-warning border-0 rounded-4 shadow-sm p-4 mb-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="rounded-circle bg-warning text-dark p-2 flex-shrink-0">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </div>
+                <div>
+                    <h5 class="fw-bold text-dark mb-1">Self-Approval Governance Restriction</h5>
+                    <p class="mb-1 text-dark">@Model.ApprovalRestrictionReason</p>
+                    <div class="small text-muted">Per campus administrative integrity guidelines, another staff administrator or SuperAdmin must review and clear this event.</div>
+                </div>
+            </div>
+        </div>
+    }
+
     <!-- Hero Card with Banner & Key Badges -->
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
         <div class="position-relative" style="height: 280px; background: linear-gradient(135deg, #1D4ED8 0%, #3B82F6 100%);">
@@ -150,9 +171,22 @@
                             </form>
                         }
                     }
+                    @if (Model.CanWithdraw)
+                    {
+                        <form asp-action="Withdraw" asp-route-id="@ev.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to withdraw this approval request? The event proposal will be reverted back to Draft status so you can make modifications.');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-warning px-3 rounded-pill shadow-sm">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                                    <path d="M3 3v5h5"></path>
+                                </svg>
+                                Withdraw Request
+                            </button>
+                        </form>
+                    }
                     @if (Model.CanApprove)
                     {
-                        <form asp-action="Approve" asp-route-id="@ev.Id" method="post" class="d-inline">
+                        <form asp-action="Approve" asp-route-id="@ev.Id" method="post" class="d-inline" onsubmit="return confirm('Confirm official approval for this campus event?');">
                             @Html.AntiForgeryToken()
                             <button type="submit" class="btn btn-success px-4 rounded-pill shadow-sm">
                                 Approve Event

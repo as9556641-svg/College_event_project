@@ -28,13 +28,13 @@
         {
             <form asp-area="Student" asp-controller="Notifications" asp-action="MarkAllAsRead" method="post" class="d-inline">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 shadow-sm">
+                <button type="submit" class="btn-sp-outline d-inline-flex align-items-center gap-2">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     <span>Mark All as Read</span>
                 </button>
             </form>
         }
-        <a asp-area="Student" asp-controller="Announcements" asp-action="Index" class="btn btn-outline-primary d-inline-flex align-items-center gap-2 shadow-sm">
+        <a asp-area="Student" asp-controller="Announcements" asp-action="Index" class="btn-sp-primary text-decoration-none d-inline-flex align-items-center gap-2 shadow-sm">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></svg>
             <span>Announcements</span>
         </a>

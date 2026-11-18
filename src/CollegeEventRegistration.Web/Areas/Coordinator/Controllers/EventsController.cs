@@ -414,6 +414,8 @@ public class EventsController : Controller
             CanEdit = await _eventService.CanUserEditEventAsync(id, currentUserId, isElevatedAdmin: false),
             CanSubmitForApproval = (ev.Status == EventStatus.Draft || ev.Status == EventStatus.Rejected) &&
                                    (ev.CreatedByUserId == currentUserId || ev.Coordinators.Any(c => c.UserId == currentUserId)),
+            CanWithdraw = (ev.Status == EventStatus.PendingApproval) &&
+                          (ev.CreatedByUserId == currentUserId || ev.Coordinators.Any(c => c.UserId == currentUserId)),
             CanApprove = false, // Coordinators cannot approve!
             CanReject = false,  // Coordinators cannot reject!
             CanPublish = false, // Coordinators cannot publish!
@@ -425,6 +427,27 @@ public class EventsController : Controller
         };
 
         return View(viewModel);
+    }
+
+    // POST: /Coordinator/Events/Withdraw/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Withdraw(int id)
+    {
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser == null) return Challenge();
+
+        var result = await _eventService.WithdrawEventApprovalRequestAsync(id, currentUser.Id, isElevatedAdmin: false);
+        if (!result.Succeeded)
+        {
+            TempData["ErrorMessage"] = result.ErrorMessage;
+        }
+        else
+        {
+            TempData["SuccessMessage"] = "Event approval request has been withdrawn. The proposal is returned to Draft status.";
+        }
+
+        return RedirectToAction(nameof(Details), new { id });
     }
 
     // POST: /Coordinator/Events/SubmitForApproval/5

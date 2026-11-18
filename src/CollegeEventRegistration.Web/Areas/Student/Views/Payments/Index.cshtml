@@ -16,7 +16,7 @@
         <h2 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">My Payment Transactions</h2>
     </div>
     <div>
-        <a asp-area="Student" asp-controller="Registrations" asp-action="Index" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2 shadow-sm">
+        <a asp-area="Student" asp-controller="Registrations" asp-action="Index" class="btn-sp-outline text-decoration-none d-inline-flex align-items-center gap-2">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
             <span>My Registrations</span>
         </a>
@@ -80,11 +80,11 @@
                                 <div class="small text-muted font-monospace">Reg: @payment.RegistrationNumber</div>
                             </td>
                             <td>
-                                <div class="fw-bold text-dark">@payment.EventTitle</div>
+                                <div class="fw-bold text-dark" style="font-family: var(--sp-font-display); font-size: 1.05rem;">@payment.EventTitle</div>
                                 <div class="small text-muted">@payment.PaymentMethod</div>
                             </td>
                             <td>
-                                <span class="fw-bold text-dark">&#8377;@payment.Amount.ToString("F2")</span>
+                                <span class="fw-bold text-dark" style="font-variant-numeric: tabular-nums;">&#8377;@payment.Amount.ToString("F2")</span>
                             </td>
                             <td>
                                 @switch (payment.Status)
@@ -103,19 +103,19 @@
                                         break;
                                 }
                             </td>
-                            <td class="small text-muted text-nowrap">
+                            <td class="small text-muted text-nowrap" style="font-variant-numeric: tabular-nums;">
                                 @(payment.CompletedAt?.ToString("MMM dd, yyyy HH:mm") ?? payment.InitiatedAt.ToString("MMM dd, yyyy HH:mm")) UTC
                             </td>
                             <td class="text-end pe-4">
                                 @if (payment.Status == PaymentStatus.Success)
                                 {
-                                    <a asp-action="Receipt" asp-route-id="@payment.Id" class="btn btn-sm btn-outline-success py-1 px-3">
+                                    <a asp-action="Receipt" asp-route-id="@payment.Id" class="btn-sp-outline py-1 px-3 text-decoration-none" style="font-size: 0.8rem;">
                                         Receipt &rarr;
                                     </a>
                                 }
                                 else if (payment.Status == PaymentStatus.Pending || payment.Status == PaymentStatus.Failed)
                                 {
-                                    <a asp-action="Checkout" asp-route-registrationId="@payment.RegistrationId" class="btn btn-sm btn-outline-primary py-1 px-3">
+                                    <a asp-action="Checkout" asp-route-registrationId="@payment.RegistrationId" class="btn-sp-primary py-1 px-3 text-decoration-none" style="font-size: 0.8rem;">
                                         Retry
                                     </a>
                                 }

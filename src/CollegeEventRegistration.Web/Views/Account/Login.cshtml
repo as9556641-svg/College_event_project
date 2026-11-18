@@ -73,6 +73,28 @@
                     <p class="auth-subtitle">Sign in to continue to Campus Event Hub.</p>
                 </div>
 
+                <!-- Status & Error Feedback Messages -->
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="auth-alert-summary mb-3" role="alert">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="auth-alert-icon text-danger">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <div class="auth-alert-content">
+                            <div>@TempData["ErrorMessage"]</div>
+                        </div>
+                    </div>
+                }
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success d-flex align-items-center gap-2 mb-3 py-2 px-3 rounded-3 small" role="alert">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <div>@TempData["SuccessMessage"]</div>
+                    </div>
+                }
+
                 <!-- Server-Side Validation Summary -->
                 @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
                 {

@@ -102,13 +102,13 @@
                                 <span class="font-monospace fw-semibold text-primary">@reg.RegistrationNumber</span>
                             </td>
                             <td>
-                                <div class="fw-bold text-dark">@reg.EventTitle</div>
-                                <div class="small text-muted">
+                                <div class="fw-bold text-dark" style="font-family: var(--sp-font-display); font-size: 1.05rem;">@reg.EventTitle</div>
+                                <div class="small text-muted mt-0.5">
                                     <span class="badge bg-light text-dark border me-1">@reg.EventDepartmentCode</span>
                                     <span>Mode: @reg.EventMode</span>
                                 </div>
                             </td>
-                            <td class="small text-nowrap">
+                            <td class="small text-nowrap" style="font-variant-numeric: tabular-nums;">
                                 <div>@reg.EventStartDate.ToString("MMM dd, yyyy")</div>
                                 <div class="text-muted">@reg.EventStartDate.ToString("hh:mm tt") UTC</div>
                             </td>
@@ -129,11 +129,11 @@
                                         break;
                                 }
                             </td>
-                            <td class="small text-muted text-nowrap">
+                            <td class="small text-muted text-nowrap" style="font-variant-numeric: tabular-nums;">
                                 @reg.RegisteredAt.ToString("MMM dd, yyyy")
                             </td>
                             <td class="text-end pe-4">
-                                <a asp-action="Details" asp-route-id="@reg.Id" class="btn btn-sm btn-outline-primary py-1 px-3">
+                                <a asp-action="Details" asp-route-id="@reg.Id" class="btn-sp-outline py-1 px-3 text-decoration-none" style="font-size: 0.8rem;">
                                     View Details &rarr;
                                 </a>
                             </td>

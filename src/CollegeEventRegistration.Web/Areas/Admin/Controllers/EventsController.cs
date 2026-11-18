@@ -115,7 +115,78 @@ public class EventsController : Controller
     // GET: /Admin/Events/Approvals
     public async Task<IActionResult> Approvals(string? searchTerm, int pageNumber = 1)
     {
-        return await Index(tab: "pending", searchTerm: searchTerm, pageNumber: pageNumber);
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser == null) return Challenge();
+
+        var isSuperAdmin = User.IsInRole(nameof(UserRole.SuperAdmin));
+
+        var query = _context.Events
+            .Include(e => e.Department)
+            .Include(e => e.EventCategory)
+            .Include(e => e.CreatedByUser)
+            .Include(e => e.Coordinators)
+            .Where(e => !e.IsDeleted && e.Status == EventStatus.PendingApproval);
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var term = searchTerm.Trim().ToLower();
+            query = query.Where(e => e.Title.ToLower().Contains(term) ||
+                                     e.ShortDescription.ToLower().Contains(term) ||
+                                     (e.Department != null && e.Department.Name.ToLower().Contains(term)) ||
+                                     (e.CreatedByUser != null && ((e.CreatedByUser.Email != null && e.CreatedByUser.Email.ToLower().Contains(term)) || e.CreatedByUser.FirstName.ToLower().Contains(term) || e.CreatedByUser.LastName.ToLower().Contains(term))));
+        }
+
+        var totalCount = await query.CountAsync();
+        var pageSize = 10;
+        var pendingEventsList = await query
+            .OrderBy(e => e.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var items = new List<ApprovalQueueItemViewModel>();
+        foreach (var ev in pendingEventsList)
+        {
+            var canApprove = await _eventService.CanUserApproveEventAsync(ev.Id, currentUser.Id, isSuperAdmin);
+            string? restriction = null;
+            if (!canApprove)
+            {
+                restriction = "Conflict of interest: You are the author or coordinator of this event proposal. Another administrator must approve it.";
+            }
+
+            items.Add(new ApprovalQueueItemViewModel
+            {
+                Id = ev.Id,
+                Title = ev.Title,
+                Slug = ev.Slug,
+                CategoryName = ev.EventCategory?.Name ?? "Uncategorized",
+                DepartmentName = ev.Department?.Name ?? "General",
+                DepartmentCode = ev.Department?.Code ?? "GEN",
+                EventMode = ev.EventMode,
+                EventType = ev.EventType,
+                RegistrationFee = ev.RegistrationFee,
+                TotalCapacity = ev.TotalCapacity,
+                EventStartDate = ev.EventStartDate,
+                EventEndDate = ev.EventEndDate,
+                CreatedAt = ev.CreatedAt,
+                CreatorName = ev.CreatedByUser?.FullName ?? "Unknown Staff",
+                CreatorEmail = ev.CreatedByUser?.Email ?? "N/A",
+                CreatorUserId = ev.CreatedByUserId,
+                CanCurrentUserApprove = canApprove,
+                RestrictionReason = restriction
+            });
+        }
+
+        var viewModel = new EventApprovalsQueueViewModel
+        {
+            PendingEvents = items,
+            TotalPendingCount = totalCount,
+            SearchTerm = searchTerm,
+            CurrentPage = pageNumber,
+            TotalPages = (int)Math.Ceiling((double)totalCount / pageSize)
+        };
+
+        return View("Approvals", viewModel);
     }
 
     // GET: /Admin/Events/Create
@@ -375,6 +446,7 @@ public class EventsController : Controller
 
         var currentUser = await _userManager.GetUserAsync(User);
         string currentUserId = currentUser?.Id ?? string.Empty;
+        var isSuperAdmin = User.IsInRole(nameof(UserRole.SuperAdmin));
 
         var auditTrail = await _context.AuditLogs
             .Include(a => a.User)
@@ -383,13 +455,15 @@ public class EventsController : Controller
             .Take(15)
             .ToListAsync();
 
-        var canApprove = await _eventService.CanUserApproveEventAsync(id, currentUserId);
+        var canApprove = await _eventService.CanUserApproveEventAsync(id, currentUserId, isSuperAdmin);
+        var isAuthorOrCoord = ev.CreatedByUserId == currentUserId || ev.Coordinators.Any(c => c.UserId == currentUserId);
 
         var viewModel = new EventDetailsViewModel
         {
             Event = ev,
             CanEdit = await _eventService.CanUserEditEventAsync(id, currentUserId, isElevatedAdmin: true),
             CanSubmitForApproval = ev.Status == EventStatus.Draft || ev.Status == EventStatus.Rejected,
+            CanWithdraw = ev.Status == EventStatus.PendingApproval && (isAuthorOrCoord || isSuperAdmin),
             CanApprove = canApprove && ev.Status == EventStatus.PendingApproval,
             CanReject = canApprove && ev.Status == EventStatus.PendingApproval,
             CanPublish = ev.Status == EventStatus.Approved,
@@ -397,6 +471,8 @@ public class EventsController : Controller
             CanDelete = ev.Status == EventStatus.Draft || ev.Status == EventStatus.Cancelled,
             IsElevatedAdmin = true,
             IsAssignedCoordinator = ev.Coordinators.Any(c => c.UserId == currentUserId),
+            IsSelfApprovalRestricted = ev.Status == EventStatus.PendingApproval && !canApprove && isAuthorOrCoord,
+            ApprovalRestrictionReason = "Conflict of interest restriction: You are registered as the author or coordinator of this event proposal. Another administrator or institutional SuperAdmin must review and approve it.",
             AuditTrail = auditTrail
         };
 
@@ -406,12 +482,13 @@ public class EventsController : Controller
     // POST: /Admin/Events/Approve/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Approve(int id)
+    public async Task<IActionResult> Approve(int id, string? returnUrl = null)
     {
         var currentUser = await _userManager.GetUserAsync(User);
         if (currentUser == null) return Challenge();
 
-        var result = await _eventService.ApproveEventAsync(id, currentUser.Id);
+        var isSuperAdmin = User.IsInRole(nameof(UserRole.SuperAdmin));
+        var result = await _eventService.ApproveEventAsync(id, currentUser.Id, isSuperAdmin);
         if (!result.Succeeded)
         {
             TempData["ErrorMessage"] = result.ErrorMessage;
@@ -421,13 +498,18 @@ public class EventsController : Controller
             TempData["SuccessMessage"] = "Event has been officially approved.";
         }
 
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return Redirect(returnUrl);
+        }
+
         return RedirectToAction(nameof(Details), new { id });
     }
 
     // POST: /Admin/Events/Reject
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Reject(EventApprovalActionViewModel model)
+    public async Task<IActionResult> Reject(EventApprovalActionViewModel model, string? returnUrl = null)
     {
         var currentUser = await _userManager.GetUserAsync(User);
         if (currentUser == null) return Challenge();
@@ -438,7 +520,8 @@ public class EventsController : Controller
             return RedirectToAction(nameof(Details), new { id = model.EventId });
         }
 
-        var result = await _eventService.RejectEventAsync(model.EventId, currentUser.Id, model.RejectionReason.Trim());
+        var isSuperAdmin = User.IsInRole(nameof(UserRole.SuperAdmin));
+        var result = await _eventService.RejectEventAsync(model.EventId, currentUser.Id, model.RejectionReason.Trim(), isSuperAdmin);
         if (!result.Succeeded)
         {
             TempData["ErrorMessage"] = result.ErrorMessage;
@@ -448,7 +531,34 @@ public class EventsController : Controller
             TempData["SuccessMessage"] = "Event proposal has been rejected and returned to the coordinator with feedback.";
         }
 
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return Redirect(returnUrl);
+        }
+
         return RedirectToAction(nameof(Details), new { id = model.EventId });
+    }
+
+    // POST: /Admin/Events/Withdraw/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Withdraw(int id)
+    {
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (currentUser == null) return Challenge();
+
+        var isSuperAdmin = User.IsInRole(nameof(UserRole.SuperAdmin));
+        var result = await _eventService.WithdrawEventApprovalRequestAsync(id, currentUser.Id, isElevatedAdmin: isSuperAdmin);
+        if (!result.Succeeded)
+        {
+            TempData["ErrorMessage"] = result.ErrorMessage;
+        }
+        else
+        {
+            TempData["SuccessMessage"] = "Event approval request has been withdrawn. The proposal has been reverted to Draft status for revisions.";
+        }
+
+        return RedirectToAction(nameof(Details), new { id });
     }
 
     // POST: /Admin/Events/Publish/5

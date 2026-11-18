@@ -124,7 +124,7 @@ app.Use(async (context, next) =>
         "frame-src 'self' https://api.razorpay.com; " +
         "object-src 'none'; " +
         "base-uri 'self'; " +
-        "form-action 'self';");
+        "form-action 'self' https://accounts.google.com https://api.razorpay.com;");
 
     await next();
 });

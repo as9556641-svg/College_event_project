@@ -1,0 +1,134 @@
+@model CollegeEventRegistration.Web.Areas.Admin.Models.UserEditViewModel
+@{
+    ViewData["Title"] = $"Edit Account - {Model.FirstName} {Model.LastName}";
+    Layout = "_DashboardLayout";
+    var area = "Admin";
+}
+
+<div class="container-fluid px-0">
+    <!-- Header Block -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a asp-area="@area" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a asp-area="@area" asp-controller="Users" asp-action="Index" class="text-decoration-none">Staff &amp; Students</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit @Model.FirstName @Model.LastName</li>
+                </ol>
+            </nav>
+            <h1 class="h3 fw-bold text-dark mb-0">Edit Account</h1>
+            <p class="text-muted small mb-0">Modify demographic information and assigned operational roles.</p>
+        </div>
+        <div>
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary px-3 py-2 rounded-pill shadow-sm">
+                Cancel &amp; Return
+            </a>
+        </div>
+    </div>
+
+    <!-- Edit Form Card -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-header bg-white border-0 py-3 px-4">
+            <h5 class="fw-bold text-dark mb-0">Account Details</h5>
+        </div>
+        <div class="card-body p-4 pt-0">
+            <form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="needs-validation">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="CurrentRole" />
+                <input type="hidden" asp-for="CanChangeRole" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4"></div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="FirstName" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="FirstName" class="form-control bg-light border-0 py-2" required />
+                        <span asp-validation-for="FirstName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="LastName" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="LastName" class="form-control bg-light border-0 py-2" required />
+                        <span asp-validation-for="LastName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="Email" class="form-control bg-light border-0 py-2" readonly />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="NewRole" class="form-label fw-semibold small text-muted"></label>
+                        <select asp-for="NewRole" class="form-select bg-light border-0 py-2">
+                            @foreach (var r in Model.AvailableRoles)
+                            {
+                                <option value="@r.Value" selected="@(r.Value == Model.NewRole)">@r.Text</option>
+                            }
+                        </select>
+                        <span asp-validation-for="NewRole" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+                <h6 class="fw-bold text-dark mb-3">Department &amp; Identifiers</h6>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="Department" class="form-label fw-semibold small text-muted"></label>
+                        <select asp-for="Department" class="form-select bg-light border-0 py-2">
+                            <option value="">-- Select Academic Department --</option>
+                            @foreach (var d in Model.AvailableDepartments)
+                            {
+                                <option value="@d.Value" selected="@(d.Value == Model.Department)">@d.Text</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Department" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="CollegeName" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="CollegeName" class="form-control bg-light border-0 py-2" />
+                        <span asp-validation-for="CollegeName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="RollNumber" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="RollNumber" class="form-control bg-light border-0 py-2" />
+                        <span asp-validation-for="RollNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="YearOfStudy" class="form-label fw-semibold small text-muted"></label>
+                        <select asp-for="YearOfStudy" class="form-select bg-light border-0 py-2">
+                            <option value="">N/A (Staff)</option>
+                            <option value="1" selected="@(Model.YearOfStudy == 1)">Year 1</option>
+                            <option value="2" selected="@(Model.YearOfStudy == 2)">Year 2</option>
+                            <option value="3" selected="@(Model.YearOfStudy == 3)">Year 3</option>
+                            <option value="4" selected="@(Model.YearOfStudy == 4)">Year 4</option>
+                        </select>
+                        <span asp-validation-for="YearOfStudy" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="PhoneNumber" class="form-label fw-semibold small text-muted"></label>
+                        <input asp-for="PhoneNumber" class="form-control bg-light border-0 py-2" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="form-check form-switch p-3 bg-light rounded-3 mb-4">
+                    <input class="form-check-input ms-0 me-3" type="checkbox" role="switch" asp-for="IsActive" id="isActiveSwitch">
+                    <label class="form-check-label fw-semibold text-dark" for="isActiveSwitch">
+                        Active Account
+                    </label>
+                    <div class="small text-muted">When unchecked, this coordinator or student is barred from logging in.</div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-light px-4 py-2 rounded-pill">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-5 py-2 rounded-pill shadow-sm">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -4,72 +4,54 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-<ul class="navbar-nav align-items-lg-center gap-2 mb-0">
 @if (SignInManager.IsSignedIn(User))
 {
     var currentUser = await UserManager.GetUserAsync(User);
     var roles = currentUser != null ? await UserManager.GetRolesAsync(currentUser) : new List<string>();
-    var primaryRole = roles.FirstOrDefault() ?? "Student";
+    var primaryRole = roles.FirstOrDefault() ?? nameof(UserRole.Student);
 
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 py-1 px-2 rounded-3 text-decoration-none" 
-           href="#" id="userMenuDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle fw-bold shadow-sm" 
-                  style="width: 32px; height: 32px; font-size: 0.85rem;">
-                @(currentUser?.FirstName?.FirstOrDefault() ?? 'U')
-            </span>
-            <span class="fw-semibold text-dark small d-none d-sm-inline">
-                @(currentUser?.FullName ?? User.Identity?.Name)
-            </span>
-            <span class="badge @(primaryRole == "SuperAdmin" ? "bg-danger-subtle text-danger border border-danger-subtle" : primaryRole == "Admin" ? "bg-warning-subtle text-dark border border-warning-subtle" : primaryRole == "Coordinator" ? "bg-info-subtle text-info-emphasis border border-info-subtle" : "bg-primary-subtle text-primary border border-primary-subtle")" 
-                  style="font-size: 0.7rem; font-weight: 600;">
-                @primaryRole
-            </span>
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2 py-2" aria-labelledby="userMenuDropdown" style="min-width: 220px;">
-            <li class="px-3 py-2 border-bottom">
-                <div class="fw-bold text-dark small">@(currentUser?.FullName ?? "User")</div>
-                <div class="text-muted" style="font-size: 0.75rem;">@currentUser?.Email</div>
-                <div class="badge bg-light text-muted border mt-1" style="font-size: 0.68rem;">@currentUser?.CollegeName</div>
+    <div class="nav-user">
+        <button class="nav-user__trigger" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                title="@(currentUser?.FullName ?? User.Identity?.Name)"
+                aria-label="Account menu for @(currentUser?.FullName ?? User.Identity?.Name)">
+            <span class="nav-user__avatar" aria-hidden="true">@(currentUser?.FirstName?.FirstOrDefault() ?? 'U')</span>
+            <span class="nav-user__name">@(currentUser?.FullName ?? User.Identity?.Name)</span>
+            <span class="nav-user__role">@primaryRole</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li class="nav-user__summary">
+                <span class="nav-user__summary-name">@(currentUser?.FullName ?? "User")</span>
+                <span class="nav-user__summary-mail">@currentUser?.Email</span>
             </li>
             @if (User.IsInRole(nameof(UserRole.SuperAdmin)))
             {
-                <li><a class="dropdown-item py-2 small d-flex align-items-center gap-2" asp-area="SuperAdmin" asp-controller="Dashboard" asp-action="Index">System Governance</a></li>
+                <li><a class="dropdown-item" asp-area="SuperAdmin" asp-controller="Dashboard" asp-action="Index">System governance</a></li>
             }
             else if (User.IsInRole(nameof(UserRole.Admin)))
             {
-                <li><a class="dropdown-item py-2 small d-flex align-items-center gap-2" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin Portal</a></li>
+                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Administration</a></li>
             }
             else if (User.IsInRole(nameof(UserRole.Coordinator)))
             {
-                <li><a class="dropdown-item py-2 small d-flex align-items-center gap-2" asp-area="Coordinator" asp-controller="Dashboard" asp-action="Index">Coordinator Workspace</a></li>
+                <li><a class="dropdown-item" asp-area="Coordinator" asp-controller="Dashboard" asp-action="Index">Coordinator workspace</a></li>
             }
             else
             {
-                <li><a class="dropdown-item py-2 small d-flex align-items-center gap-2" asp-area="Student" asp-controller="Dashboard" asp-action="Index">Student Portal</a></li>
-                <li><a class="dropdown-item py-2 small d-flex align-items-center gap-2" asp-area="Student" asp-controller="Events" asp-action="Index">Discover Events</a></li>
+                <li><a class="dropdown-item" asp-area="Student" asp-controller="Dashboard" asp-action="Index">Student portal</a></li>
+                <li><a class="dropdown-item" asp-area="Student" asp-controller="Events" asp-action="Index">Catalogue</a></li>
             }
-            <li><hr class="dropdown-divider my-1"></li>
+            <li><hr class="dropdown-divider" /></li>
             <li>
-                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="dropdown-item py-2 small text-danger d-flex align-items-center gap-2">Sign Out</button>
+                    <button type="submit" class="dropdown-item nav-user__signout">Sign out</button>
                 </form>
             </li>
         </ul>
-    </li>
+    </div>
 }
 else
 {
-    <li class="nav-item">
-        <a class="btn-public-nav-signin" asp-area="" asp-controller="Account" asp-action="Login">
-            Sign In
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="btn-public-nav-register" asp-area="" asp-controller="Account" asp-action="Register">
-            Get Started
-        </a>
-    </li>
+    <a class="nav-btn nav-btn--ghost" asp-area="" asp-controller="Account" asp-action="Login">Sign in</a>
+    <a class="nav-btn nav-btn--solid" asp-area="" asp-controller="Account" asp-action="Register">Create account</a>
 }
-</ul>

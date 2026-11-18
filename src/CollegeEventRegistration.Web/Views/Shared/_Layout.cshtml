@@ -3,172 +3,94 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1F2C58" />
     <title>@ViewData["Title"] - VAP UNIVERSITY | Campus Event Hub</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CollegeEventRegistration.Web.styles.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="public-site-body">
-    <!-- Shared Public Header / Navbar (Part 1) -->
-    <header>
-        <nav class="navbar navbar-expand-lg public-navbar sticky-top">
-            <div class="container-xl">
-                <!-- University Branding (Left) -->
-                <a class="navbar-brand public-brand d-flex align-items-center gap-2 text-decoration-none" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/branding/vap-university-logo.png" 
-                         alt="VAP UNIVERSITY Logo" 
-                         class="public-brand-logo" 
-                         asp-append-version="true" />
-                    <div class="d-flex flex-column text-start">
-                        <span class="public-brand-title">Campus Event Hub</span>
-                        <span class="public-brand-sub">VAP UNIVERSITY</span>
-                    </div>
-                </a>
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    bool isHomePage = string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase)
+                      && (string.IsNullOrEmpty(currentAction) || string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase));
+}
+<body class="public-site-body @(isHomePage ? "is-home-page" : "has-site-nav")">
+    @if (!isHomePage)
+    {
+        <!-- Shared public header: the homepage renders the same navbar inside its hero -->
+        <header class="site-header">
+            <nav class="site-nav site-nav--solid" aria-label="Public">
+                <partial name="_PublicNavbar" />
+            </nav>
+        </header>
+    }
 
-                <!-- Mobile Menu Toggler -->
-                <button class="navbar-toggler public-navbar-toggler border-0 shadow-none" 
-                        type="button" 
-                        data-bs-toggle="collapse" 
-                        data-bs-target="#publicNavbarContent" 
-                        aria-controls="publicNavbarContent" 
-                        aria-expanded="false" 
-                        aria-label="Toggle navigation">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="navbar-toggler-icon-svg">
-                        <line x1="3" y1="12" x2="21" y2="12"></line>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <line x1="3" y1="18" x2="21" y2="18"></line>
-                    </svg>
-                </button>
-
-                <!-- Navigation Links & Authentication CTA Cluster -->
-                <div class="collapse navbar-collapse" id="publicNavbarContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 public-nav-list">
-                        <li class="nav-item">
-                            <a class="nav-link public-nav-link" asp-area="" asp-controller="Home" asp-action="Index">
-                                Home
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link public-nav-link" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="upcoming-events">
-                                Explore Events
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link public-nav-link" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="categories">
-                                Categories
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link public-nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">
-                                About &amp; Governance
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link public-nav-link" asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="campus-contact">
-                                Contact
-                            </a>
-                        </li>
-                    </ul>
-
-                    <!-- Right Cluster: Authentication / Role Actions -->
-                    <div class="d-flex align-items-lg-center gap-2 mt-3 mt-lg-0 public-auth-container">
-                        <partial name="_LoginPartial" />
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
-
-    <!-- Main Content Canvas (Container-free for full-width sections) -->
     <main role="main" class="public-main-content">
         @RenderBody()
     </main>
 
-    <!-- Shared Public Footer (Part 2.B) -->
-    <footer class="public-footer">
-        <div class="container-xl">
-            <div class="row g-4 py-5">
-                <!-- Col 1: Institutional Identity -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <img src="~/images/branding/vap-university-logo.png" 
-                             alt="VAP UNIVERSITY Logo" 
-                             style="height: 42px; width: auto; object-fit: contain;" 
-                             asp-append-version="true" />
-                        <div>
-                            <div class="text-white fw-bold fs-6 lh-1">Campus Event Hub</div>
-                            <div class="text-teal-accent small fw-bold text-uppercase" style="letter-spacing: 0.08em; font-size: 0.72rem; color: #14C2C6;">VAP UNIVERSITY</div>
-                        </div>
-                    </div>
-                    <p class="text-slate-400 small mb-4" style="color: #94A3B8; line-height: 1.6; max-width: 320px;">
-                        The centralized co-curricular event, workshop, and hackathon registration ecosystem for VAP UNIVERSITY students, faculty coordinators, and academic departments.
+    <footer class="site-footer">
+        <div class="site-footer__inner">
+            <div class="site-footer__grid">
+                <div>
+                    <a class="site-footer__brand" asp-area="" asp-controller="Home" asp-action="Index" aria-label="VAP UNIVERSITY Campus Event Hub, home">
+                        <span class="site-brand__chip">
+                            <img src="~/images/branding/vap-university-logo.png" alt="VAP UNIVERSITY" asp-append-version="true" />
+                        </span>
+                        <span class="site-footer__words">
+                            <b>Campus Event Hub</b>
+                            <span>VAP University</span>
+                        </span>
+                    </a>
+                    <p class="site-footer__about">
+                        Event registration for VAP UNIVERSITY students, faculty coordinators and academic departments.
                     </p>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge" style="background-color: rgba(20, 194, 198, 0.15); color: #14C2C6; border: 1px solid rgba(20, 194, 198, 0.3); font-size: 0.72rem; padding: 0.35rem 0.65rem;">
-                            Accredited Campus Platform
-                        </span>
-                        <span class="badge" style="background-color: rgba(59, 130, 246, 0.15); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.72rem; padding: 0.35rem 0.65rem;">
-                            .NET 10 LTS
-                        </span>
-                    </div>
                 </div>
 
-                <!-- Col 2: Navigation Links -->
-                <div class="col-lg-2 col-md-6 col-6">
-                    <h6 class="text-white fw-bold text-uppercase mb-3" style="font-size: 0.8rem; letter-spacing: 0.08em;">Quick Links</h6>
-                    <ul class="list-unstyled mb-0 d-flex flex-column gap-2" style="font-size: 0.88rem;">
-                        <li><a asp-area="" asp-controller="Home" asp-action="Index" class="footer-link">Home</a></li>
-                        <li><a asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="upcoming-events" class="footer-link">Upcoming Events</a></li>
-                        <li><a asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="categories" class="footer-link">Event Domains</a></li>
-                        <li><a asp-area="" asp-controller="Home" asp-action="Privacy" class="footer-link">About &amp; Support</a></li>
+                <div>
+                    <h4 class="site-footer__heading">Sections</h4>
+                    <ul class="site-footer__list">
+                        <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="categories">Categories</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="accredited-schedule">Accredited schedule</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="upcoming-events">Upcoming events</a></li>
                     </ul>
                 </div>
 
-                <!-- Col 3: Academic Portals -->
-                <div class="col-lg-3 col-md-6 col-6">
-                    <h6 class="text-white fw-bold text-uppercase mb-3" style="font-size: 0.8rem; letter-spacing: 0.08em;">Campus Portals</h6>
-                    <ul class="list-unstyled mb-0 d-flex flex-column gap-2" style="font-size: 0.88rem;">
-                        <li><a asp-area="Student" asp-controller="Dashboard" asp-action="Index" class="footer-link">Student Portal</a></li>
-                        <li><a asp-area="Coordinator" asp-controller="Dashboard" asp-action="Index" class="footer-link">Coordinator Workspace</a></li>
-                        <li><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="footer-link">Faculty Administration</a></li>
-                        <li><a asp-area="SuperAdmin" asp-controller="Dashboard" asp-action="Index" class="footer-link">System Governance</a></li>
+                <div>
+                    <h4 class="site-footer__heading">Portals</h4>
+                    <ul class="site-footer__list">
+                        <li><a asp-area="Student" asp-controller="Dashboard" asp-action="Index">Student portal</a></li>
+                        <li><a asp-area="Coordinator" asp-controller="Dashboard" asp-action="Index">Coordinator workspace</a></li>
+                        <li><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Administration</a></li>
+                        <li><a asp-area="" asp-controller="Certificates" asp-action="Verify">Verify a certificate</a></li>
                     </ul>
                 </div>
 
-                <!-- Col 4: Institutional Contact Info -->
-                <div class="col-lg-3 col-md-6" id="campus-contact">
-                    <h6 class="text-white fw-bold text-uppercase mb-3" style="font-size: 0.8rem; letter-spacing: 0.08em;">Campus &amp; Support</h6>
-                    <div class="d-flex flex-column gap-2 text-slate-400 small" style="color: #94A3B8; line-height: 1.55;">
-                        <div class="d-flex align-items-start gap-2">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mt-1 flex-shrink-0" style="color: #14C2C6;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            <span>VAP UNIVERSITY Main Campus<br />Directorate of Student Co-Curricular Affairs</span>
+                <div>
+                    <h4 class="site-footer__heading">Campus &amp; support</h4>
+                    <div class="site-footer__contact">
+                        <div>
+                            <partial name="_Icon" model="@("map-pin")" />
+                            <span>Directorate of Student Co-Curricular Affairs<br />VAP UNIVERSITY Main Campus</span>
                         </div>
-                        <div class="d-flex align-items-center gap-2 mt-1">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0" style="color: #14C2C6;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        <div>
+                            <partial name="_Icon" model="@("mail")" />
                             <span>admin@college.edu</span>
                         </div>
-                        <div class="d-flex align-items-center gap-2 mt-1">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0" style="color: #14C2C6;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                            <span>Mon &ndash; Fri: 9:00 AM &ndash; 5:00 PM IST</span>
+                        <div>
+                            <partial name="_Icon" model="@("clock")" />
+                            <span>Mon &ndash; Fri, 9:00 AM &ndash; 5:00 PM IST</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Sub-Footer / Copyright -->
-            <div class="border-top py-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3" style="border-color: rgba(148, 163, 184, 0.15) !important;">
-                <div class="text-slate-400 small" style="color: #94A3B8;">
-                    &copy; @DateTime.UtcNow.Year VAP UNIVERSITY &bull; Campus Event Hub. All institutional rights reserved.
-                </div>
-                <div class="d-flex align-items-center gap-3 small" style="color: #94A3B8;">
-                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="footer-link">Data Privacy &amp; Governance</a>
-                    <span>&bull;</span>
-                    <span class="d-inline-flex align-items-center gap-1 text-success">
-                        <span class="d-inline-block rounded-circle bg-success" style="width: 8px; height: 8px;"></span>
-                        <span>Academic Services Online</span>
-                    </span>
-                </div>
+            <div class="site-footer__base">
+                <span>&copy; @DateTime.UtcNow.Year VAP UNIVERSITY &middot; Campus Event Hub</span>
+                <a asp-area="" asp-controller="Home" asp-action="Privacy">Data privacy</a>
             </div>
         </div>
     </footer>

@@ -281,6 +281,13 @@
                                         Edit
                                     </a>
                                 }
+                                @if (ev.Status == EventStatus.PendingApproval)
+                                {
+                                    <form asp-action="Withdraw" asp-route-id="@ev.Id" method="post" class="d-inline" onsubmit="return confirm('Withdraw approval request for this event and return to Draft?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-warning px-3 rounded-pill">Withdraw</button>
+                                    </form>
+                                }
                                 @if (ev.Status == EventStatus.Approved && area == "Admin")
                                 {
                                     <form asp-action="Publish" asp-route-id="@ev.Id" method="post" class="d-inline">

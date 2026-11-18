@@ -6,6 +6,7 @@ using CollegeEventRegistration.Web.Areas.Student.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CollegeEventRegistration.Web.Areas.Student.Controllers;
 
@@ -31,16 +32,17 @@ public class EventsController : Controller
     {
     }
 
+    [ActivatorUtilitiesConstructor]
     public EventsController(
         IEventDiscoveryService discoveryService,
         IEventRegistrationService registrationService,
         UserManager<ApplicationUser> userManager,
         ILogger<EventsController> logger)
     {
-        _discoveryService = discoveryService;
+        _discoveryService = discoveryService ?? throw new ArgumentNullException(nameof(discoveryService));
         _registrationService = registrationService;
-        _userManager = userManager;
-        _logger = logger;
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     /// <summary>

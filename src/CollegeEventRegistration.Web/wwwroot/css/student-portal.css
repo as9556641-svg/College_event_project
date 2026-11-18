@@ -4,14 +4,16 @@
    ========================================================================== */
 
 :root {
-    /* Institutional Color Tokens */
-    --sp-navy-900: #0A0F1D;
+    /* Institutional Color Tokens (Homepage-Aligned Palette) */
+    --sp-navy-950: #060A14;
+    --sp-navy-900: #0B1220;
     --sp-navy-800: #0F172A;
     --sp-navy-700: #1E293B;
     --sp-blue-700: #1D4ED8;
     --sp-blue-600: #2563EB;
     --sp-blue-500: #3B82F6;
     --sp-blue-50:  #EFF6FF;
+    --sp-teal-accent: #0A7377;
     --sp-teal-600: #0D9488;
     --sp-teal-50:  #F0FDFA;
     --sp-amber-600: #D97706;
@@ -25,14 +27,17 @@
     --sp-slate-200: #E2E8F0;
     --sp-slate-100: #F1F5F9;
     --sp-slate-50:  #F8FAFC;
+    --sp-border-subtle: #EEF2F7;
+    --sp-border-default: #E2E8F0;
     
     /* Layout Dimensions */
     --sp-sidebar-width: 260px;
     --sp-topbar-height: 64px;
     --sp-drawer-width: 420px;
     
-    /* Typography */
-    --sp-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    /* Typography (Collegiate Display Serif + Clean System Sans) */
+    --sp-font-display: Georgia, "Times New Roman", serif;
+    --sp-font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     
     /* Elevations & Transitions */
     --sp-shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
@@ -40,7 +45,15 @@
     --sp-shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
     --sp-shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
     --sp-shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+    --sp-shadow-card: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+    --sp-shadow-card-hover: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
+    --sp-shadow-button: 0 4px 12px rgba(37, 99, 235, 0.22);
     --sp-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    
+    /* Radii */
+    --sp-radius-card: 16px;
+    --sp-radius-event: 18px;
+    --sp-radius-button: 7px;
 }
 
 /* ==========================================================================
@@ -56,6 +69,16 @@ body.sp-body {
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
+}
+
+body.sp-body h1,
+body.sp-body h2,
+body.sp-body h3,
+.sp-display-title {
+    font-family: var(--sp-font-display);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    color: var(--sp-navy-900);
 }
 
 /* ==========================================================================
@@ -331,9 +354,11 @@ body.sp-body {
 }
 
 .sp-page-title {
-    font-size: 0.95rem;
+    font-family: var(--sp-font-display);
+    font-size: 1.05rem;
     font-weight: 600;
-    color: var(--sp-navy-800);
+    letter-spacing: -0.012em;
+    color: var(--sp-navy-900);
 }
 
 .sp-topbar-right {
@@ -636,33 +661,60 @@ body.sp-body {
    METRIC CARDS & HERO CARDS
    ========================================================================== */
 .sp-hero-card {
-    background: linear-gradient(135deg, var(--sp-navy-900) 0%, #1E3A8A 100%);
-    border-radius: 16px;
-    padding: 2rem;
+    background-color: #0B1220;
+    background-image: url("../images/branding/vap-university-campus.jpg");
+    background-position: center right;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 18px;
+    padding: 2.25rem 2.5rem;
     color: #FFFFFF;
     position: relative;
     overflow: hidden;
     box-shadow: var(--sp-shadow-md);
     margin-bottom: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sp-hero-card::after {
     content: "";
     position: absolute;
-    top: -50px;
-    right: -50px;
-    width: 250px;
-    height: 250px;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, transparent 70%);
-    border-radius: 50%;
+    inset: 0;
+    background: linear-gradient(97deg,
+        rgba(8, 13, 26, 0.95) 0%,
+        rgba(8, 13, 26, 0.84) 40%,
+        rgba(8, 13, 26, 0.45) 75%,
+        rgba(8, 13, 26, 0.18) 100%);
     pointer-events: none;
+}
+
+.sp-hero-card > * {
+    position: relative;
+    z-index: 2;
+}
+
+.sp-hero-card h1,
+.sp-hero-card h2 {
+    font-family: var(--sp-font-display);
+    font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.3rem);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.018em;
+    color: #FFFFFF;
+    margin: 0;
+}
+
+.sp-hero-card p {
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.92rem;
+    line-height: 1.55;
 }
 
 .sp-kpi-card {
     background: #FFFFFF;
-    border-radius: 14px;
-    border: 1px solid var(--sp-slate-200);
-    padding: 1.35rem;
+    border-radius: 16px;
+    border: 1px solid var(--sp-border-default);
+    padding: 1.35rem 1.4rem;
     display: flex;
     align-items: center;
     gap: 1.15rem;
@@ -672,8 +724,8 @@ body.sp-body {
 
 .sp-kpi-card:hover {
     transform: translateY(-2px);
-    box-shadow: var(--sp-shadow-md);
-    border-color: var(--sp-blue-500);
+    box-shadow: var(--sp-shadow-card);
+    border-color: #C3CEDF;
 }
 
 .sp-kpi-icon-wrap {
@@ -692,20 +744,21 @@ body.sp-body {
 .sp-kpi-icon-amber { background: var(--sp-amber-50); color: var(--sp-amber-600); }
 
 .sp-kpi-val {
-    font-size: 1.65rem;
-    font-weight: 800;
-    color: var(--sp-navy-800);
-    line-height: 1;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--sp-navy-900);
+    line-height: 1.05;
     letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
 }
 
 .sp-kpi-label {
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     color: var(--sp-slate-500);
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: 0.2rem;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.25rem;
 }
 
 .sp-kpi-sub {
@@ -719,16 +772,17 @@ body.sp-body {
    ========================================================================== */
 .sp-panel {
     background: #FFFFFF;
-    border-radius: 14px;
-    border: 1px solid var(--sp-slate-200);
+    border-radius: 16px;
+    border: 1px solid var(--sp-border-default);
     box-shadow: var(--sp-shadow-xs);
     overflow: hidden;
     margin-bottom: 1.75rem;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .sp-panel-header {
     padding: 1.15rem 1.5rem;
-    border-bottom: 1px solid var(--sp-slate-200);
+    border-bottom: 1px solid var(--sp-border-subtle);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -736,9 +790,11 @@ body.sp-body {
 }
 
 .sp-panel-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--sp-navy-800);
+    font-family: var(--sp-font-display);
+    font-size: 1.125rem;
+    font-weight: 500;
+    letter-spacing: -0.012em;
+    color: var(--sp-navy-900);
     margin: 0;
     display: flex;
     align-items: center;
@@ -766,12 +822,12 @@ body.sp-body {
 .sp-table thead th {
     background: var(--sp-slate-50);
     color: var(--sp-slate-500);
-    font-size: 0.74rem;
+    font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     padding: 0.85rem 1.25rem;
-    border-bottom: 1px solid var(--sp-slate-200);
+    border-bottom: 1px solid var(--sp-border-subtle);
     border-top: none;
     white-space: nowrap;
 }
@@ -779,13 +835,18 @@ body.sp-body {
 .sp-table tbody td {
     padding: 1rem 1.25rem;
     vertical-align: middle;
-    border-bottom: 1px solid var(--sp-slate-200);
-    font-size: 0.86rem;
-    color: var(--sp-navy-800);
+    border-bottom: 1px solid var(--sp-border-subtle);
+    font-size: 0.875rem;
+    color: var(--sp-navy-900);
+    font-variant-numeric: tabular-nums;
+}
+
+.sp-table tbody tr {
+    transition: background-color 0.15s ease;
 }
 
 .sp-table tbody tr:hover td {
-    background-color: var(--sp-slate-50);
+    background-color: #FAFBFD;
 }
 
 .sp-table tbody tr:last-child td {
@@ -845,43 +906,59 @@ body.sp-body {
    BUTTONS
    ========================================================================== */
 .btn-sp-primary {
-    background: linear-gradient(135deg, var(--sp-blue-600) 0%, var(--sp-blue-700) 100%);
+    background: var(--sp-blue-600);
     color: #FFFFFF;
-    border: none;
+    border: 1px solid transparent;
     font-weight: 600;
-    padding: 0.55rem 1.15rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
-    transition: var(--sp-transition);
+    font-size: 0.88rem;
+    padding: 0.55rem 1.25rem;
+    border-radius: var(--sp-radius-button);
+    box-shadow: var(--sp-shadow-button);
+    transition: transform 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    text-decoration: none;
+    line-height: 1.4;
 }
 
 .btn-sp-primary:hover {
-    background: linear-gradient(135deg, var(--sp-blue-700) 0%, #1E3A8A 100%);
+    background: var(--sp-blue-700);
     color: #FFFFFF;
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+}
+
+.btn-sp-primary:active {
+    transform: translateY(0);
 }
 
 .btn-sp-outline {
     background: #FFFFFF;
-    color: var(--sp-navy-700);
-    border: 1px solid var(--sp-slate-200);
+    color: var(--sp-navy-800);
+    border: 1px solid var(--sp-border-default);
     font-weight: 600;
-    padding: 0.55rem 1.15rem;
-    border-radius: 8px;
-    transition: var(--sp-transition);
+    font-size: 0.88rem;
+    padding: 0.55rem 1.25rem;
+    border-radius: var(--sp-radius-button);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease, transform 0.18s ease;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    text-decoration: none;
+    line-height: 1.4;
 }
 
 .btn-sp-outline:hover {
     background: var(--sp-slate-50);
-    border-color: var(--sp-blue-500);
+    border-color: #C3CEDF;
     color: var(--sp-blue-600);
+    transform: translateY(-1px);
+    box-shadow: var(--sp-shadow-xs);
+}
+
+.btn-sp-outline:active {
+    transform: translateY(0);
 }
 
 /* ==========================================================================
@@ -992,3 +1069,753 @@ body.sp-body {
         padding: 1.25rem 1rem;
     }
 }
+
+/* ==========================================================================
+   STUDENT EVENT DISCOVERY & DETAILS SYSTEM
+   ========================================================================== */
+.sp-event-card {
+    background: #FFFFFF;
+    border-radius: 18px;
+    border: 1px solid var(--sp-border-default);
+    box-shadow: var(--sp-shadow-xs);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+
+.sp-event-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--sp-shadow-card);
+    border-color: #C9D4E5;
+}
+
+.sp-event-card h3 {
+    font-family: var(--sp-font-display);
+    font-size: 1.35rem;
+    font-weight: 500;
+    line-height: 1.22;
+    letter-spacing: -0.012em;
+    color: var(--sp-navy-900);
+    margin: 0.5rem 0 0;
+}
+
+.sp-event-card h3 a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.16s ease;
+}
+
+.sp-event-card h3 a:hover {
+    color: var(--sp-blue-600);
+}
+
+.sp-event-banner-wrap {
+    height: 200px;
+    position: relative;
+    overflow: hidden;
+    background: var(--sp-navy-900);
+}
+
+.sp-event-banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+}
+
+.sp-event-card:hover .sp-event-banner-img {
+    transform: scale(1.03);
+}
+
+/* Category-Themed Institutional Fallback Banners */
+.sp-banner-theme {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+    overflow: hidden;
+}
+
+.sp-banner-theme-tech {
+    background: linear-gradient(135deg, #0A0F1D 0%, #1E3A8A 55%, #2563EB 100%);
+}
+
+.sp-banner-theme-hackathon {
+    background: linear-gradient(135deg, #0A0F1D 0%, #78350F 55%, #D97706 100%);
+}
+
+.sp-banner-theme-seminar {
+    background: linear-gradient(135deg, #0A0F1D 0%, #4C1D95 55%, #7C3AED 100%);
+}
+
+.sp-banner-theme-symposium {
+    background: linear-gradient(135deg, #0A0F1D 0%, #134E4A 55%, #0D9488 100%);
+}
+
+.sp-banner-theme-arts {
+    background: linear-gradient(135deg, #0A0F1D 0%, #831843 55%, #E11D48 100%);
+}
+
+.sp-banner-theme-default {
+    background: linear-gradient(135deg, #0A0F1D 0%, #1E293B 60%, #334155 100%);
+}
+
+/* Watermark SVG icon */
+.sp-banner-watermark {
+    position: absolute;
+    right: -10px;
+    bottom: -15px;
+    width: 140px;
+    height: 140px;
+    opacity: 0.12;
+    color: #FFFFFF;
+    pointer-events: none;
+}
+
+/* Floating Date Calendar Chip */
+.sp-date-chip {
+    background: #FFFFFF;
+    border-radius: 10px;
+    padding: 0.35rem 0.65rem;
+    text-align: center;
+    min-width: 54px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.sp-date-chip-month {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--sp-blue-600);
+    line-height: 1;
+}
+
+.sp-date-chip-day {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--sp-navy-900);
+    line-height: 1.1;
+    margin-top: 2px;
+}
+
+/* Event Details Hero */
+.sp-details-hero {
+    border-radius: 18px;
+    min-height: 280px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    background: var(--sp-navy-900);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sp-details-hero-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sp-details-hero-overlay {
+    position: relative;
+    z-index: 2;
+    min-height: 280px;
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background: linear-gradient(180deg, rgba(10, 15, 29, 0.35) 0%, rgba(10, 15, 29, 0.94) 100%);
+    color: #FFFFFF;
+}
+
+.sp-details-hero-overlay h1 {
+    font-family: var(--sp-font-display);
+    font-size: clamp(1.8rem, 1.3rem + 1.6vw, 2.7rem);
+    font-weight: 500;
+    letter-spacing: -0.018em;
+    color: #FFFFFF;
+    margin: 0;
+}
+
+@media (max-width: 767.98px) {
+    .sp-details-hero-overlay {
+        padding: 1.5rem;
+        min-height: 220px;
+    }
+}
+
+/* ==========================================================================
+   ACCREDITED TIMELINE STYLING (Details & Schedules)
+   ========================================================================== */
+.sp-timeline {
+    position: relative;
+    margin: 0;
+    padding: 0 0 0 28px;
+    list-style: none;
+}
+
+.sp-timeline::before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 10px;
+    bottom: 18px;
+    width: 1px;
+    background: var(--sp-border-default);
+}
+
+.sp-timeline-item {
+    position: relative;
+    padding-bottom: 24px;
+}
+
+.sp-timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.sp-timeline-item::before {
+    content: "";
+    position: absolute;
+    left: -28px;
+    top: 7px;
+    width: 11px;
+    height: 11px;
+    border: 2px solid var(--sp-teal-accent);
+    border-radius: 50%;
+    background: #FFFFFF;
+}
+
+.sp-timeline-item h4 {
+    font-family: var(--sp-font-display);
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--sp-navy-900);
+    margin: 0;
+}
+
+.sp-timeline-time {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--sp-slate-500);
+    font-variant-numeric: tabular-nums;
+    text-transform: uppercase;
+}
+
+/* ==========================================================================
+   RATING PILL CONTROLS (Feedback Form)
+   ========================================================================== */
+.sp-rating-option {
+    border: 1px solid var(--sp-border-default);
+    border-radius: 8px;
+    padding: 0.5rem 0.85rem;
+    background: #FFFFFF;
+    transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+    cursor: pointer;
+}
+
+.sp-rating-option:hover {
+    border-color: var(--sp-blue-500);
+    background: var(--sp-blue-50);
+}
+
+.sp-rating-option:has(.form-check-input:checked) {
+    border-color: var(--sp-blue-600);
+    background: var(--sp-blue-50);
+    box-shadow: 0 0 0 1px var(--sp-blue-600);
+}
+
+/* ==========================================================================
+   COMPACT EXPLORE EVENTS HEADER & CONTROLS
+   ========================================================================== */
+.sp-explore-header {
+    margin-bottom: 1.75rem;
+}
+
+.sp-breadcrumb-subtle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sp-slate-400);
+    margin-bottom: 0.5rem;
+}
+
+.sp-breadcrumb-subtle .sp-crumb-active {
+    color: var(--sp-blue-600);
+}
+
+.sp-explore-title {
+    font-family: var(--sp-font-display);
+    font-size: clamp(1.85rem, 1.4rem + 1.2vw, 2.4rem);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.018em;
+    color: var(--sp-navy-900);
+    margin: 0 0 0.45rem 0;
+}
+
+.sp-explore-desc {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--sp-slate-500);
+    max-width: 680px;
+    margin: 0 0 1.25rem 0;
+}
+
+.sp-search-card {
+    background: #FFFFFF;
+    border: 1px solid var(--sp-border-default);
+    border-radius: 12px;
+    box-shadow: var(--sp-shadow-xs);
+    overflow: hidden;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.sp-search-card:focus-within {
+    border-color: var(--sp-blue-500);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.sp-cat-rail {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.25rem 0 0.5rem 0;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.sp-cat-rail::-webkit-scrollbar {
+    display: none;
+}
+
+.sp-cat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.42rem 0.95rem;
+    border-radius: 9999px;
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: var(--sp-navy-800);
+    background: #FFFFFF;
+    border: 1px solid var(--sp-border-default);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: border-color 0.18s ease, color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.sp-cat-pill:hover {
+    border-color: #C3CEDF;
+    color: var(--sp-blue-600);
+    background: var(--sp-slate-50);
+}
+
+.sp-cat-pill.active {
+    background: var(--sp-blue-600);
+    color: #FFFFFF;
+    border-color: var(--sp-blue-600);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.sp-cat-pill .sp-cat-count {
+    font-size: 0.69rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+    background: var(--sp-slate-100);
+    color: var(--sp-slate-500);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+.sp-cat-pill.active .sp-cat-count {
+    background: rgba(255, 255, 255, 0.25);
+    color: #FFFFFF;
+}
+
+/* ==========================================================================
+   COMPACT DASHBOARD HEADER & KPI REFINEMENTS
+   ========================================================================== */
+.sp-dashboard-header {
+    margin-bottom: 1.75rem;
+}
+
+.sp-dashboard-title {
+    font-family: var(--sp-font-display);
+    font-size: clamp(1.85rem, 1.4rem + 1.2vw, 2.35rem);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.018em;
+    color: var(--sp-navy-900);
+    margin: 0 0 0.45rem 0;
+}
+
+.sp-dashboard-desc {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--sp-slate-500);
+    max-width: 680px;
+    margin: 0;
+}
+
+.sp-kpi-card {
+    height: 100%;
+}
+
+.sp-discover-item {
+    padding: 0.75rem 0.95rem;
+    border-radius: 10px;
+    border: 1px solid var(--sp-border-default);
+    background: #FFFFFF;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+}
+
+.sp-discover-item:hover {
+    border-color: #CBD5E1;
+    background-color: var(--sp-slate-50);
+    transform: translateX(2px);
+    box-shadow: var(--sp-shadow-xs);
+}
+
+.sp-discover-item:hover .sp-discover-title {
+    color: var(--sp-blue-600);
+}
+
+.sp-discover-title {
+    font-family: var(--sp-font-display);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--sp-navy-900);
+    transition: color 0.16s ease;
+}
+
+/* ==========================================================================
+   GLOBAL PAGE NAVIGATION TRANSITIONS (150ms - 220ms)
+   ========================================================================== */
+@keyframes spPageFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sp-page-enter {
+    animation: spPageFadeIn 210ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.sp-content.sp-page-leaving {
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 160ms ease-out, transform 160ms ease-out;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   TOP NAVIGATION PROGRESS BAR & UNIVERSITY-BRANDED LOADER
+   ========================================================================== */
+.sp-nav-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 2050;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 150ms ease;
+    overflow: hidden;
+    background: rgba(37, 99, 235, 0.08);
+}
+
+.sp-nav-progress.is-active {
+    opacity: 1;
+}
+
+.sp-nav-progress-bar {
+    width: 38%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--sp-navy-900) 0%, var(--sp-blue-600) 55%, var(--sp-blue-500) 100%);
+    border-radius: 0 3px 3px 0;
+    transform: translateX(-100%);
+}
+
+.sp-nav-progress.is-active .sp-nav-progress-bar {
+    animation: spProgressSlide 1.15s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes spProgressSlide {
+    0% {
+        transform: translateX(-100%);
+        width: 28%;
+    }
+    55% {
+        transform: translateX(115%);
+        width: 48%;
+    }
+    100% {
+        transform: translateX(360%);
+        width: 28%;
+    }
+}
+
+/* Minimal Non-Blocking VAP University Branded Pill Loader */
+.sp-nav-loader {
+    position: fixed;
+    top: calc(var(--sp-topbar-height) + 14px);
+    left: 50%;
+    transform: translate(-50%, -8px);
+    z-index: 2040;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.95rem 0.5rem 0.55rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.96);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--sp-border-default);
+    box-shadow: 0 10px 25px -5px rgba(11, 18, 32, 0.12), 0 4px 10px -2px rgba(37, 99, 235, 0.08);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 180ms ease, transform 180ms cubic-bezier(0.16, 1, 0.3, 1), visibility 180ms ease;
+    max-width: calc(100vw - 2rem);
+}
+
+@media (min-width: 992px) {
+    .sp-nav-loader {
+        left: calc(var(--sp-sidebar-width) + (100% - var(--sp-sidebar-width)) / 2);
+    }
+}
+
+.sp-nav-loader.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+}
+
+.sp-nav-loader-monogram {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.18rem 0.45rem;
+    border-radius: 9999px;
+    background: var(--sp-navy-900);
+    color: #FFFFFF;
+    font-family: var(--sp-font-display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.sp-nav-loader-spinner {
+    width: 15px;
+    height: 15px;
+    border: 2px solid var(--sp-slate-200);
+    border-top-color: var(--sp-blue-600);
+    border-radius: 50%;
+    animation: spSpin 0.72s linear infinite;
+    flex-shrink: 0;
+}
+
+.sp-nav-loader-text {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--sp-navy-800);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@keyframes spSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================================================
+   BUTTON & FORM LOADING STATES
+   ========================================================================== */
+.sp-btn-loading {
+    position: relative;
+    cursor: wait !important;
+    opacity: 0.85;
+    pointer-events: none;
+}
+
+.sp-btn-spinner {
+    display: inline-block;
+    width: 0.92em;
+    height: 0.92em;
+    min-width: 14px;
+    min-height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spSpin 0.68s linear infinite;
+    vertical-align: -0.125em;
+    flex-shrink: 0;
+}
+
+.sp-item-loading {
+    opacity: 0.62;
+    pointer-events: none;
+    transition: opacity 150ms ease;
+}
+
+.sp-region-loading {
+    opacity: 0.58;
+    transition: opacity 160ms ease;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   LIGHTWEIGHT SKELETON PLACEHOLDERS (For Asynchronous Data Regions)
+   ========================================================================== */
+@keyframes spSkeletonShimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.sp-skeleton {
+    display: block;
+    background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+    background-size: 200% 100%;
+    animation: spSkeletonShimmer 1.4s ease-in-out infinite;
+    border-radius: 6px;
+}
+
+.sp-skeleton-line {
+    height: 12px;
+    margin-bottom: 0.55rem;
+}
+
+.sp-skeleton-line.is-title {
+    height: 18px;
+    width: 68%;
+    margin-bottom: 0.7rem;
+}
+
+.sp-skeleton-line.is-short {
+    width: 42%;
+}
+
+.sp-skeleton-line.is-medium {
+    width: 78%;
+}
+
+.sp-skeleton-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.sp-skeleton-card {
+    background: #FFFFFF;
+    border: 1px solid var(--sp-border-default);
+    border-radius: var(--sp-radius-card);
+    padding: 1.25rem;
+    box-shadow: var(--sp-shadow-xs);
+}
+
+.sp-skeleton-event-banner {
+    height: 148px;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.sp-skeleton-notif-item {
+    background: #FFFFFF;
+    border: 1px solid var(--sp-border-subtle);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+}
+
+.sp-skeleton-kpi {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #FFFFFF;
+    border: 1px solid var(--sp-border-default);
+    border-radius: 16px;
+    padding: 1.35rem 1.4rem;
+}
+
+.sp-skeleton-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1.25rem;
+    border-bottom: 1px solid var(--sp-border-subtle);
+}
+
+/* ==========================================================================
+   REDUCED MOTION ACCESSIBILITY SUPPORT
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+    .sp-page-enter {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .sp-content.sp-page-leaving {
+        transition: opacity 80ms linear !important;
+        transform: none !important;
+    }
+
+    .sp-nav-loader {
+        transition: opacity 100ms linear !important;
+        transform: translate(-50%, 0) !important;
+    }
+
+    .sp-nav-progress.is-active .sp-nav-progress-bar {
+        animation: none !important;
+        width: 100% !important;
+        transform: none !important;
+    }
+
+    .sp-nav-loader-spinner,
+    .sp-btn-spinner {
+        animation-duration: 1.5s !important;
+    }
+
+    .sp-skeleton {
+        animation: none !important;
+        background: #EEF2F7 !important;
+    }
+}
+

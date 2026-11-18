@@ -507,7 +507,39 @@ public class EventManagementService : IEventManagementService
         return (true, null);
     }
 
-    public async Task<(bool Succeeded, string? ErrorMessage)> ApproveEventAsync(int eventId, string adminUserId)
+    public async Task<(bool Succeeded, string? ErrorMessage)> WithdrawEventApprovalRequestAsync(int eventId, string currentUserId, bool isElevatedAdmin = false)
+    {
+        var evt = await _context.Events
+            .Include(e => e.Coordinators)
+            .FirstOrDefaultAsync(e => e.Id == eventId);
+
+        if (evt == null)
+            return (false, "Event not found.");
+
+        if (evt.Status != EventStatus.PendingApproval)
+            return (false, $"Cannot withdraw approval request. Event is currently '{evt.Status}'. Only 'PendingApproval' events may be withdrawn.");
+
+        // Must be creator, assigned coordinator, or elevated admin
+        bool isCreator = evt.CreatedByUserId == currentUserId;
+        bool isCoordinator = evt.Coordinators.Any(c => c.UserId == currentUserId);
+
+        if (!isCreator && !isCoordinator && !isElevatedAdmin)
+            return (false, "You are not authorized to withdraw this event's approval request.");
+
+        evt.Status = EventStatus.Draft;
+        evt.RejectionReason = null;
+        evt.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        await _auditLog.LogAsync("WithdrawApprovalRequest", nameof(Event), evt.Id.ToString(), currentUserId,
+            newValues: "Status=Draft, RevertedFrom=PendingApproval");
+
+        _logger.LogInformation("Event ID {Id} approval request withdrawn by {User}, reverted to Draft", eventId, currentUserId);
+        return (true, null);
+    }
+
+    public async Task<(bool Succeeded, string? ErrorMessage)> ApproveEventAsync(int eventId, string adminUserId, bool isSuperAdmin = false)
     {
         var evt = await _context.Events
             .Include(e => e.Coordinators)
@@ -519,7 +551,7 @@ public class EventManagementService : IEventManagementService
         if (evt.Status != EventStatus.PendingApproval)
             return (false, $"Event cannot be approved because it is currently '{evt.Status}', not 'PendingApproval'.");
 
-        var canApprove = await CanUserApproveEventAsync(eventId, adminUserId);
+        var canApprove = await CanUserApproveEventAsync(eventId, adminUserId, isSuperAdmin);
         if (!canApprove)
             return (false, "Conflict of interest: You cannot approve an event you created or are assigned to coordinate. Another administrator must review this event.");
 
@@ -538,7 +570,7 @@ public class EventManagementService : IEventManagementService
         return (true, null);
     }
 
-    public async Task<(bool Succeeded, string? ErrorMessage)> RejectEventAsync(int eventId, string adminUserId, string rejectionReason)
+    public async Task<(bool Succeeded, string? ErrorMessage)> RejectEventAsync(int eventId, string adminUserId, string rejectionReason, bool isSuperAdmin = false)
     {
         if (string.IsNullOrWhiteSpace(rejectionReason))
             return (false, "A reason for rejection must be provided.");
@@ -553,7 +585,7 @@ public class EventManagementService : IEventManagementService
         if (evt.Status != EventStatus.PendingApproval)
             return (false, $"Event cannot be rejected because it is currently '{evt.Status}', not 'PendingApproval'.");
 
-        var canApprove = await CanUserApproveEventAsync(eventId, adminUserId);
+        var canApprove = await CanUserApproveEventAsync(eventId, adminUserId, isSuperAdmin);
         if (!canApprove)
             return (false, "Conflict of interest: You cannot review an event you created or are assigned to coordinate.");
 
@@ -704,7 +736,7 @@ public class EventManagementService : IEventManagementService
         return false;
     }
 
-    public async Task<bool> CanUserApproveEventAsync(int eventId, string userId)
+    public async Task<bool> CanUserApproveEventAsync(int eventId, string userId, bool isSuperAdmin = false)
     {
         var evt = await _context.Events
             .Include(e => e.Coordinators)
@@ -713,7 +745,10 @@ public class EventManagementService : IEventManagementService
 
         if (evt == null) return false;
 
-        // Creator cannot approve own event
+        // Institutional SuperAdmin authority can approve/reject any pending event proposal
+        if (isSuperAdmin) return true;
+
+        // Creator cannot approve own event (prevents conflict of interest for non-SuperAdmin)
         if (evt.CreatedByUserId == userId) return false;
 
         // Assigned coordinator cannot approve event

@@ -18,11 +18,11 @@
         <h2 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">Event Feedback &amp; Ratings</h2>
     </div>
     <div class="d-flex gap-2">
-        <a asp-area="Student" asp-controller="Registrations" asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 shadow-sm">
+        <a asp-area="Student" asp-controller="Registrations" asp-action="Index" class="btn-sp-outline text-decoration-none d-inline-flex align-items-center gap-2">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
             <span>My Registrations</span>
         </a>
-        <a asp-area="Student" asp-controller="Tickets" asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 shadow-sm">
+        <a asp-area="Student" asp-controller="Tickets" asp-action="Index" class="btn-sp-outline text-decoration-none d-inline-flex align-items-center gap-2">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M7 7h10v10H7z"></path></svg>
             <span>My Tickets</span>
         </a>
@@ -133,14 +133,14 @@
                         {
                             <tr>
                                 <td class="ps-4">
-                                    <div class="fw-bold text-dark">@item.EventTitle</div>
+                                    <div class="fw-bold text-dark" style="font-family: var(--sp-font-display); font-size: 1.05rem;">@item.EventTitle</div>
                                     <div class="text-muted small">Event #@item.EventId</div>
                                 </td>
                                 <td>
                                     <span class="badge bg-light text-dark border font-monospace">@item.RegistrationNumber</span>
                                 </td>
                                 <td>
-                                    <div class="small text-muted">@item.EventEndDate.ToString("MMM dd, yyyy HH:mm") UTC</div>
+                                    <div class="small text-muted" style="font-variant-numeric: tabular-nums;">@item.EventEndDate.ToString("MMM dd, yyyy HH:mm") UTC</div>
                                 </td>
                                 <td>
                                     <span class="sp-badge sp-badge-confirmed">
@@ -148,7 +148,7 @@
                                     </span>
                                 </td>
                                 <td class="text-end pe-4">
-                                    <a asp-action="Submit" asp-route-registrationId="@item.RegistrationId" class="btn btn-sm btn-primary fw-bold shadow-sm d-inline-flex align-items-center gap-1">
+                                    <a asp-action="Submit" asp-route-registrationId="@item.RegistrationId" class="btn-sp-primary btn-sm text-decoration-none shadow-sm d-inline-flex align-items-center gap-1.5">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                                         <span>Leave Feedback</span>
                                     </a>

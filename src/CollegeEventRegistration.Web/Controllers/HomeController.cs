@@ -1,14 +1,24 @@
 using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+using CollegeEventRegistration.Core.Interfaces;
 using CollegeEventRegistration.Web.Models;
+using CollegeEventRegistration.Web.Models.Home;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CollegeEventRegistration.Web.Controllers;
 
 public class HomeController : Controller
 {
-    public IActionResult Index()
+    private readonly IEventDiscoveryService _discoveryService;
+
+    public HomeController(IEventDiscoveryService discoveryService)
     {
-        return View();
+        _discoveryService = discoveryService ?? throw new ArgumentNullException(nameof(discoveryService));
+    }
+
+    public async Task<IActionResult> Index()
+    {
+        var viewModel = await HomePageAssembler.BuildAsync(_discoveryService);
+        return View(viewModel);
     }
 
     public IActionResult Privacy()

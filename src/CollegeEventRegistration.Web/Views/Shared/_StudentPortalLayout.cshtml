@@ -41,6 +41,18 @@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="sp-body">
+    <!-- Top University Navigation Progress Bar -->
+    <div class="sp-nav-progress" id="spNavProgress" aria-hidden="true">
+        <div class="sp-nav-progress-bar"></div>
+    </div>
+
+    <!-- Minimal University-Branded Navigation Loader (Non-Blocking) -->
+    <div class="sp-nav-loader" id="spNavLoader" role="status" aria-live="polite" aria-atomic="true" aria-hidden="true">
+        <span class="sp-nav-loader-monogram" aria-hidden="true">VAP</span>
+        <span class="sp-nav-loader-spinner" aria-hidden="true"></span>
+        <span class="sp-nav-loader-text" id="spNavLoaderText">Loading your campus experience...</span>
+    </div>
+
     <!-- Backdrop for Mobile Sidebar -->
     <div class="sp-sidebar-backdrop" id="spSidebarBackdrop"></div>
 
@@ -336,7 +348,7 @@
             </header>
 
             <!-- Main Page Content -->
-            <main class="sp-content">
+            <main class="sp-content sp-page-enter" id="spPageContent">
                 @RenderBody()
             </main>
 

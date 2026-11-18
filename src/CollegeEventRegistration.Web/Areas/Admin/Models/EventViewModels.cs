@@ -209,6 +209,7 @@ public class EventDetailsViewModel
     public Event Event { get; set; } = null!;
     public bool CanEdit { get; set; }
     public bool CanSubmitForApproval { get; set; }
+    public bool CanWithdraw { get; set; }
     public bool CanApprove { get; set; }
     public bool CanReject { get; set; }
     public bool CanPublish { get; set; }
@@ -216,6 +217,8 @@ public class EventDetailsViewModel
     public bool CanDelete { get; set; }
     public bool IsElevatedAdmin { get; set; }
     public bool IsAssignedCoordinator { get; set; }
+    public bool IsSelfApprovalRestricted { get; set; }
+    public string? ApprovalRestrictionReason { get; set; }
     public List<AuditLog> AuditTrail { get; set; } = new();
 }
 
@@ -229,5 +232,36 @@ public class EventApprovalActionViewModel
     [StringLength(500, MinimumLength = 5, ErrorMessage = "Rejection reason must be between 5 and 500 characters.")]
     [Display(Name = "Rejection Reason (Required if rejecting)")]
     public string? RejectionReason { get; set; }
+}
+
+public class EventApprovalsQueueViewModel
+{
+    public List<ApprovalQueueItemViewModel> PendingEvents { get; set; } = new();
+    public int TotalPendingCount { get; set; }
+    public string? SearchTerm { get; set; }
+    public int CurrentPage { get; set; } = 1;
+    public int TotalPages { get; set; } = 1;
+}
+
+public class ApprovalQueueItemViewModel
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Slug { get; set; } = string.Empty;
+    public string CategoryName { get; set; } = string.Empty;
+    public string DepartmentName { get; set; } = string.Empty;
+    public string DepartmentCode { get; set; } = string.Empty;
+    public EventMode EventMode { get; set; }
+    public EventType EventType { get; set; }
+    public decimal RegistrationFee { get; set; }
+    public int TotalCapacity { get; set; }
+    public DateTime EventStartDate { get; set; }
+    public DateTime EventEndDate { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public string CreatorName { get; set; } = string.Empty;
+    public string CreatorEmail { get; set; } = string.Empty;
+    public string CreatorUserId { get; set; } = string.Empty;
+    public bool CanCurrentUserApprove { get; set; }
+    public string? RestrictionReason { get; set; }
 }
 

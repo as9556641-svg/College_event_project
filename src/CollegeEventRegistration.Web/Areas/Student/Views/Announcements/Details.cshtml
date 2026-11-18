@@ -14,7 +14,7 @@
 }
 
 <div class="mb-4">
-    <a asp-area="Student" asp-controller="Announcements" asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3">
+    <a asp-area="Student" asp-controller="Announcements" asp-action="Index" class="btn-sp-outline btn-sm mb-3 text-decoration-none">
         &larr; Back to Announcements
     </a>
     <div class="sp-panel">
@@ -33,12 +33,12 @@
                 {
                     <span class="badge bg-light text-muted border">Campus Wide</span>
                 }
-                <span class="text-muted small ms-auto">
+                <span class="text-muted small ms-auto" style="font-variant-numeric: tabular-nums;">
                     Published: @(Model.PublishedAt.HasValue ? Model.PublishedAt.Value.ToString("f") : Model.CreatedAt.ToString("f"))
                 </span>
             </div>
 
-            <h2 class="fw-bold text-dark mb-4" style="letter-spacing: -0.02em;">@Model.Title</h2>
+            <h2 class="fw-normal text-dark mb-4" style="font-family: var(--sp-font-display); font-size: 1.85rem; letter-spacing: -0.015em;">@Model.Title</h2>
 
             <div class="p-3 bg-light rounded mb-4 text-secondary small border">
                 <div class="row g-2">

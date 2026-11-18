@@ -3,17 +3,31 @@
 @{
     Layout = "_StudentPortalLayout";
     ViewData["Title"] = $"{Model.Title} - Event Details";
+
+    string GetThemeClass(string catName)
+    {
+        var lower = (catName ?? "").ToLowerInvariant();
+        if (lower.Contains("technical") || lower.Contains("workshop") || lower.Contains("code")) return "sp-banner-theme-tech";
+        if (lower.Contains("hackathon") || lower.Contains("contest") || lower.Contains("compet")) return "sp-banner-theme-hackathon";
+        if (lower.Contains("seminar") || lower.Contains("lecture") || lower.Contains("guest")) return "sp-banner-theme-seminar";
+        if (lower.Contains("symposium") || lower.Contains("conference")) return "sp-banner-theme-symposium";
+        if (lower.Contains("cultural") || lower.Contains("arts") || lower.Contains("music")) return "sp-banner-theme-arts";
+        return "sp-banner-theme-default";
+    }
+
+    var themeClass = GetThemeClass(Model.CategoryName);
 }
 
 <!-- Breadcrumb -->
 <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb mb-0">
         <li class="breadcrumb-item">
-            <a asp-area="Student" asp-controller="Events" asp-action="Index" class="text-decoration-none">
-                &larr; Back to Event Discovery
-            </a>
+            <a asp-area="Student" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none">Dashboard</a>
         </li>
-        <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+        <li class="breadcrumb-item">
+            <a asp-area="Student" asp-controller="Events" asp-action="Index" class="text-decoration-none">Discover Events</a>
+        </li>
+        <li class="breadcrumb-item active text-truncate" style="max-width: 320px;" aria-current="page">@Model.Title</li>
     </ol>
 </nav>
 
@@ -41,32 +55,126 @@
 }
 
 <!-- Details Hero Banner -->
-<div class="card border-0 shadow-sm overflow-hidden mb-4 position-relative" style="border-radius: 16px; min-height: 240px; background: #0F172A;">
+<div class="sp-details-hero shadow-sm">
     @if (!string.IsNullOrWhiteSpace(Model.BannerImageUrl))
     {
-        <img src="@Model.BannerImageUrl" alt="@Model.Title" class="position-absolute top-0 start-0 w-100 h-100" style="object-fit: cover; opacity: 0.35;" />
+        <img src="@Url.Content(Model.BannerImageUrl)" alt="@Model.Title" class="sp-details-hero-img" />
     }
     else
     {
-        <img src="~/images/branding/vap-university-campus.jpg" alt="@Model.Title" class="position-absolute top-0 start-0 w-100 h-100" style="object-fit: cover; opacity: 0.3;" />
+        <div class="sp-banner-theme @themeClass sp-details-hero-img">
+            @if (themeClass.Contains("tech"))
+            {
+                <svg class="sp-banner-watermark" style="width: 220px; height: 220px; opacity: 0.15;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+            }
+            else if (themeClass.Contains("hackathon"))
+            {
+                <svg class="sp-banner-watermark" style="width: 220px; height: 220px; opacity: 0.15;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                    <path d="M4 22h16"></path>
+                    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+                </svg>
+            }
+            else if (themeClass.Contains("seminar"))
+            {
+                <svg class="sp-banner-watermark" style="width: 220px; height: 220px; opacity: 0.15;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="22"></line>
+                </svg>
+            }
+            else if (themeClass.Contains("symposium"))
+            {
+                <svg class="sp-banner-watermark" style="width: 220px; height: 220px; opacity: 0.15;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="5" r="3"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <circle cx="6" cy="19" r="3"></circle>
+                    <circle cx="18" cy="19" r="3"></circle>
+                    <line x1="12" y1="12" x2="6" y2="16"></line>
+                    <line x1="12" y1="12" x2="18" y2="16"></line>
+                </svg>
+            }
+            else if (themeClass.Contains("arts"))
+            {
+                <svg class="sp-banner-watermark" style="width: 220px; height: 220px; opacity: 0.15;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle>
+                    <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle>
+                    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2Z"></path>
+                </svg>
+            }
+            else
+            {
+                <svg class="sp-banner-watermark" style="width: 220px; height: 220px; opacity: 0.15;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                    <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                </svg>
+            }
+        </div>
     }
 
-    <div class="position-relative p-4 p-md-5 d-flex flex-column justify-content-end text-white" style="z-index: 2; min-height: 240px; background: linear-gradient(180deg, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.95) 100%);">
+    <div class="sp-details-hero-overlay">
         <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-            <span class="badge bg-primary text-white py-1 px-3" style="font-size: 0.76rem;">
+            <span class="badge bg-primary text-white py-1 px-3 shadow-sm" style="font-size: 0.78rem;">
                 @Model.CategoryName
             </span>
-            <span class="badge bg-light text-dark py-1 px-3" style="font-size: 0.76rem;">
+            <span class="badge bg-light text-dark py-1 px-3 shadow-sm" style="font-size: 0.78rem;">
                 @Model.DepartmentName (@Model.DepartmentCode)
             </span>
-            <span class="badge bg-dark bg-opacity-75 text-white py-1 px-3" style="font-size: 0.76rem;">
+            <span class="badge bg-dark bg-opacity-75 text-white py-1 px-3 border border-light border-opacity-25" style="font-size: 0.78rem;">
                 Mode: @Model.EventMode
             </span>
+            @if (Model.EventType == EventType.Free || Model.RegistrationFee <= 0)
+            {
+                <span class="badge bg-success text-white py-1 px-3 shadow-sm" style="font-size: 0.78rem;">
+                    Free Admission
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-warning text-dark py-1 px-3 shadow-sm fw-bold" style="font-size: 0.78rem;">
+                    &#8377;@Model.RegistrationFee.ToString("F2")
+                </span>
+            }
         </div>
-        <h1 class="fw-bold mb-2 text-white" style="font-size: 2rem; letter-spacing: -0.02em;">@Model.Title</h1>
-        <p class="text-white-50 lead mb-0" style="font-size: 1rem; max-width: 800px; line-height: 1.5;">
-            @Model.ShortDescription
+
+        <h1 class="fw-bold mb-2 text-white" style="font-size: 2.15rem; letter-spacing: -0.02em; line-height: 1.25;">
+            @Model.Title
+        </h1>
+
+        <p class="text-white text-opacity-90 lead mb-3" style="font-size: 1rem; max-width: 850px; line-height: 1.55;">
+            @(string.IsNullOrWhiteSpace(Model.ShortDescription) ? $"Official campus event organized by the Department of {Model.DepartmentName} at VAP UNIVERSITY." : Model.ShortDescription)
         </p>
+
+        <!-- Hero Sub-Specs Bar -->
+        <div class="d-flex flex-wrap align-items-center gap-4 text-white-50 small pt-2 border-top border-white border-opacity-10">
+            <div class="d-flex align-items-center gap-2 text-white">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary-light">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>@Model.FormattedEventStart until @Model.FormattedEventEnd</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 text-white">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-secondary-light">
+                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span>@(string.IsNullOrWhiteSpace(Model.Venue) ? Model.EventMode.ToString() : Model.Venue)</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 text-white">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span>Capacity: @Model.RegisteredCount / @Model.TotalCapacity seats reserved</span>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -90,7 +198,7 @@
             </div>
             <div class="sp-panel-body">
                 <div class="text-dark" style="font-size: 0.95rem; line-height: 1.7; white-space: pre-line;">
-                    @Model.Description
+                    @(string.IsNullOrWhiteSpace(Model.Description) ? "Detailed schedule, prerequisites, and workshop guidelines will be provided by the organizing department faculty coordinators." : Model.Description)
                 </div>
             </div>
         </div>
@@ -110,36 +218,30 @@
             <div class="sp-panel-body">
                 @if (Model.Sessions != null && Model.Sessions.Any())
                 {
-                    <div class="d-flex flex-column gap-3">
+                    <ul class="sp-timeline">
                         @foreach (var session in Model.Sessions)
                         {
-                            <div class="p-3 rounded border bg-light">
-                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                                    <div class="d-flex align-items-center gap-2 text-primary small fw-semibold">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <polyline points="12 6 12 12 16 14"></polyline>
-                                        </svg>
-                                        <span>@session.FormattedDate &bull; @session.FormattedTimeRange</span>
-                                    </div>
+                            <li class="sp-timeline-item">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-1">
+                                    <span class="sp-timeline-time">@session.FormattedDate &bull; @session.FormattedTimeRange</span>
                                     @if (!string.IsNullOrWhiteSpace(session.VenueOrRoom))
                                     {
-                                        <span class="badge bg-white text-muted border" style="font-size: 0.72rem;">
+                                        <span class="badge bg-light text-muted border" style="font-size: 0.72rem;">
                                             Room: @session.VenueOrRoom
                                         </span>
                                     }
                                 </div>
 
-                                <h6 class="fw-bold text-dark mb-1">@session.SessionTitle</h6>
+                                <h4 class="mb-1 text-dark">@session.SessionTitle</h4>
 
                                 @if (!string.IsNullOrWhiteSpace(session.Description))
                                 {
-                                    <p class="text-muted small mb-2">@session.Description</p>
+                                    <p class="text-muted small mb-2" style="line-height: 1.55;">@session.Description</p>
                                 }
 
                                 @if (!string.IsNullOrWhiteSpace(session.SpeakerName))
                                 {
-                                    <div class="d-flex align-items-center gap-2 pt-2 border-top border-secondary-subtle">
+                                    <div class="d-flex align-items-center gap-2 pt-2 border-top border-light">
                                         <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold" style="width: 28px; height: 28px; font-size: 0.75rem;">
                                             @(session.SpeakerName.Substring(0, 1).ToUpper())
                                         </div>
@@ -154,14 +256,14 @@
                                         </div>
                                     </div>
                                 }
-                            </div>
+                            </li>
                         }
-                    </div>
+                    </ul>
                 }
                 else
                 {
                     <div class="p-4 bg-light rounded text-center text-muted small">
-                        Full agenda and session details will be published by the organizing department.
+                        Full agenda and session details will be published by the organizing department prior to event commencement.
                     </div>
                 }
             </div>
@@ -257,7 +359,7 @@
                     else
                     {
                         <div class="h3 fw-bold text-dark mb-0">&#8377;@Model.RegistrationFee.ToString("F2")</div>
-                        <div class="text-muted small">Includes session materials and verified pass</div>
+                        <div class="text-muted small">Includes session materials and verified admission pass</div>
                     }
                 </div>
 
@@ -316,7 +418,7 @@
                 </div>
 
                 <!-- Registration Actions -->
-                @if (Model.IsUserRegistered)
+                @if (Model.IsUserRegistered && Model.UserRegistration != null)
                 {
                     <div class="card border-success bg-success-subtle mb-3 p-3">
                         <div class="d-flex align-items-center gap-2 mb-2">
@@ -324,14 +426,30 @@
                             <span class="fw-bold text-success">You Are Registered!</span>
                         </div>
                         <div class="small text-muted mb-2">
-                            Pass: <strong class="font-monospace text-dark">@Model.UserRegistration!.RegistrationNumber</strong>
+                            Pass: <strong class="font-monospace text-dark">@Model.UserRegistration.RegistrationNumber</strong>
                         </div>
-                        <div class="d-flex align-items-center justify-content-between pt-2 border-top border-success-subtle">
+                        <div class="d-flex align-items-center justify-content-between pt-2 border-top border-success-subtle mb-2">
                             <span class="badge bg-success">@Model.UserRegistration.Status</span>
-                            <a asp-area="Student" asp-controller="Registrations" asp-action="Details" asp-route-id="@Model.UserRegistration.Id" class="btn btn-sm btn-outline-success">
+                            <a asp-area="Student" asp-controller="Registrations" asp-action="Details" asp-route-id="@Model.UserRegistration.Id" class="btn btn-sm btn-outline-success fw-semibold">
                                 View Pass &rarr;
                             </a>
                         </div>
+
+                        <!-- Direct Cancellation Form -->
+                        @if (Model.UserRegistration.Status == RegistrationStatus.Confirmed || Model.UserRegistration.Status == RegistrationStatus.Pending)
+                        {
+                            <form asp-area="Student" asp-controller="Registrations" asp-action="Cancel" asp-route-id="@Model.UserRegistration.Id" method="post" onsubmit="return confirm('Are you sure you want to cancel your registration for this event?');" class="pt-2 border-top border-success-subtle">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="cancellationReason" value="Cancelled by student via Event Details" />
+                                <button type="submit" class="btn btn-link text-danger p-0 small text-decoration-none d-flex align-items-center gap-1" style="font-size: 0.78rem;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                    <span>Cancel Registration</span>
+                                </button>
+                            </form>
+                        }
                     </div>
                 }
                 else
@@ -430,6 +548,23 @@
                             <div>@Model.DepartmentName (@Model.DepartmentCode)</div>
                         </div>
                     </div>
+
+                    <div class="d-flex align-items-start gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-success mt-1">
+                            <circle cx="12" cy="8" r="6"></circle>
+                            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
+                        </svg>
+                        <div>
+                            <div class="text-dark fw-semibold">Verified Credentials</div>
+                            <div style="font-size: 0.76rem;">Eligible attendees will receive an automated, cryptographically verifiable certificate.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top text-center">
+                    <a asp-area="Student" asp-controller="Events" asp-action="Index" class="text-decoration-none small text-muted d-inline-flex align-items-center gap-1">
+                        &larr; Return to Event Discovery
+                    </a>
                 </div>
             </div>
         </div>

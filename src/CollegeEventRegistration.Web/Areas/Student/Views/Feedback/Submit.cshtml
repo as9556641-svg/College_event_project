@@ -63,7 +63,7 @@
                                     2 => "2 ★ Fair",
                                     _ => "1 ★ Poor"
                                 };
-                                <div class="form-check form-check-inline border rounded p-2 px-3 m-0 @(Model.OverallRating == score ? "bg-primary-subtle border-primary" : "bg-light")">
+                                <div class="form-check form-check-inline sp-rating-option m-0 @(Model.OverallRating == score ? "selected" : "")">
                                     <input class="form-check-input" type="radio" asp-for="OverallRating" value="@score" id="overallRating_@score" />
                                     <label class="form-check-label fw-medium text-dark small" for="overallRating_@score">
                                         @label
